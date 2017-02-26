@@ -6,6 +6,8 @@ import java.beans.FeatureDescriptor;
 import java.beans.IntrospectionException;
 import java.beans.MethodDescriptor;
 import java.beans.PropertyDescriptor;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
@@ -49,31 +51,65 @@ public class TypescriptProcessor extends AbstractProcessorEx {
         return true;
     }
     
+    private String processMethod( final Method m, java.util.Map<String, Class<?>> declaredClasses ) {
+        final Class<?> returnType = m.getReturnType();
+        
+        final StringBuilder sb = new StringBuilder();
+        
+        if( Modifier.isStatic(m.getModifiers()) ) sb.append("static ");
+        
+        sb.append(m.getName()).append('(');
+        
+        Arrays.asList(m.getParameters())
+                .forEach( (tp) -> sb.append( tp.getName())
+                                    .append(':')
+                                    .append( convertJavaToTS(tp.getType(),declaredClasses) )
+                                    .append(' ')
+                        );
+        
+        sb.append("):").append(convertJavaToTS(returnType, declaredClasses));
+        
+        
+        return sb.toString();
+        
+    }
+    
     private void processClass(  final Tuple2<BeanInfo, java.util.Map<String, Class<?>>> t )   {
         
         final Class<?> type = t.$0.getBeanDescriptor().getBeanClass();
         
         info( "class %s", type.getName());
         
+        final PropertyDescriptor[] pds = t.$0.getPropertyDescriptors();
+        
         info( String.format( "properties:") );
-        Arrays.asList(t.$0.getPropertyDescriptors()).stream().forEach( (pd) -> {
+        Arrays.asList(pds).stream().forEach( (pd) -> {
             
             info( String.format(  "\t%s:%s", pd.getName(), convertJavaToTS(pd.getPropertyType(), t.$1)));
         });
 
         info( String.format( "methods:"));
-        Arrays.asList(type.getDeclaredMethods()).stream().forEach( (md) -> {
+        
+        Arrays.asList(type.getDeclaredMethods()).stream()
+        .filter( (md) -> { // Remove setter and getter
+            return !Arrays.asList(pds).stream().anyMatch( (pd) -> {
+                    final Method rm = pd.getReadMethod();
+                    final Method wm = pd.getWriteMethod();
+                    return (md.equals(rm) || md.equals(wm));
+                });
+        })
+        .forEach( (md) -> {
  
             final Class<?> returnType = md.getReturnType();
-            info( String.format(  "\t%s():%s", md.getName(), convertJavaToTS(returnType, t.$1)));
+            info( String.format(  "\t%s", processMethod(md, t.$1)) );
            
         });
-                
+               
         /*        
         Arrays.asList(t.$0.getMethodDescriptors()).stream().forEach( (md) -> {
 
             final Class<?> returnType = md.getMethod().getReturnType();
-            info( String.format(  "\t%s():%s", md.getName(), convertJavaToTS(returnType, t.$1)));
+            info( String.format(  "\t%s", processMethod(md.getMethod(), t.$1)) );
 
         });
         */
