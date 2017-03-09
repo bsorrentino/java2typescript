@@ -4,8 +4,12 @@
  * and open the template in the editor.
  */
 @Java2TS(declare = {
+    java.lang.CharSequence.class,
+    java.lang.String.class,
     java.beans.Beans.class,
-    java.sql.Connection.class
+    java.sql.Wrapper.class,
+    java.sql.Connection.class,
+    javax.xml.ws.WebServiceFeature.class
 })
 package org.test;
 
