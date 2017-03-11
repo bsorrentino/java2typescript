@@ -1,6 +1,7 @@
 package org.bsc.processor;
 
 import io.reactivex.Observable;
+import io.reactivex.functions.Predicate;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Collections;
@@ -68,7 +69,19 @@ public abstract class AbstractProcessorEx extends AbstractProcessor {
 
             return Observable
                     .fromIterable(annotations)
-                    .flatMap((e) -> Observable.fromIterable(roundEnv.getElementsAnnotatedWith(e)));
+                    .concatMap((e) -> Observable.fromIterable(roundEnv.getElementsAnnotatedWith(e)));
+        }
+        /**
+         *
+         * @param filter
+         * @return
+         */
+        public Observable<? extends Element> rxElementFromAnnotations( Predicate<? super TypeElement> filter ) {
+
+            return Observable
+                    .fromIterable(annotations)
+                    .filter( filter )
+                    .concatMap((e) -> Observable.fromIterable(roundEnv.getElementsAnnotatedWith(e)));
         }
     }
 

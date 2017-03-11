@@ -3,7 +3,10 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-@Java2TS(declare = {
+@Java2TS(declare = {  
+    java.lang.Iterable.class,
+    java.util.Collection.class,
+    java.util.List.class,
     java.lang.CharSequence.class,
     java.lang.String.class,
     java.beans.Beans.class,
