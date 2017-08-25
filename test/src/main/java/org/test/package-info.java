@@ -4,11 +4,12 @@
  * and open the template in the editor.
  */
 @Java2TS(declare = {  
-	java.lang.Class.class,
+	java.lang.Class.class,	
 	java.lang.Object.class,
 	java.lang.Iterable.class,
     java.lang.CharSequence.class,
     java.lang.String.class,
+    java.lang.Comparable.class,
 
     java.util.Map.class,
     java.util.Collection.class,

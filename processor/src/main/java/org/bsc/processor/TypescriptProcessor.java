@@ -6,6 +6,8 @@ import static org.bsc.processor.TypescriptHelper.getName;
 
 import java.beans.BeanInfo;
 import java.beans.PropertyDescriptor;
+import java.io.Closeable;
+import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
@@ -37,6 +39,15 @@ public class TypescriptProcessor extends AbstractProcessorEx {
 
     final static String ENDL = ";\n";
     
+    static final List<Class<?>> PREDEFINED_CLASSES = Arrays.asList(
+    		Class.class,
+    		Serializable.class,
+    		Closeable.class,
+    		AutoCloseable.class,
+    		Comparable.class,
+    		Cloneable.class
+    );
+    
     /**
      *
      * @param processingContext
@@ -53,21 +64,30 @@ public class TypescriptProcessor extends AbstractProcessorEx {
         
         final java.io.Writer w = out.openWriter();
         
-        rxEnumerateDeclaredPackageAndClass( processingContext )
-                .toMap( (clazz) -> clazz.getName() )
-                .flatMapObservable( (declaredClasses) -> 
-                    Observable.fromIterable(declaredClasses.values())
-                            .map( (clazz) -> processClass( java.beans.Introspector.getBeanInfo(clazz), declaredClasses )))
-                .doOnSubscribe( (disposable) -> {
-	            		w.append( "type chararray = [any];")
-	        			.append('\n')
-	        			.append( "type bytearray = [any];")
-	        			.append('\n')
-	        			;                	
-                })
-                .doOnComplete( () -> w.close() )
-                .subscribe( ( s ) -> w.append( s ) )
-                ;
+        try(final java.io.InputStream is = getClass().getClassLoader().getResourceAsStream("header.ts") ) {
+        		int c;
+        		while( (c = is.read()) != -1 ) w.write(c);
+        }
+        
+	    rxEnumerateDeclaredPackageAndClass( processingContext )
+            .toMap( (clazz) -> clazz.getName() )
+            .flatMapObservable( (declaredClasses) -> {
+            		
+            		final List<Class<?>> classes = Arrays.asList(
+            				declaredClasses.values().toArray( new Class[ declaredClasses.size() ]));
+            		
+            		// PREDEFINED CLASS
+            		PREDEFINED_CLASSES.forEach( (clazz) -> {
+            			declaredClasses.put( clazz.getName(), clazz);
+            		});
+            		
+                return Observable.fromIterable(classes)
+                			.filter( (clazz) -> !PREDEFINED_CLASSES.contains(clazz))
+                        .map( (clazz) -> processClass(java.beans.Introspector.getBeanInfo(clazz), declaredClasses)); 
+            })
+            .doOnComplete( () -> w.close() )
+            .subscribe( ( s ) -> w.append( s ) )  
+            ;
         return true;
     }
     
@@ -92,16 +112,16 @@ public class TypescriptProcessor extends AbstractProcessorEx {
 					
 					final String r = rType.getTypeName()
 							.replaceAll(typeName, name)
-							.replaceAll("<\\?>", "<any>")
+							.replaceAll("<[\\w\\?]>", "<any>")
 							;
 	
-					info( "[%s] [%s] [%s] [%s]", pd.getName(), typeName, typeName, r);
+					info( "getPropertyDecl: [%s] [%s] [%s] [%s]", pd.getName(), typeName, typeName, r);
 					
 					return sb.append( r ).toString();
 					
 				} catch (ClassNotFoundException e) {
 					
-					warn( "type [%s] not found!", typeName);
+					warn( "getPropertyDecl: type [%s] not found!", typeName);
 					
 				}
 	    			
@@ -153,14 +173,14 @@ public class TypescriptProcessor extends AbstractProcessorEx {
 				
 				final String r = rType.getTypeName().replaceAll(pClass.getTypeName(), name);
 
-				info( "[%s] [%s] [%s] [%s]", m.getName(), pClass.getTypeName(), rType.getTypeName(), r);
+				info( "getMethodDecl: [%s] [%s] [%s] [%s]", m.getName(), pClass.getTypeName(), rType.getTypeName(), r);
 				
 				return sb.append( r )
 						.toString();
 				
 			} catch (ClassNotFoundException e) {
 				
-				warn( "type [%s] not found!", pClass.getTypeName());
+				warn( "getMethodDecl: type [%s] not found!", pClass.getTypeName());
 			}
     			
     	}

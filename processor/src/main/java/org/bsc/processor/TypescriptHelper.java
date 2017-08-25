@@ -16,18 +16,6 @@ public interface TypescriptHelper {
         return !( "class".equalsIgnoreCase(pd.getName()) );
     }
     
-    static boolean isInterfaceValid( Class<?> type ) {
-        
-        return  type != null
-                && type!=Serializable.class
-                && type!=Closeable.class
-                && type!=AutoCloseable.class
-                && type!=Comparable.class
-                && type!=CharSequence.class
-                && type!=Cloneable.class
-                ;
-    }
-    
     static boolean isSuperclassValid( Class<?> type ) {
         
         return	type != null 
@@ -75,7 +63,8 @@ public interface TypescriptHelper {
         final Supplier<Stream<Class<?>>> s = () -> 
         		Arrays.asList(inherited)
         		.stream()
-        		.filter( TypescriptHelper::isInterfaceValid );
+        		//.filter( TypescriptHelper::isInterfaceValid )
+        		;
         
         if( s.get().count() > 0 ) {
             sb.append( (type.isInterface()) ? " extends " : " implements ");
