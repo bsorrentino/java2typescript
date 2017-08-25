@@ -58,53 +58,62 @@ public class TypescriptProcessor extends AbstractProcessorEx {
                 .flatMapObservable( (declaredClasses) -> 
                     Observable.fromIterable(declaredClasses.values())
                             .map( (clazz) -> processClass( java.beans.Introspector.getBeanInfo(clazz), declaredClasses )))
+                .doOnSubscribe( (disposable) -> {
+	            		w.append( "type chararray = [any];")
+	        			.append('\n')
+	        			.append( "type bytearray = [any];")
+	        			.append('\n')
+	        			;                	
+                })
                 .doOnComplete( () -> w.close() )
                 .subscribe( ( s ) -> w.append( s ) )
-                
                 ;
         return true;
     }
     
     private String getPropertyDecl( Class<?> declaringClass, PropertyDescriptor pd, java.util.Map<String, Class<?>> declaredClassMap ) {
 
-        final StringBuilder sb = new StringBuilder();
-        
-        sb.append(pd.getName());
-        if( declaringClass.isInterface()) sb.append('?');
-
-        sb.append(':');
-        
-    	final Type rType =  pd.getReadMethod().getGenericReturnType();
-    	if( rType instanceof ParameterizedType ) {
-
-    		final Type pClass =  ((ParameterizedType)rType).getActualTypeArguments()[0];
-    		
-    		try {
-        		
-				final String name = getName( pClass, pd.getPropertyType());
-				
-				final String r = rType.getTypeName().replaceAll(pClass.getTypeName(), name);
-
-				info( "[%s] [%s] [%s] [%s]", pd.getName(), pClass.getTypeName(), rType.getTypeName(), r);
-				
-				return sb.append( r )
-						.toString();
-				
-			} catch (ClassNotFoundException e) {
-				
-				warn( "type [%s] not found!", pClass.getTypeName());
-			}
-    			
-    	}
-
-        final String tsType = convertJavaToTS( pd.getPropertyType(), 
-                                                declaringClass, 
-                                                declaredClassMap);
-       
-        return sb.append(tsType)
-                 .toString();
-
-    }
+	    final StringBuilder sb = new StringBuilder();
+	    
+	    sb.append(pd.getName());
+	    if( declaringClass.isInterface()) sb.append('?');
+	
+	    sb.append(':');
+	    
+			final Type rType =  pd.getReadMethod().getGenericReturnType();
+			if( rType instanceof ParameterizedType ) {
+	
+				final Type pClass =  ((ParameterizedType)rType).getActualTypeArguments()[0];
+			
+				final String typeName = pClass.getTypeName();
+			
+	    		try {
+					final String name = getName( pClass, pd.getPropertyType());
+					
+					final String r = rType.getTypeName()
+							.replaceAll(typeName, name)
+							.replaceAll("<\\?>", "<any>")
+							;
+	
+					info( "[%s] [%s] [%s] [%s]", pd.getName(), typeName, typeName, r);
+					
+					return sb.append( r ).toString();
+					
+				} catch (ClassNotFoundException e) {
+					
+					warn( "type [%s] not found!", typeName);
+					
+				}
+	    			
+	    		}
+	
+	        final String tsType = convertJavaToTS( pd.getPropertyType(), 
+	                                                declaringClass, 
+	                                                declaredClassMap);
+	       
+	        return sb.append(tsType)
+	                 .toString();
+	}
     
     
     private String getMethodDecl( final Method m, java.util.Map<String, Class<?>> declaredClassMap ) {
@@ -139,7 +148,7 @@ public class TypescriptProcessor extends AbstractProcessorEx {
     		final Type pClass =  ((ParameterizedType)rType).getActualTypeArguments()[0];
     		
     		try {
-        		
+        			
 				final String name = getName( pClass, m.getDeclaringClass());
 				
 				final String r = rType.getTypeName().replaceAll(pClass.getTypeName(), name);
@@ -194,6 +203,9 @@ public class TypescriptProcessor extends AbstractProcessorEx {
                     final Method wm = pd.getWriteMethod();
                     return (md.equals(rm) || md.equals(wm));
                 });
+        })
+        .filter( (md) -> { // Remove unnamed
+            return !md.getName().contains("$");
         })
         .forEach((md) -> methodSet.add( getMethodDecl(md, declaredClassMap) ) );
        

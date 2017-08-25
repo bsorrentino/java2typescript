@@ -8,6 +8,7 @@ import java.lang.reflect.TypeVariable;
 import java.util.Arrays;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
+import static java.lang.String.format;
 
 public interface TypescriptHelper {
 	
@@ -95,7 +96,12 @@ public interface TypescriptHelper {
 
                 Arrays.stream(parameters)
                         .map( (t) -> t.getName() )
-                        .reduce( "<", (a, b) -> new StringBuilder(a).append(b).append(',').toString()  )   
+                        .reduce( "<", (a, b) -> 
+                        		new StringBuilder(a)
+                        					.append(b)
+                        					.append(',')
+                        					.toString()
+                        )   
 
         );
         decl.deleteCharAt( decl.length()-1 ).append('>');
@@ -119,7 +125,8 @@ public interface TypescriptHelper {
     static String getName( Type type, Class<?> declaringClass ) throws ClassNotFoundException {
     	
 		final Class<?> clazz = Class.forName(type.getTypeName());
-    	return getName( clazz, declaringClass );
+		
+		return getName( clazz, declaringClass );
     	
     }
     
@@ -144,6 +151,13 @@ public interface TypescriptHelper {
     }
 
     
+    /**
+     * 
+     * @param type
+     * @param declaringClass
+     * @param declaredClassMap
+     * @return
+     */
     static String convertJavaToTS( Class<?> type, Class<?> declaringClass, java.util.Map<String, Class<?>> declaredClassMap ) {
 		
         //info( "java type [%s]", type );
@@ -151,12 +165,14 @@ public interface TypescriptHelper {
         if( Boolean.class.isAssignableFrom(type) || type.equals(Boolean.TYPE) ) return type.isPrimitive() ? "boolean" : "boolean" ;
         if( Integer.class.isAssignableFrom(type) || type.equals(Integer.TYPE)) return type.isPrimitive() ? "number"  : "number" ;
         if( String.class.isAssignableFrom(type) ) return "string";
+        if( char[].class.equals(type) ) return "chararray";
+        if( byte[].class.equals(type) ) return "bytearray";
         
         if( declaredClassMap.containsKey(type.getName()) ) {
                 return getName(type,declaringClass);
         }
         
-        return "any";
+        return format("any /* %s */",type.getName());
 		
     }
 
