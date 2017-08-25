@@ -167,20 +167,26 @@ public class TypescriptProcessor extends AbstractProcessorEx {
 
     		final Type pClass =  ((ParameterizedType)rType).getActualTypeArguments()[0];
     		
+    		final String typeName = pClass.getTypeName();
+    		
+    		if( typeName.length()==1 ) return sb.append("any").toString();
+    		
     		try {
-        			
+    				
 				final String name = getName( pClass, m.getDeclaringClass());
 				
-				final String r = rType.getTypeName().replaceAll(pClass.getTypeName(), name);
+				final String r = rType.getTypeName()
+									.replaceAll(typeName, name)
+									;
 
-				info( "getMethodDecl: [%s] [%s] [%s] [%s]", m.getName(), pClass.getTypeName(), rType.getTypeName(), r);
+				info( "getMethodDecl: [%s] [%s] [%s] [%s]", m.getName(), typeName, rType.getTypeName(), r);
 				
 				return sb.append( r )
 						.toString();
 				
 			} catch (ClassNotFoundException e) {
 				
-				warn( "getMethodDecl: type [%s] not found!", pClass.getTypeName());
+				warn( "getMethodDecl: type [%s] not found!", typeName);
 			}
     			
     	}
