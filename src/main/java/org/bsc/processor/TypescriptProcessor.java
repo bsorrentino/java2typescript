@@ -239,7 +239,7 @@ public class TypescriptProcessor extends AbstractProcessorEx {
 
     private Observable<Class<?>> rxEnumerateDeclaredPackageAndClass( final Context processingContext ) {
            
-        final  Observable<Class<?>> result = processingContext.rxElementFromAnnotations()
+		final  Observable<Class<?>> result = processingContext.rxElementFromAnnotations()
             .doOnNext((e) -> info( "Anotation [%s]", e.getKind().name()) )
             .filter( (e) -> ElementKind.PACKAGE==e.getKind() || ElementKind.CLASS==e.getKind() )
             .concatMap( (e) -> Observable.fromIterable(e.getAnnotationMirrors()) ) 
