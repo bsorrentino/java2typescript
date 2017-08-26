@@ -160,10 +160,11 @@ public class TypescriptProcessor extends AbstractProcessorEx {
         
         if( params.length > 0 ) {
             Arrays.stream(params)
-                    .forEach( (tp) -> sb.append( tp.getName())
-                                        .append(':')
-                                        .append( convertJavaToTS(tp.getType(),m.getDeclaringClass(),declaredClassMap) )
-                                        .append(",")
+                    .forEach( (tp) -> 
+                    		 sb.append( tp.getName())
+	                        .append(':')
+	                        .append( convertJavaToTS(tp.getType(),m.getDeclaringClass(),declaredClassMap) )
+	                        .append(",")
                             );
             sb.deleteCharAt( sb.length()-1 );
         }

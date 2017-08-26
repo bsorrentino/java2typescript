@@ -1,14 +1,14 @@
 package org.bsc.processor;
 
+import static java.lang.String.format;
+
 import java.beans.PropertyDescriptor;
-import java.io.Closeable;
-import java.io.Serializable;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.util.Arrays;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import static java.lang.String.format;
 
 public interface TypescriptHelper {
 	
@@ -77,14 +77,13 @@ public interface TypescriptHelper {
         
     }
 	
-    static String getClassParametersDecl( final TypeVariable<? extends Class<?>> parameters[] ) {
+    static String getClassParametersDecl( java.util.List<String> type_parameters_list ) {
         
-        if( parameters.length == 0  ) return "";
+        if( type_parameters_list.isEmpty() ) return "";
         
         final StringBuilder decl = new StringBuilder( 
 
-                Arrays.stream(parameters)
-                        .map( (t) -> t.getName() )
+        		type_parameters_list.stream()
                         .reduce( "<", (a, b) -> {
                         	
                         		return new StringBuilder(a)
@@ -96,13 +95,17 @@ public interface TypescriptHelper {
 
         );
         decl.deleteCharAt( decl.length()-1 ).append('>');
-
-
-       return decl.toString();
+        
+        return decl.toString();
     }
 
-    static String getClassParametersDecl( Class<?> type ) {        
-       return getClassParametersDecl(type.getTypeParameters());
+    static String getClassParametersDecl( Class<?> type ) {   
+    	
+       return getClassParametersDecl( 
+    		   Arrays.stream(type.getTypeParameters())
+    		   	.map( (tp) -> tp.getName() )
+    		   	.collect(Collectors.toList())
+    		   );
     }
      
     static String getSimpleName( Class<?> type ) {
@@ -124,20 +127,27 @@ public interface TypescriptHelper {
     static String getName( Class<?> type, Class<?> declaringClass ) {
         final Package currentNS = declaringClass.getPackage();
         
-        final TypeVariable<? extends Class<?>>[] dc = declaringClass.getTypeParameters();        
- 
-        final TypeVariable<? extends Class<?>> type_parameters[] = type.getTypeParameters();        
+        final java.util.List<String> dc_parameters_list = 
+        		Arrays.stream(declaringClass.getTypeParameters())
+        			.map( (tp) -> tp.getName())
+        			.collect(Collectors.toList());
         
+       final java.util.List<String> type_parameters_list = 
+    		   Arrays.stream(type.getTypeParameters())
+        				.map( (tp) -> (dc_parameters_list.contains(tp.getName()) ) ? tp.getName() : "any" )
+        				.collect(Collectors.toList());
+       
+       final java.util.List<String>  parameters = 
+    		   dc_parameters_list.size() == type_parameters_list.size() ? dc_parameters_list : type_parameters_list ;
+       
+       
         return new StringBuilder()
                 .append( 
 	                type.getPackage().equals(currentNS) ? 
 	                    type.getSimpleName() : 
 	                    type.getName()
 	                 )
-                .append(getClassParametersDecl((dc.length == type_parameters.length) ? 
-                        dc :
-                        type_parameters
-                    ))
+                .append( getClassParametersDecl(parameters) )
                 .toString();
     }
 
