@@ -85,11 +85,13 @@ public interface TypescriptHelper {
 
                 Arrays.stream(parameters)
                         .map( (t) -> t.getName() )
-                        .reduce( "<", (a, b) -> 
-                        		new StringBuilder(a)
+                        .reduce( "<", (a, b) -> {
+                        	
+                        		return new StringBuilder(a)
                         					.append(b)
                         					.append(',')
-                        					.toString()
+                        					.toString();
+                        	}
                         )   
 
         );
@@ -128,10 +130,10 @@ public interface TypescriptHelper {
         
         return new StringBuilder()
                 .append( 
-                type.getPackage().equals(currentNS) ? 
-                    type.getSimpleName() : 
-                    type.getName()
-                 )
+	                type.getPackage().equals(currentNS) ? 
+	                    type.getSimpleName() : 
+	                    type.getName()
+	                 )
                 .append(getClassParametersDecl((dc.length == type_parameters.length) ? 
                         dc :
                         type_parameters
@@ -149,13 +151,19 @@ public interface TypescriptHelper {
      */
     static String convertJavaToTS( Class<?> type, Class<?> declaringClass, java.util.Map<String, Class<?>> declaredClassMap ) {
 		
-        //info( "java type [%s]", type );
         if( Void.class.isAssignableFrom(type) || type.equals(Void.TYPE) ) return "void";
-        if( Boolean.class.isAssignableFrom(type) || type.equals(Boolean.TYPE) ) return type.isPrimitive() ? "boolean" : "boolean" ;
-        if( Integer.class.isAssignableFrom(type) || type.equals(Integer.TYPE)) return type.isPrimitive() ? "number"  : "number" ;
+        if( Boolean.class.isAssignableFrom(type) || type.equals(Boolean.TYPE) ) return type.isPrimitive() ? "boolean" : "boolean|null" ;
+        if( Integer.class.isAssignableFrom(type) || type.equals(Integer.TYPE)) return type.isPrimitive() ? "int"  : "int|null" ;
+        if( Long.class.isAssignableFrom(type) || type.equals(Long.TYPE)) return type.isPrimitive() ? "long"  : "long|null" ;
+        if( Float.class.isAssignableFrom(type) || type.equals(Float.TYPE)) return type.isPrimitive() ? "float"  : "float|null" ;
+        if( Double.class.isAssignableFrom(type) || type.equals(Double.TYPE)) return type.isPrimitive() ? "double"  : "double|null" ;
+        if( Integer.class.isAssignableFrom(type) || type.equals(Integer.TYPE)) return type.isPrimitive() ? "int"  : "int|null" ;
         if( String.class.isAssignableFrom(type) ) return "string";
+        
         if( char[].class.equals(type) ) return "chararray";
         if( byte[].class.equals(type) ) return "bytearray";
+        
+        if( type.isArray()) return format("[any] /* %s */",type.getName());
         
         if( declaredClassMap.containsKey(type.getName()) ) {
                 return getName(type,declaringClass);

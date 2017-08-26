@@ -27,6 +27,8 @@ import javax.lang.model.type.DeclaredType;
 import javax.tools.FileObject;
 
 import io.reactivex.Observable;
+import static java.lang.String.format;
+
 /**
  * 
  * @author bsoorentino
@@ -115,7 +117,7 @@ public class TypescriptProcessor extends AbstractProcessorEx {
 							.replaceAll("<[\\w\\?]>", "<any>")
 							;
 	
-					info( "getPropertyDecl: [%s] [%s] [%s] [%s]", pd.getName(), typeName, typeName, r);
+					info( "getPropertyDecl: [%s] [%s] [%s] [%s]", pd.getName(), typeName, rType.getTypeName(), r);
 					
 					return sb.append( r ).toString();
 					
@@ -141,7 +143,14 @@ public class TypescriptProcessor extends AbstractProcessorEx {
         
         final StringBuilder sb = new StringBuilder();
         
-        if( Modifier.isStatic(m.getModifiers()) ) sb.append("static ");
+        if( Modifier.isStatic(m.getModifiers()) ) {
+
+        		if( m.getDeclaringClass().isInterface() ) {
+        			sb.append( "// ");
+        		}
+        		sb.append("static ");
+        	
+        }
         
         sb.append(m.getName());
         if( m.getDeclaringClass().isInterface()) sb.append('?');
@@ -150,7 +159,7 @@ public class TypescriptProcessor extends AbstractProcessorEx {
         final Parameter[] params = m.getParameters();
         
         if( params.length > 0 ) {
-            Arrays.asList(params)
+            Arrays.stream(params)
                     .forEach( (tp) -> sb.append( tp.getName())
                                         .append(':')
                                         .append( convertJavaToTS(tp.getType(),m.getDeclaringClass(),declaredClassMap) )
@@ -161,6 +170,7 @@ public class TypescriptProcessor extends AbstractProcessorEx {
         
         sb.append(" ):");
         
+    /*    
     	// Check if there is a paramized type
     	final Type rType =  m.getGenericReturnType();
     	if( rType instanceof ParameterizedType ) {
@@ -169,28 +179,33 @@ public class TypescriptProcessor extends AbstractProcessorEx {
     		
     		final String typeName = pClass.getTypeName();
     		
-    		if( typeName.length()==1 ) return sb.append("any").toString();
-    		
-    		try {
-    				
-				final String name = getName( pClass, m.getDeclaringClass());
+		info( "getMethodDecl: [%s] [%s] [%s] - j2ts [%s]", m.getName(), typeName, rType.getTypeName() );
 				
-				final String r = rType.getTypeName()
-									.replaceAll(typeName, name)
-									;
+		String r;
+		try {
 
-				info( "getMethodDecl: [%s] [%s] [%s] [%s]", m.getName(), typeName, rType.getTypeName(), r);
-				
-				return sb.append( r )
-						.toString();
-				
-			} catch (ClassNotFoundException e) {
-				
-				warn( "getMethodDecl: type [%s] not found!", typeName);
-			}
+			final String name = getName(pClass, m.getDeclaringClass());
+
+			r = rType.getTypeName().replaceAll(typeName, name);
+
+		} catch (ClassNotFoundException e) {
+
+			warn("getMethodDecl: type [%s] not found!", typeName);
+
+			
+			r = rType.getTypeName().replace(format("<%s>", typeName), "<any>");
+			
+		}
+
+		info("getMethodDecl: result: [%s]", r);
+
+    		return sb.append( r )
+					.toString();
+			
     			
     	}
-
+	*/
+        
     	final String tsType = convertJavaToTS(  returnType,
                 m.getDeclaringClass(),
                 declaredClassMap);
@@ -212,8 +227,7 @@ public class TypescriptProcessor extends AbstractProcessorEx {
         final java.util.Set<String> propertySet = 
                 new java.util.LinkedHashSet<>(pds.length);
         
-        Arrays.asList(pds)
-            .stream()
+        Arrays.stream(pds)
             .filter( TypescriptHelper::isPropertyValid )
             .forEach( (pd) -> propertySet.add( getPropertyDecl( type, pd, declaredClassMap) ) );
 

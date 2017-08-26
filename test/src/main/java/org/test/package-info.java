@@ -10,10 +10,16 @@
     java.lang.CharSequence.class,
     java.lang.String.class,
     java.lang.Comparable.class,
-
+    java.lang.Runnable.class,
+    
+	java.util.stream.BaseStream.class,
+	java.util.stream.Stream	.class,
     java.util.Map.class,
     java.util.Collection.class,
     java.util.List.class,
+    java.util.Set.class,
+    java.util.Iterator.class,
+    java.util.Comparator.class,
     
     java.beans.Beans.class,
     
