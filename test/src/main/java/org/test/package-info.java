@@ -14,19 +14,26 @@
     
 	java.util.stream.BaseStream.class,
 	java.util.stream.Stream	.class,
-    java.util.Map.class,
-    java.util.Collection.class,
-    java.util.List.class,
-    java.util.Set.class,
     java.util.Iterator.class,
     java.util.Comparator.class,
+    java.util.Collection.class,
+    java.util.AbstractCollection.class,
+    java.util.Map.class,
+    java.util.AbstractMap.class,
+    java.util.HashMap.class,
+    java.util.Set.class,
+    java.util.AbstractSet.class,
+    java.util.HashSet.class,
+    java.util.List.class,
+    java.util.AbstractList.class,
+    java.util.ArrayList.class,
     
-    java.beans.Beans.class,
+    //java.beans.Beans.class,
     
-    java.sql.Wrapper.class,
-    java.sql.Connection.class,
+    //java.sql.Wrapper.class,
+    //java.sql.Connection.class,
     
-    javax.xml.ws.WebServiceFeature.class,
+    //javax.xml.ws.WebServiceFeature.class,
 })
 package org.test;
 

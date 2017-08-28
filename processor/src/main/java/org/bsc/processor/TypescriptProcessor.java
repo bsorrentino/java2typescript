@@ -16,6 +16,7 @@ import java.lang.reflect.Type;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
+import java.util.RandomAccess;
 
 import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.annotation.processing.SupportedOptions;
@@ -23,11 +24,11 @@ import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.ElementKind;
+import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.type.DeclaredType;
 import javax.tools.FileObject;
 
 import io.reactivex.Observable;
-import static java.lang.String.format;
 
 /**
  * 
@@ -47,7 +48,8 @@ public class TypescriptProcessor extends AbstractProcessorEx {
     		Closeable.class,
     		AutoCloseable.class,
     		Comparable.class,
-    		Cloneable.class
+    		Cloneable.class,
+    		RandomAccess.class
     );
     
     /**
@@ -288,7 +290,15 @@ public class TypescriptProcessor extends AbstractProcessorEx {
     }
     
     
-   
+    @SuppressWarnings("unchecked")
+	private Observable<? extends AnnotationValue> getAnnotationValueValue( 
+    		java.util.Map.Entry<? extends ExecutableElement, ? extends AnnotationValue> entry ) 
+    {
+    				
+        final AnnotationValue av =  entry.getValue();
+        return Observable.fromIterable((List<? extends AnnotationValue>)av.getValue());
+    			
+    }
 
     private Observable<Class<?>> rxEnumerateDeclaredPackageAndClass( final Context processingContext ) {
            
@@ -299,10 +309,9 @@ public class TypescriptProcessor extends AbstractProcessorEx {
             .doOnNext((m) -> info( "Mirror [%s]", m.toString() ))
             .concatMap( (am) -> Observable.fromIterable(am.getElementValues().entrySet() ))
             .filter( (entry) -> "declare".equals(String.valueOf(entry.getKey().getSimpleName())) )
-            .flatMap( (entry) -> {
-                final AnnotationValue av =  entry.getValue();
-                return Observable.fromIterable((List<? extends AnnotationValue>)av.getValue());
-            })
+            .flatMap( (entry) -> {  
+            		return this.getAnnotationValueValue(entry); 
+            	})
             .map( (av) -> av.getValue() )
             //.doOnNext((av) -> info( "AnnotationValue [%s]",av) )
             .ofType(DeclaredType.class)
