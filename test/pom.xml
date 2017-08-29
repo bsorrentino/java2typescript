@@ -19,6 +19,10 @@
       
   </dependencies>
   
+  <properties>
+  	<jvmnpm.dist>https://raw.githubusercontent.com/bsorrentino/jvm-npm/master/jvm-npm-core/src/main/typescript/dist</jvmnpm.dist>
+  </properties>
+  
   <build>
       <finalName>java2ts-processor-test</finalName>
       <plugins>
@@ -57,6 +61,29 @@
         </execution>
       </executions>
     </plugin>
-      </plugins>
+ 
+	   <plugin>
+	      <groupId>com.googlecode.maven-download-plugin</groupId>
+	      <artifactId>download-maven-plugin</artifactId>
+	      <version>1.3.0</version>
+	      <executions>
+	          <execution>
+	              <id>install-jvm-npm</id>
+	              <phase>generate-sources</phase>
+	              <goals>
+	                  <goal>wget</goal>
+	              </goals>
+	              <configuration>
+	                  <url>${jvmnpm.dist}/jvm-npm.js</url>
+	                  <outputDirectory>${project.build.directory}</outputDirectory>
+	                  <overwrite>false</overwrite>
+                    <skipCache>false</skipCache>
+	              </configuration>
+	          </execution>
+	      </executions>
+	  </plugin>
+ 
+ </plugins>
+    
   </build>
 </project>

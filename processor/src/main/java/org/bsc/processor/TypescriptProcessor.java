@@ -15,8 +15,14 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.RandomAccess;
+import java.util.Set;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
+import java.util.function.UnaryOperator;
+import java.util.stream.Stream;
 
 import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.annotation.processing.SupportedOptions;
@@ -49,7 +55,11 @@ public class TypescriptProcessor extends AbstractProcessorEx {
     		AutoCloseable.class,
     		Comparable.class,
     		Cloneable.class,
-    		RandomAccess.class
+    		RandomAccess.class,
+    		Consumer.class,
+    		UnaryOperator.class,
+    		Predicate.class,
+    		Runnable.class
     );
     
     /**
@@ -81,12 +91,13 @@ public class TypescriptProcessor extends AbstractProcessorEx {
             				declaredClasses.values().toArray( new Class[ declaredClasses.size() ]));
             		
             		// PREDEFINED CLASS
-            		PREDEFINED_CLASSES.forEach( (clazz) -> {
+            		PREDEFINED_CLASSES
+            		.forEach( (clazz) -> {
             			declaredClasses.put( clazz.getName(), clazz);
             		});
             		
                 return Observable.fromIterable(classes)
-                			.filter( (clazz) -> !PREDEFINED_CLASSES.contains(clazz))
+                			.filter( (clazz) -> !PREDEFINED_CLASSES.contains(clazz) )
                         .map( (clazz) -> processClass(java.beans.Introspector.getBeanInfo(clazz), declaredClasses)); 
             })
             .doOnComplete( () -> w.close() )
@@ -111,7 +122,7 @@ public class TypescriptProcessor extends AbstractProcessorEx {
 			
 				final String typeName = pClass.getTypeName();
 			
-	    		try {
+				try {
 					final String name = getName( pClass, pd.getPropertyType());
 					
 					final String r = rType.getTypeName()
@@ -141,13 +152,17 @@ public class TypescriptProcessor extends AbstractProcessorEx {
     
     
     private String getMethodDecl( final Method m, java.util.Map<String, Class<?>> declaredClassMap ) {
+    		return getMethodDecl( m, m.getDeclaringClass(), declaredClassMap);
+    }
+    
+    private String getMethodDecl( final Method m, Class<?> declaringClass, java.util.Map<String, Class<?>> declaredClassMap ) {
         final Class<?> returnType = m.getReturnType();
         
         final StringBuilder sb = new StringBuilder();
         
         if( Modifier.isStatic(m.getModifiers()) ) {
 
-        		if( m.getDeclaringClass().isInterface() ) {
+        		if( declaringClass.isInterface() ) {
         			sb.append( "// ");
         		}
         		sb.append("static ");
@@ -155,7 +170,7 @@ public class TypescriptProcessor extends AbstractProcessorEx {
         }
         
         sb.append(m.getName());
-        if( m.getDeclaringClass().isInterface()) sb.append('?');
+        //if( m.getDeclaringClass().isInterface()) sb.append('?');
         sb.append("( ");
         
         final Parameter[] params = m.getParameters();
@@ -165,7 +180,7 @@ public class TypescriptProcessor extends AbstractProcessorEx {
                     .forEach( (tp) -> 
                     		 sb.append( tp.getName())
 	                        .append(':')
-	                        .append( convertJavaToTS(tp.getType(),m.getDeclaringClass(),declaredClassMap) )
+	                        .append( convertJavaToTS(tp.getType(),declaringClass,declaredClassMap) )
 	                        .append(",")
                             );
             sb.deleteCharAt( sb.length()-1 );
@@ -173,52 +188,36 @@ public class TypescriptProcessor extends AbstractProcessorEx {
         
         sb.append(" ):");
         
-    /*    
-    	// Check if there is a paramized type
-    	final Type rType =  m.getGenericReturnType();
-    	if( rType instanceof ParameterizedType ) {
-
-    		final Type pClass =  ((ParameterizedType)rType).getActualTypeArguments()[0];
-    		
-    		final String typeName = pClass.getTypeName();
-    		
-		info( "getMethodDecl: [%s] [%s] [%s] - j2ts [%s]", m.getName(), typeName, rType.getTypeName() );
-				
-		String r;
-		try {
-
-			final String name = getName(pClass, m.getDeclaringClass());
-
-			r = rType.getTypeName().replaceAll(typeName, name);
-
-		} catch (ClassNotFoundException e) {
-
-			warn("getMethodDecl: type [%s] not found!", typeName);
-
-			
-			r = rType.getTypeName().replace(format("<%s>", typeName), "<any>");
-			
-		}
-
-		info("getMethodDecl: result: [%s]", r);
-
-    		return sb.append( r )
-					.toString();
-			
-    			
-    	}
-	*/
-        
-    	final String tsType = convertJavaToTS(  returnType,
-                m.getDeclaringClass(),
-                declaredClassMap);
-
-        
-    	return  sb.append(tsType)
-    			.toString();
+	    	final String tsType = convertJavaToTS(  returnType,
+	                declaringClass,
+	                declaredClassMap);
+	
+	        
+	    	return  sb.append(tsType)
+	    			.toString();
         
     }
     
+    private Set<Method> getMethods( final Class<?> type) {
+		final Predicate<Method> include = m -> 
+			!m.isBridge() && 
+			!m.isSynthetic() &&
+			Character.isJavaIdentifierStart(m.getName().charAt(0)) && 
+			m.getName().chars().skip(1).allMatch(Character::isJavaIdentifierPart);
+		
+		final Set<Method> methods = new LinkedHashSet<>();
+		
+		Stream.of(type.getMethods())
+		.filter(include)
+		.forEach(methods::add);
+			
+		Stream.of(type.getDeclaredMethods())
+			.filter(include)
+			.forEach(methods::add);
+
+		return methods;
+
+    }
 
     private String processClass(  BeanInfo bi, java.util.Map<String, Class<?>> declaredClassMap )   {
         
@@ -233,12 +232,11 @@ public class TypescriptProcessor extends AbstractProcessorEx {
         Arrays.stream(pds)
             .filter( TypescriptHelper::isPropertyValid )
             .forEach( (pd) -> propertySet.add( getPropertyDecl( type, pd, declaredClassMap) ) );
-
-        final Method[] methods = type.getDeclaredMethods();
+        
         final java.util.Set<String> methodSet = 
-                new java.util.LinkedHashSet<>(methods.length);
-
-        Arrays.asList(methods)
+                new java.util.LinkedHashSet<>(/*methods.length*/);
+        
+        getMethods( type )
         .stream()
         .filter( (md) -> { // Remove setter and getter
             return !Arrays.asList(pds).stream().anyMatch( (pd) -> {
@@ -247,10 +245,8 @@ public class TypescriptProcessor extends AbstractProcessorEx {
                     return (md.equals(rm) || md.equals(wm));
                 });
         })
-        .filter( (md) -> { // Remove unnamed
-            return !md.getName().contains("$");
-        })
-        .forEach((md) -> methodSet.add( getMethodDecl(md, declaredClassMap) ) );
+        .filter( (md) -> !md.getName().contains("$") ) // remove unnamed
+        .forEach((md) -> methodSet.add( getMethodDecl(md, type, declaredClassMap) ) );
        
         sb.append( "declare namespace " )
            .append(type.getPackage().getName())
@@ -276,15 +272,7 @@ public class TypescriptProcessor extends AbstractProcessorEx {
         
         sb.append("\n}\n")
             .append("\n}\n");
-        
-        /*        
-        Arrays.asList(t.$0.getMethodDescriptors()).stream().forEach( (md) -> {
 
-            final Class<?> returnType = md.getMethod().getReturnType();
-            info( String.format(  "\t%s", getMethodDecl(md.getMethod(), t.$1)) );
-
-        });
-        */
         return sb.toString();
            
     }
