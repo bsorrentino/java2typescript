@@ -4,13 +4,31 @@ import static java.lang.String.format;
 
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Type;
-import java.lang.reflect.TypeVariable;
 import java.util.Arrays;
-import java.util.function.Supplier;
+import java.util.function.BiConsumer;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public interface TypescriptHelper {
+	
+	/**
+	 * 
+	 * @param accumulator
+	 * @return
+	 */
+	static <T> Collector<T,StringBuffer,String> tokenizer( final BiConsumer<StringBuffer,T> accumulator) {
+		return Collector.of( 
+				() -> new StringBuffer(),
+				accumulator,
+				(sb_left,sb_right) -> sb_left.append(sb_right),
+				(sb) -> { 
+					int len = sb.length();
+					if( len > 0 ) sb.deleteCharAt( len-1 );
+					return sb.toString();
+				}
+			);
+		
+	}
 	
     static boolean isPropertyValid( PropertyDescriptor pd ) {
         return !( "class".equalsIgnoreCase(pd.getName()) );

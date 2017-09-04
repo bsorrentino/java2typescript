@@ -5,6 +5,7 @@ import static org.bsc.processor.TypescriptHelper.getClassDecl;
 import static org.bsc.processor.TypescriptHelper.getName;
 
 import java.beans.BeanInfo;
+import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
 import java.io.Closeable;
 import java.io.Serializable;
@@ -22,6 +23,8 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.annotation.processing.SupportedAnnotationTypes;
@@ -36,6 +39,7 @@ import javax.tools.FileObject;
 
 import io.reactivex.Observable;
 
+import static org.bsc.processor.TypescriptHelper.tokenizer;
 /**
  * 
  * @author bsoorentino
@@ -150,11 +154,6 @@ public class TypescriptProcessor extends AbstractProcessorEx {
 	                 .toString();
 	}
     
-    
-    private String getMethodDecl( final Method m, java.util.Map<String, Class<?>> declaredClassMap ) {
-    		return getMethodDecl( m, m.getDeclaringClass(), declaredClassMap);
-    }
-    
     private String getMethodDecl( final Method m, Class<?> declaringClass, java.util.Map<String, Class<?>> declaredClassMap ) {
         final Class<?> returnType = m.getReturnType();
         
@@ -174,27 +173,24 @@ public class TypescriptProcessor extends AbstractProcessorEx {
         sb.append("( ");
         
         final Parameter[] params = m.getParameters();
+    	
+        final Collector<Parameter,StringBuffer,String> c = 
+        		tokenizer( (sb_result, tp) -> sb_result
+				.append( tp.getName())
+				.append(':')
+				.append( convertJavaToTS(tp.getType(),declaringClass,declaredClassMap) )
+				.append(",") );
         
-        if( params.length > 0 ) {
-            Arrays.stream(params)
-                    .forEach( (tp) -> 
-                    		 sb.append( tp.getName())
-	                        .append(':')
-	                        .append( convertJavaToTS(tp.getType(),declaringClass,declaredClassMap) )
-	                        .append(",")
-                            );
-            sb.deleteCharAt( sb.length()-1 );
-        }
-        
-        sb.append(" ):");
+        final String params_string = Arrays.stream(params).collect(c);
         
 	    	final String tsType = convertJavaToTS(  returnType,
 	                declaringClass,
 	                declaredClassMap);
-	
 	        
-	    	return  sb.append(tsType)
-	    			.toString();
+	    	return  sb.append(params_string)
+	    				.append(" ):")
+	    				.append(tsType)
+	    				.toString();
         
     }
     
@@ -219,6 +215,39 @@ public class TypescriptProcessor extends AbstractProcessorEx {
 
     }
 
+    private BeanInfo getBeanInfo( final Class<?> type ) {
+		try {
+			return java.beans.Introspector.getBeanInfo(type);
+		} catch (IntrospectionException e) {
+			throw new Error(e);
+		}
+    }
+    
+    private String processNestedClasses( Class<?> type, java.util.Map<String, Class<?>> declaredClassMap ) {
+
+        final Class<?> nestedClasses[] = type.getClasses();
+        
+        if( nestedClasses.length == 0 ) return "";
+
+        final StringBuilder sb = new StringBuilder();
+
+        sb.append( "export module " )
+     	  .append(type.getSimpleName())
+    	      .append(" {\n\n")
+    	      ;
+
+        Arrays.stream(nestedClasses)
+        		.map( this::getBeanInfo )
+        		.map( (beanInfo) -> processClass(beanInfo, declaredClassMap) )
+        		.forEach( (decl) -> sb.append('\t').append(decl) );
+        
+        return sb.append("\n} // end module ")
+        				.append(type.getSimpleName())
+        				.append('\n')
+        				.toString()
+        				;
+    }
+    
     private String processClass(  BeanInfo bi, java.util.Map<String, Class<?>> declaredClassMap )   {
         
         final Class<?> type = bi.getBeanDescriptor().getBeanClass();
@@ -226,37 +255,40 @@ public class TypescriptProcessor extends AbstractProcessorEx {
         final StringBuilder sb = new StringBuilder();
         
         final PropertyDescriptor[] pds = bi.getPropertyDescriptors();
+        
         final java.util.Set<String> propertySet = 
-                new java.util.LinkedHashSet<>(pds.length);
-        
-        Arrays.stream(pds)
+        		Arrays.stream(pds)
             .filter( TypescriptHelper::isPropertyValid )
-            .forEach( (pd) -> propertySet.add( getPropertyDecl( type, pd, declaredClassMap) ) );
-        
-        final java.util.Set<String> methodSet = 
-                new java.util.LinkedHashSet<>(/*methods.length*/);
-        
-        getMethods( type )
-        .stream()
-        .filter( (md) -> { // Remove setter and getter
-            return !Arrays.asList(pds).stream().anyMatch( (pd) -> {
-                    final Method rm = pd.getReadMethod();
-                    final Method wm = pd.getWriteMethod();
-                    return (md.equals(rm) || md.equals(wm));
-                });
-        })
-        .filter( (md) -> !md.getName().contains("$") ) // remove unnamed
-        .forEach((md) -> methodSet.add( getMethodDecl(md, type, declaredClassMap) ) );
-       
-        sb.append( "declare namespace " )
-           .append(type.getPackage().getName())
-           .append(" {\n\n")
+            .map( (pd) -> getPropertyDecl( type, pd, declaredClassMap) )
+            .collect( Collectors.toCollection(() -> new java.util.LinkedHashSet<String>(pds.length) ))
             ;
+        
+        final java.util.Set<String> methodSet =  
+	        getMethods( type )
+	        .stream()
+	        .filter( (md) -> { // Remove setter and getter
+	            return !Arrays.asList(pds).stream().anyMatch( (pd) -> {
+	                    final Method rm = pd.getReadMethod();
+	                    final Method wm = pd.getWriteMethod();
+	                    return (md.equals(rm) || md.equals(wm));
+	                });
+	        })
+	        .filter( (md) -> !md.getName().contains("$") ) // remove unnamed
+	        .map( (md) -> getMethodDecl(md, type, declaredClassMap) )
+	        .collect( Collectors.toCollection(() -> new java.util.LinkedHashSet<String>() ))
+	        ;
+       
+        final String namespace = type.getPackage().getName();
+        
+        if( !type.isMemberClass() ) 
+	        sb.append( "declare namespace " )
+	           .append(namespace)
+	           .append(" {\n\n")
+	            ;
         
         sb.append( getClassDecl(type, declaredClassMap) )
           .append("\n\n");
         
-
         propertySet.stream().sorted().forEach((decl) -> {
             sb.append( '\t' )
               .append(decl)
@@ -270,9 +302,16 @@ public class TypescriptProcessor extends AbstractProcessorEx {
 
         });
         
-        sb.append("\n}\n")
-            .append("\n}\n");
+        sb.append("\n} \n");
+        
+        // NESTED CLASSES
+        sb.append( processNestedClasses(type, declaredClassMap) );
 
+        if( !type.isMemberClass() ) 
+        		sb.append("\n} // end namespace ")
+        			.append( namespace )
+        			.append('\n');
+        
         return sb.toString();
            
     }
