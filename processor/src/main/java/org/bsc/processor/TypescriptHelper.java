@@ -4,13 +4,31 @@ import static java.lang.String.format;
 
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Type;
-import java.lang.reflect.TypeVariable;
 import java.util.Arrays;
-import java.util.function.Supplier;
+import java.util.function.BiConsumer;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public interface TypescriptHelper {
+	
+	/**
+	 * 
+	 * @param accumulator
+	 * @return
+	 */
+	static <T> Collector<T,StringBuffer,String> tokenizer( final BiConsumer<StringBuffer,T> accumulator) {
+		return Collector.of( 
+				() -> new StringBuffer(),
+				accumulator,
+				(sb_left,sb_right) -> sb_left.append(sb_right),
+				(sb) -> { 
+					int len = sb.length();
+					if( len > 0 ) sb.deleteCharAt( len-1 );
+					return sb.toString();
+				}
+			);
+		
+	}
 	
     static boolean isPropertyValid( PropertyDescriptor pd ) {
         return !( "class".equalsIgnoreCase(pd.getName()) );
@@ -35,24 +53,28 @@ public interface TypescriptHelper {
     							Class<?>> declaredClassMap ) 
     {
      
-        final StringBuilder sb = new StringBuilder();
+        final StringBuilder statement = new StringBuilder();
         
         if( type.isInterface() ) {
 
-            sb.append( "interface ")
+            statement.append( "interface ")
                 .append( getSimpleName(type) )
+                .append( "/*") // COMMENT INHERITED
                 ;
         
         }
         else {
             
-            sb.append( "class ")
+            statement.append( "class ")
                 .append( getSimpleName(type) )
+                .append( "/*") // COMMENT INHERITED
                 ;
+            
+            
             final Class<?> inherited = type.getSuperclass();
 
             if( isSuperclassValid(inherited) ) {
-                sb.append( " extends ")
+                statement.append( " extends ")
                   .append( getName(inherited, type) )      
                         ;
             }
@@ -60,20 +82,17 @@ public interface TypescriptHelper {
         
         final Class<?>[] inherited = type.getInterfaces();
         
-        final Supplier<Stream<Class<?>>> s = () -> 
-        		Arrays.asList(inherited)
-        		.stream()
-        		//.filter( TypescriptHelper::isInterfaceValid )
-        		;
+        if(inherited.length > 0 ) {
+        	          
+        		statement.append( (type.isInterface()) ? " extends " : " implements ");
+            
+        		Arrays.stream(inherited).forEach( (c) -> statement.append( getName(c,type) ).append(","));
         
-        if( s.get().count() > 0 ) {
-            sb.append( (type.isInterface()) ? " extends " : " implements ");
-            s.get().forEach( (c) -> sb.append( getName(c,type) ).append(","));
-            sb.deleteCharAt( sb.length()-1 );
+            statement.deleteCharAt( statement.length()-1 );
         }
 
         
-        return sb.append( " {").toString();
+        return statement.append("*/").append( " {").toString();
         
     }
 	
@@ -140,10 +159,11 @@ public interface TypescriptHelper {
        final java.util.List<String>  parameters = 
     		   dc_parameters_list.size() == type_parameters_list.size() ? dc_parameters_list : type_parameters_list ;
        
+       boolean isFunctionaInterface = ( type.isInterface() && type.isAnnotationPresent(FunctionalInterface.class));
        
         return new StringBuilder()
                 .append( 
-	                type.getPackage().equals(currentNS) ? 
+	                type.getPackage().equals(currentNS) || isFunctionaInterface  ? 
 	                    type.getSimpleName() : 
 	                    type.getName()
 	                 )

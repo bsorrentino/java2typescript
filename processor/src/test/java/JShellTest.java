@@ -1,14 +1,16 @@
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.function.Predicate;
+import java.util.stream.Collector;
 import java.util.stream.Stream;
 
 public class JShellTest {
 
 
-	static Set<Method> test1( final  Class<?> clazz ) {
+	static Set<Method> allMethods( final  Class<?> clazz ) {
 		
 		Predicate<Method> include = m -> 
 			!m.isBridge() && 
@@ -24,5 +26,22 @@ public class JShellTest {
 			.filter(include)
 			.forEach(methods::add);
 		return methods;
+	}
+	
+	static String testCollector() {
+		
+		Collector<String,StringBuffer,String> c = 
+				Collector.of( 
+						() -> new StringBuffer(),
+						(sb, token) -> sb.append(token).append(','),
+						(sb_left,sb_right) -> sb_left.append(sb_right),
+						(sb) -> { 
+							sb.deleteCharAt( sb.length()-1 );
+							return sb.toString();
+						}
+					);
+		
+		return Arrays.asList( "A", "B", "C", "D", "E").stream().collect(c);
+		
 	}
 }
