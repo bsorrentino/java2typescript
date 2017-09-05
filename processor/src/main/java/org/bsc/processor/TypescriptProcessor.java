@@ -1,8 +1,10 @@
 package org.bsc.processor;
 
+import static java.lang.String.format;
 import static org.bsc.processor.TypescriptHelper.convertJavaToTS;
 import static org.bsc.processor.TypescriptHelper.getClassDecl;
 import static org.bsc.processor.TypescriptHelper.getName;
+import static org.bsc.processor.TypescriptHelper.getSimpleName;
 
 import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
@@ -21,9 +23,10 @@ import java.util.List;
 import java.util.RandomAccess;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -38,8 +41,6 @@ import javax.lang.model.type.DeclaredType;
 import javax.tools.FileObject;
 
 import io.reactivex.Observable;
-
-import static org.bsc.processor.TypescriptHelper.tokenizer;
 /**
  * 
  * @author bsoorentino
@@ -62,6 +63,7 @@ public class TypescriptProcessor extends AbstractProcessorEx {
     		RandomAccess.class,
     		Consumer.class,
     		UnaryOperator.class,
+    		Supplier.class,
     		Predicate.class,
     		Runnable.class
     );
@@ -119,9 +121,13 @@ public class TypescriptProcessor extends AbstractProcessorEx {
 	
 	    sb.append(':');
 	    
-			final Type rType =  pd.getReadMethod().getGenericReturnType();
+	    final Method getter = pd.getReadMethod();
+	    
+	    if( getter != null ) {
+	    	
+			final Type rType = getter.getGenericReturnType();
 			if( rType instanceof ParameterizedType ) {
-	
+
 				final Type pClass =  ((ParameterizedType)rType).getActualTypeArguments()[0];
 			
 				final String typeName = pClass.getTypeName();
@@ -133,7 +139,7 @@ public class TypescriptProcessor extends AbstractProcessorEx {
 							.replaceAll(typeName, name)
 							.replaceAll("<[\\w\\?]>", "<any>")
 							;
-	
+
 					info( "getPropertyDecl: [%s] [%s] [%s] [%s]", pd.getName(), typeName, rType.getTypeName(), r);
 					
 					return sb.append( r ).toString();
@@ -145,13 +151,15 @@ public class TypescriptProcessor extends AbstractProcessorEx {
 				}
 	    			
 	    		}
-	
-	        final String tsType = convertJavaToTS( pd.getPropertyType(), 
-	                                                declaringClass, 
-	                                                declaredClassMap);
-	       
-	        return sb.append(tsType)
-	                 .toString();
+	    	
+	    }
+
+	    final String tsType = convertJavaToTS( pd.getPropertyType(), 
+                                                declaringClass, 
+                                                declaredClassMap);
+       
+        return sb.append(tsType)
+                 .toString();
 	}
     
     private String getMethodDecl( final Method m, Class<?> declaringClass, java.util.Map<String, Class<?>> declaredClassMap ) {
@@ -174,14 +182,14 @@ public class TypescriptProcessor extends AbstractProcessorEx {
         
         final Parameter[] params = m.getParameters();
     	
-        final Collector<Parameter,StringBuffer,String> c = 
-        		tokenizer( (sb_result, tp) -> sb_result
-				.append( tp.getName())
-				.append(':')
-				.append( convertJavaToTS(tp.getType(),declaringClass,declaredClassMap) )
-				.append(",") );
-        
-        final String params_string = Arrays.stream(params).collect(c);
+        final String params_string = 
+        		Arrays.stream(params)
+        				.map( (tp) -> 
+        					format( "%s:%s", 
+        						tp.getName(), 
+        						convertJavaToTS(tp.getType(),declaringClass,declaredClassMap) ) )
+        				.collect(Collectors.joining(", "))
+        				;
         
 	    	final String tsType = convertJavaToTS(  returnType,
 	                declaringClass,
@@ -239,7 +247,7 @@ public class TypescriptProcessor extends AbstractProcessorEx {
         Arrays.stream(nestedClasses)
         		.map( this::getBeanInfo )
         		.map( (beanInfo) -> processClass(beanInfo, declaredClassMap) )
-        		.forEach( (decl) -> sb.append('\t').append(decl) );
+        		.forEach( (decl) -> sb.append(decl) );
         
         return sb.append("\n} // end module ")
         				.append(type.getSimpleName())
@@ -289,20 +297,20 @@ public class TypescriptProcessor extends AbstractProcessorEx {
         sb.append( getClassDecl(type, declaredClassMap) )
           .append("\n\n");
         
-        propertySet.stream().sorted().forEach((decl) -> {
+        propertySet.stream().sorted().forEach((decl) ->
             sb.append( '\t' )
               .append(decl)
-              .append(  ENDL );
-
-        });
-        methodSet.stream().sorted().forEach( (decl) -> {
+              .append(  ENDL ))
+              ;
+        methodSet.stream().sorted().forEach( (decl) ->
             sb.append( '\t' )
               .append(decl)
-              .append(  ENDL );
-
-        });
+              .append(  ENDL ))
+        		;
         
-        sb.append("\n} \n");
+        sb.append("\n} // end ")
+        		.append(getSimpleName(type))
+        		.append('\n');
         
         // NESTED CLASSES
         sb.append( processNestedClasses(type, declaredClassMap) );

@@ -17,6 +17,10 @@ declare function print( ...args: any[]):void
 
 type Runnable = () => void;
 
+interface Supplier<T> {
+	():T; //get():T
+}
+
 interface Consumer<T> /*extends Function*/ {
 	andThen?( arg0:Consumer<T> ):Consumer<T>;
 	( v:T ):void; //accept(t:T):void
@@ -47,7 +51,7 @@ interface UnaryOperatorConstructor {
 
 declare const UnaryOperator : UnaryOperatorConstructor;
 
-interface Predicate<T>/**/ {
+interface Predicate<T>  {
 	
 	and?( arg0:Predicate<T> ):Predicate<T>;
 	negate?():Predicate<T>;
@@ -56,7 +60,7 @@ interface Predicate<T>/**/ {
 	
 }
 
-interface PredicateConstructor/**/ {
+interface PredicateConstructor {
     new<T>( args: T): UnaryOperator<T>;
     <T>( args: T): UnaryOperator<T>;
 	
@@ -95,9 +99,9 @@ declare namespace java.util.stream {
 		builder<T>(  ):Stream.Builder<T>;
 		concat<T>( arg0:Stream<T>,arg1:Stream<T> ):Stream<T>;
 		empty<T>(  ):Stream<T>;
-		generate<T>( arg0:any /* java.util.function.Supplier */ ):Stream<T>;
-		iterate<T>( seed:T,arg1:any /* java.util.function.UnaryOperator */ ):Stream<T>;
-		of<T>( arg0:Array<T> /* [Ljava.lang.Object; */ ):Stream<T>;
+		generate<T>( arg0:Supplier<T> ):Stream<T>;
+		iterate<T>( seed:T,arg1:UnaryOperator<T> ):Stream<T>;
+		of<T>( arg0:Array<T> ):Stream<T>;
 		of<T>( arg0:T ):Stream<T>;
 	
 	}

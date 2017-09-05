@@ -21,6 +21,10 @@
     java.util.HashSet.class,
     java.util.ArrayList.class,
     
+    java.nio.file.Files.class,
+    java.nio.file.Path.class,
+    java.nio.file.Paths.class,
+    
     
     java.util.function.UnaryOperator.class,
     java.util.function.Consumer.class,

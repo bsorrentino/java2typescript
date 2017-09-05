@@ -5,40 +5,17 @@ import static java.lang.String.format;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Type;
 import java.util.Arrays;
-import java.util.function.BiConsumer;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 public interface TypescriptHelper {
 	
 	/**
 	 * 
-	 * @param accumulator
+	 * @param pd
 	 * @return
 	 */
-	static <T> Collector<T,StringBuffer,String> tokenizer( final BiConsumer<StringBuffer,T> accumulator) {
-		return Collector.of( 
-				() -> new StringBuffer(),
-				accumulator,
-				(sb_left,sb_right) -> sb_left.append(sb_right),
-				(sb) -> { 
-					int len = sb.length();
-					if( len > 0 ) sb.deleteCharAt( len-1 );
-					return sb.toString();
-				}
-			);
-		
-	}
-	
     static boolean isPropertyValid( PropertyDescriptor pd ) {
         return !( "class".equalsIgnoreCase(pd.getName()) );
-    }
-    
-    static boolean isSuperclassValid( Class<?> type ) {
-        
-        return	type != null 
-        		&& type!=Object.class
-        		;
     }
     
     /**
@@ -54,70 +31,76 @@ public interface TypescriptHelper {
     {
      
         final StringBuilder statement = new StringBuilder();
+        final StringBuilder inherited = new StringBuilder();
         
         if( type.isInterface() ) {
-
-            statement.append( "interface ")
-                .append( getSimpleName(type) )
-                .append( "/*") // COMMENT INHERITED
-                ;
+            statement.append( "interface ");
         
         }
         else {
             
-            statement.append( "class ")
-                .append( getSimpleName(type) )
-                .append( "/*") // COMMENT INHERITED
-                ;
-            
-            
-            final Class<?> inherited = type.getSuperclass();
+            statement.append( "class ");
+                      
+            final Class<?> superclass = type.getSuperclass();
 
-            if( isSuperclassValid(inherited) ) {
-                statement.append( " extends ")
-                  .append( getName(inherited, type) )      
+            if( superclass!=null ) {
+            		inherited
+                		.append( " extends ")
+                		.append( getName(superclass, type) )      
                         ;
             }
         }
         
-        final Class<?>[] inherited = type.getInterfaces();
+        final Class<?>[] interfaces = type.getInterfaces();
         
-        if(inherited.length > 0 ) {
+        if(interfaces.length > 0 ) {
         	          
-        		statement.append( (type.isInterface()) ? " extends " : " implements ");
-            
-        		Arrays.stream(inherited).forEach( (c) -> statement.append( getName(c,type) ).append(","));
-        
-            statement.deleteCharAt( statement.length()-1 );
+        		final String ifc = Arrays.stream(interfaces)
+								.map( (c) -> getName(c,type) )
+								.collect( Collectors.joining(", "))
+								;
+        		inherited
+        			.append( getSimpleName(type) )
+        			.append( (type.isInterface()) ? " extends " : " implements ")
+        			.append(	 ifc )
+        			;
+        			 
+       
         }
 
+        statement.append( getSimpleName(type) );
         
-        return statement.append("*/").append( " {").toString();
+        if( inherited.length()>0 ) {
+        		
+        		statement.append("/*")
+        					.append( inherited )
+        					.append("*/");
+        }
+        
+        return statement.append( " {")
+        					.toString();
         
     }
 	
+    /**
+     * 
+     * @param type_parameters_list
+     * @return
+     */
     static String getClassParametersDecl( java.util.List<String> type_parameters_list ) {
         
         if( type_parameters_list.isEmpty() ) return "";
         
-        final StringBuilder decl = new StringBuilder( 
-
-        		type_parameters_list.stream()
-                        .reduce( "<", (a, b) -> {
-                        	
-                        		return new StringBuilder(a)
-                        					.append(b)
-                        					.append(',')
-                        					.toString();
-                        	}
-                        )   
-
-        );
-        decl.deleteCharAt( decl.length()-1 ).append('>');
-        
-        return decl.toString();
+        return 	format("<%s>", type_parameters_list
+        								.stream()
+        								.collect( Collectors.joining(", ")) );
     }
 
+    /**
+     * 
+     * @param type
+     * @return
+     */
     static String getClassParametersDecl( Class<?> type ) {   
     	
        return getClassParametersDecl( 
@@ -127,14 +110,31 @@ public interface TypescriptHelper {
     		   );
     }
      
+    /**
+     * 
+     * @param type
+     * @return
+     */
     static String getSimpleName( Class<?> type ) {
         return type.getSimpleName().concat(getClassParametersDecl(type));
     }
 
+    /**
+     * 
+     * @param type
+     * @return
+     */
     static String getName( Class<?> type ) {
         return type.getName().concat(getClassParametersDecl(type));
     }
 
+    /**
+     * 
+     * @param type
+     * @param declaringClass
+     * @return
+     * @throws ClassNotFoundException
+     */
     static String getName( Type type, Class<?> declaringClass ) throws ClassNotFoundException {
     	
 		final Class<?> clazz = Class.forName(type.getTypeName());
@@ -143,6 +143,12 @@ public interface TypescriptHelper {
     	
     }
     
+    /**
+     * 
+     * @param type
+     * @param declaringClass
+     * @return
+     */
     static String getName( Class<?> type, Class<?> declaringClass ) {
         final Package currentNS = declaringClass.getPackage();
         
@@ -181,6 +187,8 @@ public interface TypescriptHelper {
      */
     static String convertJavaToTS( Class<?> type, Class<?> declaringClass, java.util.Map<String, Class<?>> declaredClassMap ) {
 		
+    		if( type == null ) return "any";
+    	
         if( Void.class.isAssignableFrom(type) || type.equals(Void.TYPE) ) return "void";
         if( Boolean.class.isAssignableFrom(type) || type.equals(Boolean.TYPE) ) return type.isPrimitive() ? "boolean" : "boolean|null" ;
         if( Integer.class.isAssignableFrom(type) || type.equals(Integer.TYPE)) return type.isPrimitive() ? "int"  : "int|null" ;
