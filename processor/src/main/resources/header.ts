@@ -90,6 +90,7 @@ declare namespace java.util {
 
 declare namespace java.io {
 	
+	interface Closeable {}
 	interface Serializable {}
 }
 

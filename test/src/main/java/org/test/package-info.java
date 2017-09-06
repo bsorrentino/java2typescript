@@ -24,6 +24,8 @@
     java.nio.file.Files.class,
     java.nio.file.Path.class,
     java.nio.file.Paths.class,
+    java.nio.file.AccessMode.class,
+    
     
     
     java.util.function.UnaryOperator.class,

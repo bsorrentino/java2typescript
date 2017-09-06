@@ -39,6 +39,7 @@ public interface TypescriptHelper {
         }
         else {
             
+        		if( type.isEnum() ) statement.append( "/* enum */" );
             statement.append( "class ");
                       
             final Class<?> superclass = type.getSuperclass();

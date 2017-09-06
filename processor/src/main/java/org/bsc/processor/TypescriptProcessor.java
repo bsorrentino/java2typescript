@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.RandomAccess;
 import java.util.Set;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
@@ -231,13 +230,11 @@ public class TypescriptProcessor extends AbstractProcessorEx {
 		}
     }
     
-    private String processNestedClasses( Class<?> type, java.util.Map<String, Class<?>> declaredClassMap ) {
+    private void processNestedClasses( StringBuilder sb, Class<?> type, java.util.Map<String, Class<?>> declaredClassMap ) {
 
         final Class<?> nestedClasses[] = type.getClasses();
         
-        if( nestedClasses.length == 0 ) return "";
-
-        final StringBuilder sb = new StringBuilder();
+        if( nestedClasses.length == 0 ) return;
 
         sb.append( "export module " )
      	  .append(type.getSimpleName())
@@ -249,11 +246,29 @@ public class TypescriptProcessor extends AbstractProcessorEx {
         		.map( (beanInfo) -> processClass(beanInfo, declaredClassMap) )
         		.forEach( (decl) -> sb.append(decl) );
         
-        return sb.append("\n} // end module ")
-        				.append(type.getSimpleName())
-        				.append('\n')
-        				.toString()
-        				;
+        sb.append("\n} // end module ")
+        		.append(type.getSimpleName())
+        		.append('\n')
+        	;
+    }
+    
+    private void processEnum( StringBuilder sb, Class<?> type, java.util.Map<String, Class<?>> declaredClassMap ) {
+    		if( !type.isEnum() ) return ;
+    		
+   		Arrays.stream( type.getEnumConstants() )
+		.forEach( (c) -> {
+			sb.append( '\t' )
+              .append( "static ")
+              .append(  c.toString() )
+              .append( ':')
+              .append( type.getSimpleName() )
+              .append( ';' )
+              .append(  '\n' )
+              ;
+		});
+   		
+   		sb.append( '\n' );
+    		
     }
     
     private String processClass(  BeanInfo bi, java.util.Map<String, Class<?>> declaredClassMap )   {
@@ -281,7 +296,14 @@ public class TypescriptProcessor extends AbstractProcessorEx {
 	                    return (md.equals(rm) || md.equals(wm));
 	                });
 	        })
-	        .filter( (md) -> !md.getName().contains("$") ) // remove unnamed
+	        .filter( (md) -> {
+	        		final String name = md.getName();
+	        		
+	        		return !( 	name.contains("$")		|| // remove unnamed
+	        					name.equals("wait")		|| 
+	        					name.equals("notify")	||
+	        					name.equals("notifyAll") );
+	        })
 	        .map( (md) -> getMethodDecl(md, type, declaredClassMap) )
 	        .collect( Collectors.toCollection(() -> new java.util.LinkedHashSet<String>() ))
 	        ;
@@ -297,6 +319,8 @@ public class TypescriptProcessor extends AbstractProcessorEx {
         sb.append( getClassDecl(type, declaredClassMap) )
           .append("\n\n");
         
+        processEnum(sb, type, declaredClassMap);
+
         propertySet.stream().sorted().forEach((decl) ->
             sb.append( '\t' )
               .append(decl)
@@ -313,7 +337,7 @@ public class TypescriptProcessor extends AbstractProcessorEx {
         		.append('\n');
         
         // NESTED CLASSES
-        sb.append( processNestedClasses(type, declaredClassMap) );
+        processNestedClasses(sb, type, declaredClassMap);
 
         if( !type.isMemberClass() ) 
         		sb.append("\n} // end namespace ")
@@ -324,6 +348,14 @@ public class TypescriptProcessor extends AbstractProcessorEx {
            
     }
     
+    private Class<?> getClassFrom( DeclaredType dt ) {
+        try {
+            return Class.forName(dt.toString());
+        } catch (ClassNotFoundException e1) {
+            error( "class not found [%s]",dt );
+            throw new RuntimeException(String.format("class not found [%s]",dt), e1); 
+        }    	
+    }
     
     @SuppressWarnings("unchecked")
 	private Observable<? extends AnnotationValue> getAnnotationValueValue( 
@@ -344,22 +376,14 @@ public class TypescriptProcessor extends AbstractProcessorEx {
             .doOnNext((m) -> info( "Mirror [%s]", m.toString() ))
             .concatMap( (am) -> Observable.fromIterable(am.getElementValues().entrySet() ))
             .filter( (entry) -> "declare".equals(String.valueOf(entry.getKey().getSimpleName())) )
-            .flatMap( (entry) -> {  
-            		return this.getAnnotationValueValue(entry); 
-            	})
+            .flatMap( (entry) -> this.getAnnotationValueValue(entry) )
             .map( (av) -> av.getValue() )
             //.doOnNext((av) -> info( "AnnotationValue [%s]",av) )
             .ofType(DeclaredType.class)
             //.doOnNext((dt) -> info( "DeclaredType [%s]",dt) )
             .onExceptionResumeNext(Observable.empty())
-            .map((DeclaredType dt) -> {
-                try {
-                    return Class.forName(dt.toString());
-                } catch (ClassNotFoundException e1) {
-                    error( "class not found [%s]",dt );
-                    throw new RuntimeException(String.format("class not found [%s]",dt), e1); 
-                }
-            });
+            .map(this::getClassFrom )
+            ;
 
             return result;
     }    
