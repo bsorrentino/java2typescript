@@ -10,6 +10,7 @@ import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
 import java.io.Closeable;
+import java.io.IOException;
 import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -20,6 +21,7 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.RandomAccess;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -38,8 +40,6 @@ import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.type.DeclaredType;
 import javax.tools.FileObject;
-
-import io.reactivex.Observable;
 /**
  * 
  * @author bsoorentino
@@ -88,26 +88,25 @@ public class TypescriptProcessor extends AbstractProcessorEx {
         		while( (c = is.read()) != -1 ) w.write(c);
         }
         
-	    rxEnumerateDeclaredPackageAndClass( processingContext )
-            .toMap( (clazz) -> clazz.getName() )
-            .flatMapObservable( (declaredClasses) -> {
-            		
-            		final List<Class<?>> classes = Arrays.asList(
-            				declaredClasses.values().toArray( new Class[ declaredClasses.size() ]));
-            		
-            		// PREDEFINED CLASS
-            		PREDEFINED_CLASSES
-            		.forEach( (clazz) -> {
-            			declaredClasses.put( clazz.getName(), clazz);
-            		});
-            		
-                return Observable.fromIterable(classes)
-                			.filter( (clazz) -> !PREDEFINED_CLASSES.contains(clazz) )
-                        .map( (clazz) -> processClass(java.beans.Introspector.getBeanInfo(clazz), declaredClasses)); 
-            })
-            .doOnComplete( () -> w.close() )
-            .subscribe( ( s ) -> w.append( s ) )  
-            ;
+        final List<Class<?>> classes = enumerateDeclaredPackageAndClass( processingContext );
+        
+	    final java.util.Map<String, Class<?>> declaredClasses = classes.stream().collect( Collectors.toMap( clazz -> clazz.getName() , clazz -> clazz ));
+        
+		PREDEFINED_CLASSES.forEach( clazz -> declaredClasses.put( clazz.getName(), clazz) );
+
+		classes.stream()
+			.filter( clazz -> !PREDEFINED_CLASSES.contains(clazz) )
+			.map( clazz -> processClass( getBeanInfo(clazz), declaredClasses))
+			.forEach( s -> {
+				try {
+					w.append( s );
+				} catch (IOException e) {
+					error( "error adding [%s]", s);
+				}
+			} );
+		
+		w.close();
+		
         return true;
     }
     
@@ -358,34 +357,32 @@ public class TypescriptProcessor extends AbstractProcessorEx {
     }
     
     @SuppressWarnings("unchecked")
-	private Observable<? extends AnnotationValue> getAnnotationValueValue( 
+	private List<? extends AnnotationValue> getAnnotationValueValue( 
     		java.util.Map.Entry<? extends ExecutableElement, ? extends AnnotationValue> entry ) 
     {
     				
         final AnnotationValue av =  entry.getValue();
-        return Observable.fromIterable((List<? extends AnnotationValue>)av.getValue());
+        return (List<? extends AnnotationValue>)av.getValue();
     			
     }
 
-    private Observable<Class<?>> rxEnumerateDeclaredPackageAndClass( final Context processingContext ) {
-           
-		final  Observable<Class<?>> result = processingContext.rxElementFromAnnotations()
-            .doOnNext((e) -> info( "Anotation [%s]", e.getKind().name()) )
+    private java.util.List<Class<?>> enumerateDeclaredPackageAndClass( final Context processingContext ) {
+        
+		return processingContext.elementFromAnnotations( Optional.empty() ).stream()
+            .peek((e) -> info( "Anotation [%s]", e.getKind().name()) )
             .filter( (e) -> ElementKind.PACKAGE==e.getKind() || ElementKind.CLASS==e.getKind() )
-            .concatMap( (e) -> Observable.fromIterable(e.getAnnotationMirrors()) ) 
-            .doOnNext((m) -> info( "Mirror [%s]", m.toString() ))
-            .concatMap( (am) -> Observable.fromIterable(am.getElementValues().entrySet() ))
-            .filter( (entry) -> "declare".equals(String.valueOf(entry.getKey().getSimpleName())) )
-            .flatMap( (entry) -> this.getAnnotationValueValue(entry) )
+            .flatMap( (e) -> e.getAnnotationMirrors().stream() ) 
+            .peek((m) -> info( "Mirror [%s]", m.toString() ))
+            .flatMap( am -> am.getElementValues().entrySet().stream() )
+            .filter( entry -> "declare".equals(String.valueOf(entry.getKey().getSimpleName())) )
+            .flatMap( entry -> this.getAnnotationValueValue(entry).stream() )
             .map( (av) -> av.getValue() )
-            //.doOnNext((av) -> info( "AnnotationValue [%s]",av) )
-            .ofType(DeclaredType.class)
-            //.doOnNext((dt) -> info( "DeclaredType [%s]",dt) )
-            .onExceptionResumeNext(Observable.empty())
+            .filter( v -> v instanceof DeclaredType )
+            .map( v -> (DeclaredType)v )
             .map(this::getClassFrom )
+            .collect( Collectors.toList())
             ;
-
-            return result;
     }    
+    
     
 }

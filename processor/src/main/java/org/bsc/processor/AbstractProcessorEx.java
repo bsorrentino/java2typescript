@@ -1,11 +1,14 @@
 package org.bsc.processor;
 
-import io.reactivex.Observable;
-import io.reactivex.functions.Predicate;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Collections;
+import java.util.Observable;
+import java.util.Optional;
 import java.util.Set;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.Filer;
 import javax.annotation.processing.RoundEnvironment;
@@ -62,29 +65,18 @@ public abstract class AbstractProcessorEx extends AbstractProcessor {
         }
 
         /**
-         *
+         * 
          * @return
          */
-        public Observable<? extends Element> rxElementFromAnnotations() {
-
-            return Observable
-                    .fromIterable(annotations)
-                    .concatMap((e) -> Observable.fromIterable(roundEnv.getElementsAnnotatedWith(e)));
-        }
-        /**
-         *
-         * @param filter
-         * @return
-         */
-        public Observable<? extends Element> rxElementFromAnnotations( Predicate<? super TypeElement> filter ) {
-
-            return Observable
-                    .fromIterable(annotations)
-                    .filter( filter )
-                    .concatMap((e) -> Observable.fromIterable(roundEnv.getElementsAnnotatedWith(e)));
+        public java.util.List<? extends Element> elementFromAnnotations( Optional<Predicate<? super TypeElement>> filter) {
+        	
+        		return annotations.stream()
+        				.filter( filter.orElse((e) -> true) )
+        				.flatMap((e) -> roundEnv.getElementsAnnotatedWith(e).stream() )
+        				.collect( Collectors.toList());
         }
     }
-
+        
     protected void info(String fmt, Object... args) {
         final String msg = java.lang.String.format(fmt, (Object[]) args);
         processingEnv.getMessager().printMessage(Kind.NOTE, msg);
