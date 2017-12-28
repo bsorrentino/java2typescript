@@ -81,6 +81,8 @@ declare namespace java.lang {
 		compareTo?( arg0:T ):number;
 
 	}
+
+	type Object = any;
 }
 
 declare namespace java.util {
