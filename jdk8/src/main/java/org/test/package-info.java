@@ -5,7 +5,6 @@
  */
 @Java2TS(declare = {  
 	java.lang.Class.class,	
-	//java.lang.Object.class,
 	java.lang.Iterable.class,
     java.lang.CharSequence.class,
     java.lang.String.class,
@@ -20,6 +19,7 @@
     java.util.HashMap.class,
     java.util.HashSet.class,
     java.util.ArrayList.class,
+    java.util.Optional.class,
     
     java.nio.file.Files.class,
     java.nio.file.Path.class,
@@ -31,6 +31,7 @@
     java.util.function.UnaryOperator.class,
     java.util.function.Consumer.class,
     java.util.function.Predicate.class
+    
     
 })
 package org.test;

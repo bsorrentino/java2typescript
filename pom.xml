@@ -15,7 +15,7 @@
     </properties>
     <modules>
     		<module>processor</module>
-    		<module>test</module>
+    		<module>jdk8</module>
     </modules>
     <dependencyManagement>
         <dependencies>
