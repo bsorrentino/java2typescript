@@ -97,10 +97,10 @@ public class TypescriptProcessor extends AbstractProcessorEx {
 		
 		try {
 			if( isRhinoCompatible ) {
-				w.append( String.format( "exports.%s\t\t=\t%s;\n", type.getSimpleName(), type.getName()));				
+				w.append( String.format( "exports.%s:%s\t\t=\t%s;\n", type.getSimpleName(), type.getName(), type.getName()));				
 			}
 			else {
-				w.append( String.format( "exports.%s\t\t=\tJava.type( \"%s\" );\n", type.getSimpleName(), type.getName()));
+				w.append( String.format( "exports.%s:%s\t\t=\tJava.type( \"%s\" );\n", type.getSimpleName(), type.getName(), type.getName()));
 			}
 		} catch (IOException e) {
 			error( "error adding [%s]", t.getValue());
