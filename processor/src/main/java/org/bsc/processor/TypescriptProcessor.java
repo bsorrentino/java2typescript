@@ -17,6 +17,7 @@ import java.lang.reflect.Parameter;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
@@ -97,10 +98,10 @@ public class TypescriptProcessor extends AbstractProcessorEx {
 		
 		try {
 			if( isRhinoCompatible ) {
-				w.append( String.format( "exports.%s:%s\t\t=\t%s;\n", type.getSimpleName(), type.getName(), type.getName()));				
+				w.append( String.format( "export const %s:%s\t\t=\t%s;\n", type.getSimpleName(), type.getName(), type.getName()));				
 			}
 			else {
-				w.append( String.format( "exports.%s:%s\t\t=\tJava.type( \"%s\" );\n", type.getSimpleName(), type.getName(), type.getName()));
+				w.append( String.format( "export const %s:%s\t\t=\tJava.type( \"%s\" );\n", type.getSimpleName(), type.getName(), type.getName()));
 			}
 		} catch (IOException e) {
 			error( "error adding [%s]", t.getValue());
@@ -109,6 +110,27 @@ public class TypescriptProcessor extends AbstractProcessorEx {
     }
     
     /**
+     * 
+     * @param file
+     * @param header
+     * @return
+     * @throws IOException
+     */
+    private java.io.Writer openFile( Path file, String header ) throws IOException {
+    	
+        final FileObject out = super.getSourceOutputFile( Paths.get("ts"), file );
+        
+        info( "output file [%s]", out.getName() );
+
+        final java.io.Writer w = out.openWriter();
+        
+        try(final java.io.InputStream is = getClass().getClassLoader().getResourceAsStream("headerD.ts") ) {
+    			int c; while( (c = is.read()) != -1 ) w.write(c);
+        }
+        
+        return w;
+    }
+    /**
      *
      * @param processingContext
      * @return
@@ -116,58 +138,47 @@ public class TypescriptProcessor extends AbstractProcessorEx {
     @Override
     public boolean process( Context processingContext ) throws Exception {
 
-        final String targetDefinitionFile = processingContext.getOptionMap().getOrDefault("ts.outfile", "out");
-        final String compatibility = processingContext.getOptionMap().getOrDefault("compatibility", "nashorn");
+        final String targetDefinitionFile		= processingContext.getOptionMap().getOrDefault("ts.outfile", "out");
+        //final String compatibility 		= processingContext.getOptionMap().getOrDefault("compatibility", "nashorn");
+       
+        try( 
+        		final java.io.Writer wD = openFile( Paths.get(targetDefinitionFile.concat(".d.ts")), "headerD.ts" ); 
+        		/* final java.io.Writer wT = openFile( Paths.get(targetDefinitionFile.concat(".ts")), "headerT.ts" ); */   
+        	) {
+        	
         
+	        final List<TSType> types = enumerateDeclaredPackageAndClass( processingContext );
+	
+	        final List<Class<?>> classes = types.stream()
+	        										//.peek( t -> addDeclaration(wT, t, compatibility.equalsIgnoreCase("rhino")) )
+	        										.map( t -> t.valueAsClass() )
+	        										.collect( Collectors.toList());
+	        
+	        
+	        //
+	        // Check for Required classes
+	        //
+			REQUIRED_CLASSES.stream()
+	        					.filter( c -> !classes.contains(c))
+	        					.forEach( c -> classes.add(c) );
+	
+	
+		    final java.util.Map<String, Class<?>> declaredClasses = classes.stream().collect( Collectors.toMap( clazz -> clazz.getName() , clazz -> clazz ));
+	
+			PREDEFINED_CLASSES.forEach( clazz -> declaredClasses.put( clazz.getName(), clazz) );
+	
+			classes.stream()
+				.filter( clazz -> !PREDEFINED_CLASSES.contains(clazz) )
+				.map( clazz -> processClass( getBeanInfo(clazz), declaredClasses))
+				.forEach( s -> {
+					try {
+						wD.append( s );
+					} catch (IOException e) {
+						error( "error adding [%s]", s);
+					}
+				} );
 
-        final FileObject outD = super.getSourceOutputFile( Paths.get("ts"), Paths.get(targetDefinitionFile.concat(".d.ts")));
-        final FileObject outT = super.getSourceOutputFile( Paths.get("ts"), Paths.get(targetDefinitionFile.concat(".ts")));
-
-        info( "output definition file [%s]", outD.getName() );
-        info( "output declaration file [%s]", outT.getName() );
-
-        final java.io.Writer wD = outD.openWriter();
-        final java.io.Writer wT = outT.openWriter();
-
-        try(final java.io.InputStream is = getClass().getClassLoader().getResourceAsStream("header.ts") ) {
-        		int c;
-        		while( (c = is.read()) != -1 ) wD.write(c);
-        }
-
-        final List<TSType> types = enumerateDeclaredPackageAndClass( processingContext );
-
-        
-        final List<Class<?>> classes = types.stream()
-        										.peek( t -> addDeclaration(wT, t, compatibility.equalsIgnoreCase("rhino")) )
-        										.map( t -> t.valueAsClass() )
-        										.collect( Collectors.toList());
-        
-        
-        //
-        // Check for Required classes
-        //
-		REQUIRED_CLASSES.stream()
-        					.filter( c -> !classes.contains(c))
-        					.forEach( c -> classes.add(c) );
-
-
-	    final java.util.Map<String, Class<?>> declaredClasses = classes.stream().collect( Collectors.toMap( clazz -> clazz.getName() , clazz -> clazz ));
-
-		PREDEFINED_CLASSES.forEach( clazz -> declaredClasses.put( clazz.getName(), clazz) );
-
-		classes.stream()
-			.filter( clazz -> !PREDEFINED_CLASSES.contains(clazz) )
-			.map( clazz -> processClass( getBeanInfo(clazz), declaredClasses))
-			.forEach( s -> {
-				try {
-					wD.append( s );
-				} catch (IOException e) {
-					error( "error adding [%s]", s);
-				}
-			} );
-
-		wD.close();
-		wT.close();
+        } // end try-with-resources
 
         return true;
     }

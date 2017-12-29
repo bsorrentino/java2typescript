@@ -12,9 +12,6 @@ type char   = string;
 type chararray = [byte];
 type bytearray = [char];
 
-// Nashorn
-declare function print( ...args: any[]):void
-
 type Runnable = () => void;
 
 interface Supplier<T> {
