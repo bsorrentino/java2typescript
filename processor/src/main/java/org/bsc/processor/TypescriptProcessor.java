@@ -88,7 +88,7 @@ public class TypescriptProcessor extends AbstractProcessorEx {
      * @param w
      * @param t
      */
-    private void addDeclaration( java.io.Writer w, TSType t ) {
+    private void addDeclaration( java.io.Writer w, TSType t, boolean isRhinoCompatible ) {
 		if( !t.isExport() ) return;
 
 		Class<?> type = t.valueAsClass();
@@ -96,7 +96,12 @@ public class TypescriptProcessor extends AbstractProcessorEx {
 		info( "export type [%s]", t.getValue() );
 		
 		try {
-			w.append( String.format( "exports.%s\t=\tJava.type( \"%s\" );\n", type.getSimpleName(), type.getName()));
+			if( isRhinoCompatible ) {
+				w.append( String.format( "exports.%s\t\t=\t%s;\n", type.getSimpleName(), type.getName()));				
+			}
+			else {
+				w.append( String.format( "exports.%s\t\t=\tJava.type( \"%s\" );\n", type.getSimpleName(), type.getName()));
+			}
 		} catch (IOException e) {
 			error( "error adding [%s]", t.getValue());
 		}
@@ -112,6 +117,8 @@ public class TypescriptProcessor extends AbstractProcessorEx {
     public boolean process( Context processingContext ) throws Exception {
 
         final String targetDefinitionFile = processingContext.getOptionMap().getOrDefault("ts.outfile", "out");
+        final String compatibility = processingContext.getOptionMap().getOrDefault("compatibility", "nashorn");
+        
 
         final FileObject outD = super.getSourceOutputFile( Paths.get("ts"), Paths.get(targetDefinitionFile.concat(".d.ts")));
         final FileObject outT = super.getSourceOutputFile( Paths.get("ts"), Paths.get(targetDefinitionFile.concat(".ts")));
@@ -131,7 +138,7 @@ public class TypescriptProcessor extends AbstractProcessorEx {
 
         
         final List<Class<?>> classes = types.stream()
-        										.peek( t -> addDeclaration(wT, t) )
+        										.peek( t -> addDeclaration(wT, t, compatibility.equalsIgnoreCase("rhino")) )
         										.map( t -> t.valueAsClass() )
         										.collect( Collectors.toList());
         
