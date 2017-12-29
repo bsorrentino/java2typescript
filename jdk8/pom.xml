@@ -55,7 +55,7 @@
           <configuration>
               <outputDirectory>${project.build.directory}</outputDirectory>   
            <options>
-                <ts.outfile>jdk8.d.ts</ts.outfile>
+                <ts.outfile>jdk8</ts.outfile>
            </options>      
           </configuration> 
         </execution>

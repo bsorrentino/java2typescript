@@ -21,6 +21,7 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.RandomAccess;
 import java.util.Set;
@@ -28,17 +29,21 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.annotation.processing.SupportedOptions;
 import javax.annotation.processing.SupportedSourceVersion;
+import javax.json.Json;
+import javax.json.JsonObject;
+import javax.json.JsonObjectBuilder;
 import javax.lang.model.SourceVersion;
+import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
-import javax.lang.model.type.DeclaredType;
 import javax.tools.FileObject;
 
 /**
@@ -79,6 +84,26 @@ public class TypescriptProcessor extends AbstractProcessorEx {
     	);
 
     /**
+     * 
+     * @param w
+     * @param t
+     */
+    private void addDeclaration( java.io.Writer w, TSType t ) {
+		if( !t.isExport() ) return;
+
+		Class<?> type = t.valueAsClass();
+		
+		info( "export type [%s]", t.getValue() );
+		
+		try {
+			w.append( String.format( "exports.%s\t=\tJava.type( \"%s\" );\n", type.getSimpleName(), type.getName()));
+		} catch (IOException e) {
+			error( "error adding [%s]", t.getValue());
+		}
+   	
+    }
+    
+    /**
      *
      * @param processingContext
      * @return
@@ -86,21 +111,31 @@ public class TypescriptProcessor extends AbstractProcessorEx {
     @Override
     public boolean process( Context processingContext ) throws Exception {
 
-        final String targetFile = processingContext.getOptionMap().getOrDefault("ts.outfile", "out.d.ts");
+        final String targetDefinitionFile = processingContext.getOptionMap().getOrDefault("ts.outfile", "out");
 
-        final FileObject out = super.getSourceOutputFile( Paths.get("ts"), Paths.get(targetFile));
+        final FileObject outD = super.getSourceOutputFile( Paths.get("ts"), Paths.get(targetDefinitionFile.concat(".d.ts")));
+        final FileObject outT = super.getSourceOutputFile( Paths.get("ts"), Paths.get(targetDefinitionFile.concat(".ts")));
 
-        info( "output [%s]", out.getName() );
+        info( "output definition file [%s]", outD.getName() );
+        info( "output declaration file [%s]", outT.getName() );
 
-        final java.io.Writer w = out.openWriter();
+        final java.io.Writer wD = outD.openWriter();
+        final java.io.Writer wT = outT.openWriter();
 
         try(final java.io.InputStream is = getClass().getClassLoader().getResourceAsStream("header.ts") ) {
         		int c;
-        		while( (c = is.read()) != -1 ) w.write(c);
+        		while( (c = is.read()) != -1 ) wD.write(c);
         }
 
-        final List<Class<?>> classes = enumerateDeclaredPackageAndClass( processingContext );
+        final List<TSType> types = enumerateDeclaredPackageAndClass( processingContext );
 
+        
+        final List<Class<?>> classes = types.stream()
+        										.peek( t -> addDeclaration(wT, t) )
+        										.map( t -> t.valueAsClass() )
+        										.collect( Collectors.toList());
+        
+        
         //
         // Check for Required classes
         //
@@ -118,13 +153,14 @@ public class TypescriptProcessor extends AbstractProcessorEx {
 			.map( clazz -> processClass( getBeanInfo(clazz), declaredClasses))
 			.forEach( s -> {
 				try {
-					w.append( s );
+					wD.append( s );
 				} catch (IOException e) {
 					error( "error adding [%s]", s);
 				}
 			} );
 
-		w.close();
+		wD.close();
+		wT.close();
 
         return true;
     }
@@ -440,7 +476,7 @@ public class TypescriptProcessor extends AbstractProcessorEx {
      * @param dt
      * @return
      */
-    private Class<?> getClassFrom( DeclaredType dt ) {
+    private Class<?> getClassFrom( Object dt ) {
         try {
             return Class.forName(dt.toString());
         } catch (ClassNotFoundException e1) {
@@ -463,27 +499,111 @@ public class TypescriptProcessor extends AbstractProcessorEx {
         return (List<? extends AnnotationValue>)av.getValue();
 
     }
+    
+    /**
+     * 
+     * @param am
+     * @param finisher
+     * @return
+     */
+    protected <R> R toMapObject( AnnotationMirror am, java.util.function.Function<Map<String,Object>, R> finisher ) {
 
+		final Collector<Map.Entry<? extends ExecutableElement, ? extends AnnotationValue>, Map<String,Object>, R> c = 
+				Collector.of( 
+					() -> new java.util.HashMap<String,Object>(), 
+					( map, entry ) -> 
+						map.put( entry.getKey().getSimpleName().toString(), entry.getValue().getValue()),
+					( v1, v2 ) -> v1,
+					finisher );
+					
+	    final R result = am.getElementValues()
+			.entrySet()
+			.stream()
+			.collect( c );
+	    
+	    return result;
+    
+    }
+
+    /**
+     * 
+     * toJsonObject( am, ( builder ) -> builder.build() );
+     * 
+     * 
+     * @param am
+     * @param finisher
+     * @return
+     */
+    protected <R> R toJsonObject( AnnotationMirror am, java.util.function.Function<JsonObjectBuilder, R> finisher ) {
+
+		final Collector<Map.Entry<? extends ExecutableElement, ? extends AnnotationValue>, JsonObjectBuilder, R> c = 
+				Collector.of( 
+					() -> Json.createObjectBuilder(), 
+					( builder, entry ) -> {
+						final String k =  entry.getKey().getSimpleName().toString();
+						final Object v = entry.getValue().getValue();
+						
+						if( v == null ) builder.addNull(k);
+						else if( v instanceof Boolean ) builder.add(k, (Boolean)v );
+						else builder.add(k, String.valueOf(v));
+
+					},
+					( v1, v2 ) -> v1,
+					finisher );
+					
+	    final R result = am.getElementValues()
+			.entrySet()
+			.stream()
+			.collect( c );
+	    
+	    return result;
+    
+    }
+    
+    class TSType {
+    		final JsonObject internal;
+
+		public TSType(JsonObject internal) {
+			super();
+			this.internal = internal;
+		}
+
+		public String getValue() {
+			return internal.getString("value");
+		}
+
+		public Class<?> valueAsClass() {
+			return getClassFrom(internal.getString("value"));
+		}
+		
+		public boolean isExport() {
+			return internal.getBoolean("export", false);
+		}
+		
+    }
+    
     /**
      *
      * @param processingContext
      * @return
      */
-    private java.util.List<Class<?>> enumerateDeclaredPackageAndClass( final Context processingContext ) {
-
-		return processingContext.elementFromAnnotations( Optional.empty() ).stream()
-            .peek((e) -> info( "Anotation [%s]", e.getKind().name()) )
-            .filter( (e) -> ElementKind.PACKAGE==e.getKind() || ElementKind.CLASS==e.getKind() )
-            .flatMap( (e) -> e.getAnnotationMirrors().stream() )
-            .peek((m) -> info( "Mirror [%s]", m.toString() ))
-            .flatMap( am -> am.getElementValues().entrySet().stream() )
-            .filter( entry -> "declare".equals(String.valueOf(entry.getKey().getSimpleName())) )
-            .flatMap( entry -> this.getAnnotationValueValue(entry).stream() )
-            .map( (av) -> av.getValue() )
-            .filter( v -> v instanceof DeclaredType )
-            .map( v -> (DeclaredType)v )
-            .map(this::getClassFrom )
-            .collect( Collectors.toList())
+    private java.util.List<TSType> enumerateDeclaredPackageAndClass( final Context processingContext ) {
+    		
+    		return
+			processingContext.elementFromAnnotations( Optional.empty() ).stream()
+	            .peek( e -> info( "Anotation [%s]", e.getKind().name()) )
+	            .filter( e -> ElementKind.PACKAGE==e.getKind() || ElementKind.CLASS==e.getKind() )
+	            .flatMap( e -> e.getAnnotationMirrors().stream() )
+	            .peek( m -> info( "Mirror [%s]", m.toString() ))
+	            .flatMap( am -> am.getElementValues()
+	            						.entrySet()
+	            						.stream()
+	            						.filter( entry -> "declare".equals(String.valueOf(entry.getKey().getSimpleName())) ))
+	            .flatMap( entry -> this.getAnnotationValueValue(entry).stream() )
+	            .map( av -> av.getValue() )
+	            .filter( v -> v instanceof AnnotationMirror).map( v -> ((AnnotationMirror)v) )
+	            .map( am -> toJsonObject(am, (builder) -> { return new TSType( builder.build() ); } ) )				
+    				.collect( Collectors.toList() )
             ;
     }
 
