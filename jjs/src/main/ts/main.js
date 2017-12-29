@@ -1,10 +1,9 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+var colors = require("colors/safe");
 var b = "hello jjs";
-var a = new java.util.ArrayList();
-a.add("item1");
-a.add("item2");
-a.add(java.util.Optional.of("item3"));
-print(b);
+var a = java.util.Arrays.asList(["item1", "item2", "item3"]);
+print(colors.red(b));
 a.stream().forEach(function (e) {
-    print(e);
+    print(colors.green(e));
 });

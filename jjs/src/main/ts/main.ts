@@ -1,14 +1,12 @@
 
+import * as colors from "colors/safe";
 
 let b = "hello jjs";
 
-let a = new java.util.ArrayList<string>();
-a.add( "item1");
-a.add( "item2" );
-a.add( java.util.Optional.of("item3"));
+let a = java.util.Arrays.asList( [ "item1", "item2", "item3"] );
 
-print( b);
+print( colors.red(b) );
 
 a.stream().forEach( (e) => {
-  print( e );
+  print( colors.green(e) );
 });
