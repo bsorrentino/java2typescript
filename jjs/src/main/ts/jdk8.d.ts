@@ -23,14 +23,6 @@ interface Consumer<T> /*extends Function*/ {
 	( v:T ):void; //accept(t:T):void
 }
 
-interface ConsumerConstructor {
-    new<T>( args: T): Consumer<T>;
-    <T>( args: T): Consumer<T>;
-    readonly prototype: Function;
-}
-
-declare const Consumer : ConsumerConstructor;
-
 interface UnaryOperator<T>/* extends Function<T,any>*/ {
 
 	andThen?( arg0:any /* java.util.function.Function */ ):any /* java.util.function.Function */;
@@ -93,21 +85,7 @@ declare namespace java.io {
 	interface Serializable {}
 }
 
-declare namespace java.util.stream {
 
-	interface StreamConstructor{
-		builder<T>(  ):Stream.Builder<T>;
-		concat<T>( arg0:Stream<T>,arg1:Stream<T> ):Stream<T>;
-		empty<T>(  ):Stream<T>;
-		generate<T>( arg0:Supplier<T> ):Stream<T>;
-		iterate<T>( seed:T,arg1:UnaryOperator<T> ):Stream<T>;
-		of<T>( arg0:Array<T> ):Stream<T>;
-		of<T>( arg0:T ):Stream<T>;
-
-	}
-
-	export const Stream : java.util.stream.StreamConstructor;
-}
 declare namespace java.lang {
 
 interface Iterable<T> {
@@ -186,25 +164,10 @@ class String/* extends ObjectString implements java.io.Serializable, Comparable<
 	startsWith( arg0:string ):boolean;
 	startsWith( arg0:string, arg1:int ):boolean;
 	static checkBounds( arg0:bytearray, arg1:int, arg2:int ):void;
-	static copyValueOf( arg0:chararray ):string;
-	static copyValueOf( arg0:chararray, arg1:int, arg2:int ):string;
-	static format( arg0:any /* java.util.Locale */, arg1:string, arg2:[any] /* [Ljava.lang.Object; */ ):string;
-	static format( arg0:string, arg1:[any] /* [Ljava.lang.Object; */ ):string;
 	static indexOf( arg0:chararray, arg1:int, arg2:int, arg3:chararray, arg4:int, arg5:int, arg6:int ):int;
 	static indexOf( arg0:chararray, arg1:int, arg2:int, arg3:string, arg4:int ):int;
-	static join( arg0:CharSequence, arg1:Iterable<any> ):string;
-	static join( arg0:CharSequence, arg1:[any] /* [Ljava.lang.CharSequence; */ ):string;
 	static lastIndexOf( arg0:chararray, arg1:int, arg2:int, arg3:chararray, arg4:int, arg5:int, arg6:int ):int;
 	static lastIndexOf( arg0:chararray, arg1:int, arg2:int, arg3:string, arg4:int ):int;
-	static valueOf( arg0:any /* char */ ):string;
-	static valueOf( arg0:any /* java.lang.Object */ ):string;
-	static valueOf( arg0:boolean ):string;
-	static valueOf( arg0:chararray ):string;
-	static valueOf( arg0:chararray, arg1:int, arg2:int ):string;
-	static valueOf( arg0:double ):string;
-	static valueOf( arg0:float ):string;
-	static valueOf( arg0:int ):string;
-	static valueOf( arg0:long ):string;
 	subSequence( arg0:int, arg1:int ):CharSequence;
 	substring( arg0:int ):string;
 	substring( arg0:int, arg1:int ):string;
@@ -217,6 +180,55 @@ class String/* extends ObjectString implements java.io.Serializable, Comparable<
 	trim(  ):string;
 
 } // end String
+
+} // end namespace java.lang
+declare namespace java.lang {
+
+class System/* extends Object*/ {
+
+	equals( arg0:any /* java.lang.Object */ ):boolean;
+	hashCode(  ):int;
+	static arraycopy( arg0:any /* java.lang.Object */, arg1:int, arg2:any /* java.lang.Object */, arg3:int, arg4:int ):void;
+	static checkIO(  ):void;
+	static checkKey( arg0:string ):void;
+	static clearProperty( arg0:string ):string;
+	static console(  ):any /* java.io.Console */;
+	static currentTimeMillis(  ):long;
+	static exit( arg0:int ):void;
+	static gc(  ):void;
+	static getProperties(  ):any /* java.util.Properties */;
+	static getProperty( arg0:string ):string;
+	static getProperty( arg0:string, arg1:string ):string;
+	static getSecurityManager(  ):any /* java.lang.SecurityManager */;
+	static getenv( arg0:string ):string;
+	static getenv<K,V>(  ):java.util.Map<any, any>;
+	static identityHashCode( arg0:any /* java.lang.Object */ ):int;
+	static inheritedChannel(  ):any /* java.nio.channels.Channel */;
+	static initProperties( arg0:any /* java.util.Properties */ ):any /* java.util.Properties */;
+	static initializeSystemClass(  ):void;
+	static lineSeparator(  ):string;
+	static load( arg0:string ):void;
+	static loadLibrary( arg0:string ):void;
+	static mapLibraryName( arg0:string ):string;
+	static nanoTime(  ):long;
+	static newPrintStream( arg0:any /* java.io.FileOutputStream */, arg1:string ):any /* java.io.PrintStream */;
+	static registerNatives(  ):void;
+	static runFinalization(  ):void;
+	static runFinalizersOnExit( arg0:boolean ):void;
+	static setErr( arg0:any /* java.io.PrintStream */ ):void;
+	static setErr0( arg0:any /* java.io.PrintStream */ ):void;
+	static setIn( arg0:any /* java.io.InputStream */ ):void;
+	static setIn0( arg0:any /* java.io.InputStream */ ):void;
+	static setJavaLangAccess(  ):void;
+	static setOut( arg0:any /* java.io.PrintStream */ ):void;
+	static setOut0( arg0:any /* java.io.PrintStream */ ):void;
+	static setProperties( arg0:any /* java.util.Properties */ ):void;
+	static setProperty( arg0:string, arg1:string ):string;
+	static setSecurityManager( arg0:any /* java.lang.SecurityManager */ ):void;
+	static setSecurityManager0( arg0:any /* java.lang.SecurityManager */ ):void;
+	toString(  ):string;
+
+} // end System
 
 } // end namespace java.lang
 declare namespace java.util.stream {
@@ -240,12 +252,6 @@ declare namespace java.util.stream {
 interface Stream<T>/*Stream<T> extends BaseStream<T, any>*/ {
 
 	// static builder<T>(  ):any /* java.util.stream.Stream$Builder */;
-	// static concat<T>( arg0:Stream<T>, arg1:Stream<T> ):Stream<T>;
-	// static empty<T>(  ):Stream<T>;
-	// static generate<T>( arg0:Supplier<T> ):Stream<T>;
-	// static iterate<T>( arg0:any /* java.lang.Object */, arg1:UnaryOperator<T> ):Stream<T>;
-	// static of<T>( arg0:[any] /* [Ljava.lang.Object; */ ):Stream<T>;
-	// static of<T>( arg0:any /* java.lang.Object */ ):Stream<T>;
 	allMatch( arg0:Predicate<T> ):boolean;
 	anyMatch( arg0:Predicate<T> ):boolean;
 	close(  ):void;
@@ -318,15 +324,6 @@ declare namespace java.util {
 
 interface Comparator<T> {
 
-	// static comparing<T>( arg0:any /* java.util.function.Function */ ):Comparator<T>;
-	// static comparing<T>( arg0:any /* java.util.function.Function */, arg1:Comparator<T> ):Comparator<T>;
-	// static comparingDouble<T>( arg0:any /* java.util.function.ToDoubleFunction */ ):Comparator<T>;
-	// static comparingInt<T>( arg0:any /* java.util.function.ToIntFunction */ ):Comparator<T>;
-	// static comparingLong<T>( arg0:any /* java.util.function.ToLongFunction */ ):Comparator<T>;
-	// static naturalOrder<T>(  ):Comparator<T>;
-	// static nullsFirst<T>( arg0:Comparator<T> ):Comparator<T>;
-	// static nullsLast<T>( arg0:Comparator<T> ):Comparator<T>;
-	// static reverseOrder<T>(  ):Comparator<T>;
 	compare( arg0:any /* java.lang.Object */, arg1:any /* java.lang.Object */ ):int;
 	equals( arg0:any /* java.lang.Object */ ):boolean;
 	reversed(  ):Comparator<T>;
@@ -858,9 +855,6 @@ class Optional<T>/* extends java.lang.Object*/ {
 	orElse( arg0:any /* java.lang.Object */ ):any /* java.lang.Object */;
 	orElseGet( arg0:Supplier<T> ):any /* java.lang.Object */;
 	orElseThrow( arg0:Supplier<T> ):any /* java.lang.Object */;
-	static empty<T>(  ):Optional<T>;
-	static of<T>( arg0:any /* java.lang.Object */ ):Optional<T>;
-	static ofNullable<T>( arg0:any /* java.lang.Object */ ):Optional<T>;
 	toString(  ):string;
 
 } // end Optional<T>
@@ -1016,8 +1010,6 @@ declare namespace java.nio.file {
 	hashCode(  ):int;
 	name(  ):string;
 	ordinal(  ):int;
-	static valueOf( arg0:string ):AccessMode;
-	static valueOf<E>( arg0:java.lang.Class<any>, arg1:string ):any /* java.lang.Enum */;
 	static values(  ):[any] /* [Ljava.nio.file.AccessMode; */;
 	toString(  ):string;
 

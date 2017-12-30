@@ -34,8 +34,7 @@ public interface TypescriptHelper {
         final StringBuilder inherited = new StringBuilder();
         
         if( type.isInterface() ) {
-            statement.append( "interface ");
-        
+            statement.append( "interface ");      
         }
         else {
             
@@ -47,7 +46,7 @@ public interface TypescriptHelper {
             if( superclass!=null ) {
             		inherited
                 		.append( " extends ")
-                		.append( getName(superclass, type) )      
+                		.append( getName(superclass, type, true) )      
                         ;
             }
         }
@@ -57,7 +56,7 @@ public interface TypescriptHelper {
         if(interfaces.length > 0 ) {
         	          
         		final String ifc = Arrays.stream(interfaces)
-								.map( (c) -> getName(c,type) )
+								.map( (c) -> getName(c,type, true) )
 								.collect( Collectors.joining(", "))
 								;
         		inherited
@@ -150,25 +149,26 @@ public interface TypescriptHelper {
      * @param declaringClass
      * @return
      */
-    static String getName( Class<?> type, Class<?> declaringClass ) {
-        final Package currentNS = declaringClass.getPackage();
+    static String getName( Class<?> type, Class<?> declaringClass, boolean packageResolution ) {
         
-        final java.util.List<String> dc_parameters_list = 
-        		Arrays.stream(declaringClass.getTypeParameters())
-        			.map( (tp) -> tp.getName())
-        			.collect(Collectors.toList());
-        
-       final java.util.List<String> type_parameters_list = 
-    		   Arrays.stream(type.getTypeParameters())
-        				.map( (tp) -> (dc_parameters_list.contains(tp.getName()) ) ? tp.getName() : "any" )
-        				.collect(Collectors.toList());
-       
-       final java.util.List<String>  parameters = 
-    		   dc_parameters_list.size() == type_parameters_list.size() ? dc_parameters_list : type_parameters_list ;
-       
-       boolean isFunctionaInterface = ( type.isInterface() && type.isAnnotationPresent(FunctionalInterface.class));
-       
-        return new StringBuilder()
+	final java.util.List<String> dc_parameters_list = 
+			Arrays.stream(declaringClass.getTypeParameters())
+				.map( (tp) -> tp.getName())
+				.collect(Collectors.toList());
+    
+	final java.util.List<String> type_parameters_list = 
+			   Arrays.stream(type.getTypeParameters())
+	    				.map( (tp) -> (dc_parameters_list.contains(tp.getName()) ) ? tp.getName() : "any" )
+	    				.collect(Collectors.toList());
+   
+	final java.util.List<String>  parameters = 
+			   dc_parameters_list.size() == type_parameters_list.size() ? dc_parameters_list : type_parameters_list ;
+   
+	boolean isFunctionaInterface = ( type.isInterface() && type.isAnnotationPresent(FunctionalInterface.class));
+   
+	final Package currentNS = (packageResolution) ? declaringClass.getPackage() : null;
+
+	return new StringBuilder()
                 .append( 
 	                type.getPackage().equals(currentNS) || isFunctionaInterface  ? 
 	                    type.getSimpleName() : 
@@ -178,15 +178,19 @@ public interface TypescriptHelper {
                 .toString();
     }
 
-    
     /**
      * 
      * @param type
      * @param declaringClass
      * @param declaredClassMap
+     * @param packageResolution
      * @return
      */
-    static String convertJavaToTS( Class<?> type, Class<?> declaringClass, java.util.Map<String, Class<?>> declaredClassMap ) {
+    static String convertJavaToTS(	Class<?> type, 
+    									Class<?> declaringClass, 
+    									java.util.Map<String, Class<?>> declaredClassMap, 
+    									boolean packageResolution ) 
+    {
 		
     		if( type == null ) return "any";
     	
@@ -205,7 +209,7 @@ public interface TypescriptHelper {
         if( type.isArray()) return format("[any] /* %s */",type.getName());
         
         if( declaredClassMap.containsKey(type.getName()) ) {
-                return getName(type,declaringClass);
+                return getName(type, declaringClass, packageResolution);
         }
         
         return format("any /* %s */",type.getName());

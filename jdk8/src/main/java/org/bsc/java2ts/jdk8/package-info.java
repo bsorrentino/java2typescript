@@ -14,7 +14,7 @@
 		
 
 		@Type(java.util.stream.BaseStream.class), 
-		@Type(java.util.stream.Stream.class), 
+		@Type(value=java.util.stream.Stream.class,export=true), 
 		
 		@Type(java.util.Iterator.class),
 		@Type(java.util.Comparator.class), 
