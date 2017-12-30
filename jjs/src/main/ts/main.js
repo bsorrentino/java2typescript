@@ -4,10 +4,12 @@ var colors = require("colors/safe");
 var mustache = require("mustache");
 var jdk8_types_1 = require("./jdk8-types");
 var b = "hello jjs";
-var list = new jdk8_types_1.ArrayList();
 var a = java.util.Arrays.asList(["item1", "item2", "item3"]);
 print(colors.red(b));
 a.stream().forEach(function (e) {
+    print(colors.green(e));
+});
+jdk8_types_1.Stream.of("<item2>").forEach(function (e) {
     print(colors.green(e));
 });
 var template = "Email addresses of: {{contact.name}}:\n{{#contact.emails}}\n- {{.}}\n{{/contact.emails}}\n";

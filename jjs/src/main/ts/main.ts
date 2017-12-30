@@ -2,17 +2,20 @@
 import * as colors from "colors/safe";
 import mustache = require("mustache");
 
-import {ArrayList} from "./jdk8-types";
+import {Stream} from "./jdk8-types";
 
 let b = "hello jjs";
 
-let list = new ArrayList<any>();
 
 let a = java.util.Arrays.asList( [ "item1", "item2", "item3"] );
 
 print( colors.red(b) );
 
 a.stream().forEach( (e) => {
+  print( colors.green(e) );
+});
+
+Stream.of<string>( "<item2>" ).forEach( (e) => {
   print( colors.green(e) );
 });
 

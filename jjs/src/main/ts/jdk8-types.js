@@ -1,3 +1,4 @@
 "use strict";
+/// <reference path="jdk8.d.ts" />
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ArrayList = Java.type("java.util.ArrayList");
+exports.Stream = Java.type("java.util.stream.Stream");
