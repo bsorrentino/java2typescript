@@ -20,9 +20,9 @@ import java.lang.reflect.TypeVariable;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.RandomAccess;
 import java.util.Set;
@@ -30,16 +30,12 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.annotation.processing.SupportedOptions;
 import javax.annotation.processing.SupportedSourceVersion;
-import javax.json.Json;
-import javax.json.JsonObject;
-import javax.json.JsonObjectBuilder;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.AnnotationValue;
@@ -92,9 +88,9 @@ public class TypescriptProcessor extends AbstractProcessorEx {
     private void addDeclaration( java.io.Writer w, TSType t, boolean isRhinoCompatible ) {
 		if( !t.isExport() ) return;
 
-		Class<?> type = t.valueAsClass();
+		Class<?> type = t.getValue();
 		
-		info( "export type [%s]", t.getValue() );
+		info( "export type [%s]", type.getName() );
 		
 		try {
 			if( isRhinoCompatible ) {
@@ -151,7 +147,7 @@ public class TypescriptProcessor extends AbstractProcessorEx {
 	
 	        final List<Class<?>> classes = types.stream()
 	        										//.peek( t -> addDeclaration(wT, t, compatibility.equalsIgnoreCase("rhino")) )
-	        										.map( t -> t.valueAsClass() )
+	        										.map( t -> t.getValue() )
 	        										.collect( Collectors.toList());
 	        
 	        
@@ -518,84 +514,20 @@ public class TypescriptProcessor extends AbstractProcessorEx {
 
     }
     
-    /**
-     * 
-     * @param am
-     * @param finisher
-     * @return
-     */
-    protected <R> R toMapObject( AnnotationMirror am, java.util.function.Function<Map<String,Object>, R> finisher ) {
-
-		final Collector<Map.Entry<? extends ExecutableElement, ? extends AnnotationValue>, Map<String,Object>, R> c = 
-				Collector.of( 
-					() -> new java.util.HashMap<String,Object>(), 
-					( map, entry ) -> 
-						map.put( entry.getKey().getSimpleName().toString(), entry.getValue().getValue()),
-					( v1, v2 ) -> v1,
-					finisher );
-					
-	    final R result = am.getElementValues()
-			.entrySet()
-			.stream()
-			.collect( c );
-	    
-	    return result;
     
-    }
+	@SuppressWarnings("serial")
+	class TSType extends HashMap<String,Object>{
 
-    /**
-     * 
-     * toJsonObject( am, ( builder ) -> builder.build() );
-     * 
-     * 
-     * @param am
-     * @param finisher
-     * @return
-     */
-    protected <R> R toJsonObject( AnnotationMirror am, java.util.function.Function<JsonObjectBuilder, R> finisher ) {
-
-		final Collector<Map.Entry<? extends ExecutableElement, ? extends AnnotationValue>, JsonObjectBuilder, R> c = 
-				Collector.of( 
-					() -> Json.createObjectBuilder(), 
-					( builder, entry ) -> {
-						final String k =  entry.getKey().getSimpleName().toString();
-						final Object v = entry.getValue().getValue();
-						
-						if( v == null ) builder.addNull(k);
-						else if( v instanceof Boolean ) builder.add(k, (Boolean)v );
-						else builder.add(k, String.valueOf(v));
-
-					},
-					( v1, v2 ) -> v1,
-					finisher );
-					
-	    final R result = am.getElementValues()
-			.entrySet()
-			.stream()
-			.collect( c );
-	    
-	    return result;
-    
-    }
-    
-    class TSType {
-    		final JsonObject internal;
-
-		public TSType(JsonObject internal) {
-			super();
-			this.internal = internal;
+		public TSType() {
+			super(2);
 		}
 
-		public String getValue() {
-			return internal.getString("value");
-		}
-
-		public Class<?> valueAsClass() {
-			return getClassFrom(internal.getString("value"));
+		public Class<?> getValue() {
+			return  getClassFrom(super.get("value"));
 		}
 		
 		public boolean isExport() {
-			return internal.getBoolean("export", false);
+			return (boolean) super.getOrDefault("export", false);
 		}
 		
     }
@@ -620,7 +552,7 @@ public class TypescriptProcessor extends AbstractProcessorEx {
 	            .flatMap( entry -> this.getAnnotationValueValue(entry).stream() )
 	            .map( av -> av.getValue() )
 	            .filter( v -> v instanceof AnnotationMirror).map( v -> ((AnnotationMirror)v) )
-	            .map( am -> toJsonObject(am, (builder) -> { return new TSType( builder.build() ); } ) )				
+	            .map( am -> toMapObject(am, () -> new TSType() ) )				
     				.collect( Collectors.toList() )
             ;
     }

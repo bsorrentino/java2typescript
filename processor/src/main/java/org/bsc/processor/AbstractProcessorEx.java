@@ -3,16 +3,24 @@ package org.bsc.processor;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Collections;
+import java.util.Map;
 import java.util.Observable;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.Filer;
 import javax.annotation.processing.RoundEnvironment;
+import javax.json.Json;
+import javax.json.JsonObjectBuilder;
+import javax.lang.model.element.AnnotationMirror;
+import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.Element;
+import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.tools.Diagnostic.Kind;
 import javax.tools.FileObject;
@@ -140,6 +148,66 @@ public abstract class AbstractProcessorEx extends AbstractProcessor {
         return false;
     }
 
+    /**
+     * 
+     * @param am
+     * @param supplier
+     * @return
+     */
+    protected <R extends Map<String,Object>> R toMapObject( AnnotationMirror am, java.util.function.Supplier<R> supplier ) {
+
+		final Collector<Map.Entry<? extends ExecutableElement, ? extends AnnotationValue>, R, R> c = 
+				Collector.of( 
+					supplier, 
+					( map, entry ) -> 
+						map.put( entry.getKey().getSimpleName().toString(), entry.getValue().getValue()),
+					( v1, v2 ) -> v1
+					);
+					
+	    final R result = am.getElementValues()
+			.entrySet()
+			.stream()
+			.collect( c );
+	    
+	    return result;
+    
+    }
+
+    /**
+     * 
+     * toJsonObject( am, ( builder ) -> builder.build() );
+     * 
+     * 
+     * @param am
+     * @param finisher
+     * @return
+     */
+    protected <R> R toJsonObject( AnnotationMirror am, java.util.function.Function<JsonObjectBuilder, R> finisher ) {
+
+		final Collector<Map.Entry<? extends ExecutableElement, ? extends AnnotationValue>, JsonObjectBuilder, R> c = 
+				Collector.of( 
+					() -> Json.createObjectBuilder(), 
+					( builder, entry ) -> {
+						final String k =  entry.getKey().getSimpleName().toString();
+						final Object v = entry.getValue().getValue();
+						
+						if( v == null ) builder.addNull(k);
+						else if( v instanceof Boolean ) builder.add(k, (Boolean)v );
+						else builder.add(k, String.valueOf(v));
+
+					},
+					( v1, v2 ) -> v1,
+					finisher );
+					
+	    final R result = am.getElementValues()
+			.entrySet()
+			.stream()
+			.collect( c );
+	    
+	    return result;
+    
+    }
+    
     public abstract boolean process(Context processingContext) throws Exception;
 
 }
