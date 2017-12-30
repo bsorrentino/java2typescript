@@ -10,6 +10,8 @@
 		@Type(java.lang.String.class), 
 		@Type(java.lang.Comparable.class),
 		@Type(java.lang.Runnable.class),
+		@Type(java.lang.System.class),
+		
 
 		@Type(java.util.stream.BaseStream.class), 
 		@Type(java.util.stream.Stream.class), 
