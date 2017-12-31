@@ -22,7 +22,7 @@
 		@Type(java.util.Map.class), 
 		@Type(java.util.List.class ), 
 		@Type(java.util.Set.class), 
-		@Type(java.util.Arrays.class),
+		@Type(value=java.util.Arrays.class, export=true),
 		@Type(java.util.HashMap.class),
 		@Type(java.util.HashSet.class), 
 		@Type(java.util.ArrayList.class), 

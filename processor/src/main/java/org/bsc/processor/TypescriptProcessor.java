@@ -4,9 +4,8 @@ import static org.bsc.processor.TypescriptHelper.convertJavaToTS;
 import static org.bsc.processor.TypescriptHelper.getClassDecl;
 import static org.bsc.processor.TypescriptHelper.getName;
 import static org.bsc.processor.TypescriptHelper.getSimpleName;
+import static org.bsc.processor.TypescriptHelper.isStaticMethod;
 
-import java.beans.BeanInfo;
-import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
 import java.io.Closeable;
 import java.io.IOException;
@@ -70,14 +69,15 @@ public class TypescriptProcessor extends AbstractProcessorEx {
     		Runnable.class
     	);
 
-    static final List<Class<?>> REQUIRED_CLASSES = Arrays.asList(
-    		java.lang.String.class,
-    		java.util.Collection.class,
-    		java.util.List.class,
-        java.util.Set.class,
-    		java.util.Map.class,
-    		java.util.stream.Stream.class,
-    		java.util.Optional.class
+    static final List<TSType> REQUIRED_CLASSES = Arrays.asList(
+    		new TSType(java.lang.String.class),
+    		new TSType(java.util.Collection.class),
+    		new TSType(java.util.Collections.class, true),
+    		new TSType(java.util.List.class),
+    		new TSType(java.util.Set.class),
+    		new TSType(java.util.Map.class),
+    		new TSType(java.util.stream.Stream.class, true),
+    		new TSType(java.util.Optional.class, true)
     	);
     
     /**
@@ -112,33 +112,30 @@ public class TypescriptProcessor extends AbstractProcessorEx {
         final String targetDefinitionFile	= processingContext.getOptionMap().getOrDefault("ts.outfile", "out");
         //final String compatibility 		= processingContext.getOptionMap().getOrDefault("compatibility", "nashorn");
        
+        final String definitionsFile	= targetDefinitionFile.concat(".d.ts");
+        final String typesFile		 = targetDefinitionFile.concat("-types.ts");
+        
         try( 
-        		final java.io.Writer wD = openFile( Paths.get(targetDefinitionFile.concat(".d.ts")), "headerD.ts" ); 
-        		final java.io.Writer wT = openFile( Paths.get(targetDefinitionFile.concat("-types.ts")), "headerT.ts" );  
+        		final java.io.Writer wD = openFile( Paths.get(definitionsFile), "headerD.ts" ); 
+        		final java.io.Writer wT = openFile( Paths.get(typesFile), "headerT.ts" );  
         	) {
-        	     
-	        final List<TSType> types = enumerateDeclaredPackageAndClass( processingContext );
-	
-	        final List<Class<?>> classes = types.stream()
+        	    
+	        final Set<TSType> types = enumerateDeclaredPackageAndClass( processingContext );
+
+	        types.addAll(REQUIRED_CLASSES);
+	        	        
+	        final Set<Class<?>> classes = types.stream()
 	        										.map( t -> t.getValue() )
-	        										.collect( Collectors.toList());
-	                
-	        //
-	        // Check for Required classes
-	        //
-			REQUIRED_CLASSES.stream()
-	        					.filter( c -> !classes.contains(c))
-	        					.forEach( c -> classes.add(c) );
-	
+	        										.collect( Collectors.toSet());
 	
 		    final java.util.Map<String, Class<?>> declaredClasses = 
 		    		classes.stream().collect( Collectors.toMap( clazz -> clazz.getName() , clazz -> clazz ));
 	
 			PREDEFINED_CLASSES.forEach( clazz -> declaredClasses.put( clazz.getName(), clazz) );
 	
-			classes.stream()
-				.filter( clazz -> !PREDEFINED_CLASSES.contains(clazz) )
-				.map( clazz -> processClass( getBeanInfo(clazz), declaredClasses))
+			types.stream()
+				.filter( t -> !PREDEFINED_CLASSES.contains(t.getValue()) )
+				.map( t -> processClass( t, declaredClasses))
 				.forEach( s -> {
 					try {
 						wD.append( s );
@@ -147,6 +144,7 @@ public class TypescriptProcessor extends AbstractProcessorEx {
 					}
 				} );
 
+			wT.append( String.format("/// <reference path=\"%s\"/>", definitionsFile) ).append( "\n\n");
 			types.stream()
 				.filter( t -> t.isExport() )
 				.map( t -> t.getValue() )
@@ -349,34 +347,14 @@ public class TypescriptProcessor extends AbstractProcessorEx {
 		final Predicate<Method> include = m ->
 			!m.isBridge() &&
 			!m.isSynthetic() &&
+			Modifier.isPublic( m.getModifiers() ) &&
 			Character.isJavaIdentifierStart(m.getName().charAt(0)) &&
 			m.getName().chars().skip(1).allMatch(Character::isJavaIdentifierPart);
 
-		final Set<Method> methods = new LinkedHashSet<>();
-
-		Stream.of(type.getMethods())
-		.filter(include)
-		.forEach(methods::add);
-
-		Stream.of(type.getDeclaredMethods())
+		return Stream.concat( Stream.of(type.getMethods()), Stream.of(type.getDeclaredMethods()) )
 			.filter(include)
-			.forEach(methods::add);
+			.collect( Collectors.toSet( ) );
 
-		return methods;
-
-    }
-
-    /**
-     *
-     * @param type
-     * @return
-     */
-    private BeanInfo getBeanInfo( final Class<?> type ) {
-		try {
-			return java.beans.Introspector.getBeanInfo(type);
-		} catch (IntrospectionException e) {
-			throw new Error(e);
-		}
     }
 
     /**
@@ -385,8 +363,10 @@ public class TypescriptProcessor extends AbstractProcessorEx {
      * @param type
      * @param declaredClassMap
      */
-    private void processNestedClasses( StringBuilder sb, Class<?> type, java.util.Map<String, Class<?>> declaredClassMap ) {
+    private void processNestedClasses( StringBuilder sb, TSType tstype, java.util.Map<String, Class<?>> declaredClassMap ) {
 
+    		final Class<?> type = tstype.getValue();
+    		
         final Class<?> nestedClasses[] = type.getClasses();
 
         if( nestedClasses.length == 0 ) return;
@@ -397,8 +377,8 @@ public class TypescriptProcessor extends AbstractProcessorEx {
     	      ;
 
         Arrays.stream(nestedClasses)
-        		.map( this::getBeanInfo )
-        		.map( (beanInfo) -> processClass(beanInfo, declaredClassMap) )
+        		.map( cl ->  new TSType(cl) )
+        		.map( t -> processClass(t, declaredClassMap) )
         		.forEach( (decl) -> sb.append(decl) );
 
         sb.append("\n} // end module ")
@@ -432,18 +412,6 @@ public class TypescriptProcessor extends AbstractProcessorEx {
 
     }
 
-    /**
-     * 
-     * @param m
-     * @return
-     */
-    private boolean isFactoryMethod( Method m ) {
-        final int modifier = m.getModifiers();
-        
-        return (Modifier.isStatic( modifier) && 
-        			Modifier.isPublic( modifier ) && 
-        			m.getReturnType().equals(m.getDeclaringClass()));
-    }
     
     /**
      * 
@@ -457,7 +425,7 @@ public class TypescriptProcessor extends AbstractProcessorEx {
     		final java.util.Set<Method> methodSet =
 	        getMethods( type )
 	        .stream()
-	        .filter( this::isFactoryMethod )
+	        .filter( TypescriptHelper::isStaticMethod )
 	        .collect( Collectors.toCollection(() -> new java.util.LinkedHashSet<Method>() ));
         
         if( !methodSet.isEmpty() ) {
@@ -498,12 +466,12 @@ public class TypescriptProcessor extends AbstractProcessorEx {
      * @param declaredClassMap
      * @return
      */
-    private String processClass(  BeanInfo bi, java.util.Map<String, Class<?>> declaredClassMap )   {
-
-        final Class<?> type = bi.getBeanDescriptor().getBeanClass();
+    private String processClass( TSType tstype, java.util.Map<String, Class<?>> declaredClassMap )   {
 
         final StringBuilder sb = new StringBuilder();
 
+		final Class<?> type = tstype.getValue();
+		
         final String namespace = type.getPackage().getName();
 
         if( !type.isMemberClass() )
@@ -517,12 +485,16 @@ public class TypescriptProcessor extends AbstractProcessorEx {
 
         processEnum(sb, type, declaredClassMap);
 
-        //final PropertyDescriptor[] pds = bi.getPropertyDescriptors();
+        /*
+		final BeanInfo bi = getBeanInfo(type);
+        
+        final PropertyDescriptor[] pds = bi.getPropertyDescriptors();
 
+		*/
         final java.util.Set<Method> methodSet =
     	        getMethods( type )
     	        .stream()
-    	        .filter( md -> !isFactoryMethod(md) )
+    	        .filter( md -> (tstype.isExport() && isStaticMethod(md))==false )
     	        .filter( (md) -> {
 	        		final String name = md.getName();
 	        		return !( 	name.contains("$")		|| // remove unnamed
@@ -578,7 +550,7 @@ public class TypescriptProcessor extends AbstractProcessorEx {
         		.append('\n');
 
         // NESTED CLASSES
-        processNestedClasses(sb, type, declaredClassMap);
+        processNestedClasses(sb, tstype, declaredClassMap);
 
         if( !type.isMemberClass() )
         		sb.append("\n} // end namespace ")
@@ -587,20 +559,6 @@ public class TypescriptProcessor extends AbstractProcessorEx {
 
         return sb.toString();
 
-    }
-
-    /**
-     *
-     * @param dt
-     * @return
-     */
-    private Class<?> getClassFrom( Object dt ) {
-        try {
-            return Class.forName(dt.toString());
-        } catch (ClassNotFoundException e1) {
-            error( "class not found [%s]",dt );
-            throw new RuntimeException(String.format("class not found [%s]",dt), e1);
-        }
     }
 
     /**
@@ -620,10 +578,20 @@ public class TypescriptProcessor extends AbstractProcessorEx {
     
     
 	@SuppressWarnings("serial")
-	class TSType extends HashMap<String,Object>{
+	static class TSType extends HashMap<String,Object>{
 
 		public TSType() {
 			super(2);
+		}
+		public TSType( Class<?> cl ) {
+			this();
+			put( "value", cl);
+		}
+		public TSType( Class<?> cl, boolean export ) {
+			this();
+			put( "value", cl);
+			put( "export", export);
+			
 		}
 
 		public Class<?> getValue() {
@@ -634,14 +602,39 @@ public class TypescriptProcessor extends AbstractProcessorEx {
 			return (boolean) super.getOrDefault("export", false);
 		}
 		
+	    /**
+	     *
+	     * @param dt
+	     * @return
+	     */
+	    private Class<?> getClassFrom( Object dt ) {
+	        	if( dt instanceof Class ) return (Class<?>)dt;
+	        	
+	    		try {
+	            return Class.forName(dt.toString());
+	        } catch (ClassNotFoundException e1) {
+	            throw new RuntimeException(String.format("class not found [%s]",dt), e1);
+	        }
+	    }
+		@Override
+		public boolean equals(Object o) {
+			return getValue().equals(((TSType)o).getValue());
+		}
+
+		@Override
+		public int hashCode() {
+			return getValue().hashCode();
+		}
+		
     }
     
+	
     /**
      *
      * @param processingContext
      * @return
      */
-    private java.util.List<TSType> enumerateDeclaredPackageAndClass( final Context processingContext ) {
+    private java.util.Set<TSType> enumerateDeclaredPackageAndClass( final Context processingContext ) {
     		
     		return
 			processingContext.elementFromAnnotations( Optional.empty() ).stream()
@@ -657,7 +650,7 @@ public class TypescriptProcessor extends AbstractProcessorEx {
 	            .map( av -> av.getValue() )
 	            .filter( v -> v instanceof AnnotationMirror).map( v -> ((AnnotationMirror)v) )
 	            .map( am -> toMapObject(am, () -> new TSType() ) )				
-    				.collect( Collectors.toList() )
+    				.collect( Collectors.toSet() )
             ;
     }
 

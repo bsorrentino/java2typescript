@@ -2,6 +2,7 @@
 // JAVA TYPESCRIPT DEDINITION
 //
 
+
 type int    = number;
 type long   = number;
 type float	= number;
@@ -21,6 +22,24 @@ type Consumer<T> = ( v:T) => void;
 type UnaryOperator<T> = ( v:T ) => T ;
 
 type Predicate<T>  = ( v:T ) => boolean;
+
+type Comparator<T> = ( o1:T, o2:T ) => int;
+
+//
+// NASHORN
+//
+
+declare function print( ...args: any[]):void
+
+declare function load( module:string ):void
+
+declare namespace Java {
+
+  export function type<T>( t:string):T;
+
+  export function from<T>( list:java.util.List<T>):Array<T> ;
+}
+
 
 declare namespace java.lang {
 

@@ -2,12 +2,53 @@ package org.bsc.processor;
 
 import static java.lang.String.format;
 
+import java.beans.BeanInfo;
+import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
 public interface TypescriptHelper {
+	
+	
+	/**
+	 *
+	 * @param type
+	 * @return
+	 */
+	static BeanInfo getBeanInfo(final Class<?> type) {
+		try {
+			return java.beans.Introspector.getBeanInfo(type);
+		} catch (IntrospectionException e) {
+			throw new Error(e);
+		}
+	}
+	
+    /**
+     * 
+     * @param m
+     * @return
+     */
+    static boolean isStaticMethod( Method m ) {
+        final int modifier = m.getModifiers();
+        
+        return (Modifier.isStatic( modifier) && 
+        			Modifier.isPublic( modifier )) ;
+    }
+    
+    /**
+     * 
+     * @param m
+     * @return
+     */
+    static boolean isFactoryMethod( Method m ) {
+
+    		return (isStaticMethod(m) && 
+        			m.getReturnType().equals(m.getDeclaringClass()));
+    }
 	
 	/**
 	 * 
