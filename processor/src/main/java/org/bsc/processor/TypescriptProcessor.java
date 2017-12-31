@@ -194,7 +194,7 @@ public class TypescriptProcessor extends AbstractProcessorEx {
 				final String typeName = pClass.getTypeName();
 
 				try {
-					final String name = getName( pClass, pd.getPropertyType());
+					final String name = getName( pClass, pd.getPropertyType(), true);
 
 					final String r = rType.getTypeName()
 							.replaceAll(typeName, name)
@@ -504,33 +504,6 @@ public class TypescriptProcessor extends AbstractProcessorEx {
 
         final StringBuilder sb = new StringBuilder();
 
-        final PropertyDescriptor[] pds = bi.getPropertyDescriptors();
-
-        final java.util.Set<Method> methodSet =
-    	        getMethods( type )
-    	        .stream()
-    	        .filter( md -> !isFactoryMethod(md) )
-    	        .filter( (md) -> {
-	        		final String name = md.getName();
-	        		return !( 	name.contains("$")		|| // remove unnamed
-	        					name.equals("wait")		||
-	        					name.equals("notify")	||
-	        					name.equals("notifyAll") );
-	        })
-    	        .filter( md ->  // Remove setter and getter
-    	            !Arrays.asList(pds)
-    	            			.stream()
-    	            			.anyMatch( pd -> (md.equals(pd.getReadMethod()) || md.equals(pd.getWriteMethod())) )
-    	        )
-    	        //.peek( (md ) -> System.out.printf( "==> CLASS [%s] - METHOD\t[%s]\n",type.getSimpleName(),md.getName()))
-    	        .collect( Collectors.toCollection(() -> new java.util.LinkedHashSet<Method>() ));
-
-        final java.util.Set<PropertyDescriptor> propertySet =
-        		Arrays.stream(pds)
-            .filter( TypescriptHelper::isPropertyValid )
-            .collect( Collectors.toCollection(() -> new java.util.LinkedHashSet<PropertyDescriptor>(pds.length) ))
-            ;
-
         final String namespace = type.getPackage().getName();
 
         if( !type.isMemberClass() )
@@ -544,6 +517,40 @@ public class TypescriptProcessor extends AbstractProcessorEx {
 
         processEnum(sb, type, declaredClassMap);
 
+        //final PropertyDescriptor[] pds = bi.getPropertyDescriptors();
+
+        final java.util.Set<Method> methodSet =
+    	        getMethods( type )
+    	        .stream()
+    	        .filter( md -> !isFactoryMethod(md) )
+    	        .filter( (md) -> {
+	        		final String name = md.getName();
+	        		return !( 	name.contains("$")		|| // remove unnamed
+        						name.equals("getClass")  ||
+        						name.equals("hashCode")  ||
+	        					name.equals("wait")		||
+	        					name.equals("notify")	||
+	        					name.equals("notifyAll") );
+	        })
+    	        /*
+    	        .filter( md ->  {// Remove setter and getter
+    	        	
+    	            final boolean match = Arrays.asList(pds)
+    	            			.stream()
+    	            			.noneMatch( pd -> (md.equals(pd.getReadMethod()) || md.equals(pd.getWriteMethod())) );
+
+    	            return match;
+    	        })
+    	        */
+    	        .collect( Collectors.toCollection(() -> new java.util.LinkedHashSet<Method>() ));
+
+        /*
+        final java.util.Set<PropertyDescriptor> propertySet =
+        		Arrays.stream(pds)
+            .filter( TypescriptHelper::isPropertyValid )
+            .collect( Collectors.toCollection(() -> new java.util.LinkedHashSet<PropertyDescriptor>(pds.length) ))
+            ;
+
         propertySet.stream()
 		    .map( pd -> {
 		    		final boolean duplicate = methodSet.stream().anyMatch( m -> m.getName().equals(pd.getName()));
@@ -552,12 +559,12 @@ public class TypescriptProcessor extends AbstractProcessorEx {
 		    })
         		.sorted()
         		.forEach((decl) ->
-
-            sb.append( '\t' )
-              .append(decl)
-              .append(  ENDL ))
-              ;
-
+	            sb.append( '\t' )
+	              .append(decl)
+	              .append(  ENDL ))
+	              ;
+        */
+        
         methodSet.stream()
 	        .map( md -> getMethodDecl(md, type, declaredClassMap) )
 	        .sorted().forEach( (decl) ->

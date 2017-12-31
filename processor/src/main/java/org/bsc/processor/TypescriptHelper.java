@@ -135,11 +135,11 @@ public interface TypescriptHelper {
      * @return
      * @throws ClassNotFoundException
      */
-    static String getName( Type type, Class<?> declaringClass ) throws ClassNotFoundException {
+    static String getName( Type type, Class<?> declaringClass, boolean packageResolution ) throws ClassNotFoundException {
     	
 		final Class<?> clazz = Class.forName(type.getTypeName());
 		
-		return getName( clazz, declaringClass );
+		return getName( clazz, declaringClass, packageResolution );
     	
     }
     
