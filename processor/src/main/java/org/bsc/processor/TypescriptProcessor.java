@@ -69,7 +69,9 @@ public class TypescriptProcessor extends AbstractProcessorEx {
     	);
 
     static final List<TSType> REQUIRED_CLASSES = Arrays.asList(
-    		new TSType(java.lang.String.class),
+    		new TSType(java.lang.String.class,true),
+    		new TSType(java.lang.Iterable.class,true),
+    		new TSType(java.util.Iterator.class,true),
     		new TSType(java.util.Collection.class),
     		new TSType(java.util.Collections.class, true),
     		new TSType(java.util.List.class),
@@ -432,6 +434,8 @@ public class TypescriptProcessor extends AbstractProcessorEx {
         		sb.append("interface ")
         			.append( type.getSimpleName() )
         			.append("Static {\n\n")
+        			//Append class property
+        			.append("\treadonly class:any;\n")
     			;
         		
         		methodSet.stream()
