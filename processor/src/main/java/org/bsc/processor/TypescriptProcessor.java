@@ -429,14 +429,13 @@ public class TypescriptProcessor extends AbstractProcessorEx {
 	        .filter( TypescriptHelper::isStaticMethod )
 	        .collect( Collectors.toCollection(() -> new java.util.LinkedHashSet<Method>() ));
         
-        if( !methodSet.isEmpty() ) {
-        	
-        		sb.append("interface ")
-        			.append( type.getSimpleName() )
-        			.append("Static {\n\n")
-        			//Append class property
-        			.append("\treadonly class:any;\n")
-    			;
+    		sb.append("interface ")
+			.append( type.getSimpleName() )
+			.append("Static {\n\n")
+			//Append class property
+			.append("\treadonly class:any;\n");
+
+		if( !methodSet.isEmpty() ) {
         		
         		methodSet.stream()
 	            .map( md -> getFactoryMethodDecl(md, type, declaredClassMap) )
