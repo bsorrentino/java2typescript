@@ -2,12 +2,12 @@
 import * as colors from "colors/safe";
 import mustache = require("mustache");
 
-import {Stream} from "./jdk8-types";
+import {Stream, URI, Arrays} from "./jdk8-types";
 
 let b = "hello jjs";
 
 
-let a = java.util.Arrays.asList( [ "item1", "item2", "item3"] );
+let a = Arrays.asList( [ "item1", "item2", "item3"] );
 
 print( colors.red(b) );
 
@@ -34,3 +34,12 @@ let result = mustache.render( template,
                ]}}
 );
 print(result);
+
+
+const u1 = "http://localhost:8000/site/";
+const u2 = "/spaces/flyingpdf/pdfpageexport.action?pageId=100532618";
+
+let uri = URI.create( u1 + u2 );
+
+print( uri.resolve( u2 ).toString() );
+print( URI.create( u1 + u2 ).normalize().toString() );
