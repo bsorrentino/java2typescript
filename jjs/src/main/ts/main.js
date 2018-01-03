@@ -21,6 +21,8 @@ var result = mustache.render(template, { contact: { name: "bsorrentino",
 print(result);
 var u1 = "http://localhost:8000/site/";
 var u2 = "/spaces/flyingpdf/pdfpageexport.action?pageId=100532618";
-var uri = jdk8_types_1.URI.create(u1 + u2);
+var u3 = "http://localhost:8000/spaces/flyingpdf/pdfpageexport.action?pageId=100532618";
+var uri = jdk8_types_1.URI.create(u1);
 print(uri.resolve(u2).toString());
 print(jdk8_types_1.URI.create(u1 + u2).normalize().toString());
+print(uri.resolve(u3).toString());
