@@ -33,8 +33,13 @@
 
 		@Type(java.util.function.UnaryOperator.class), 
 		@Type(java.util.function.Consumer.class),
-		@Type(java.util.function.Predicate.class)
+		@Type(java.util.function.Predicate.class),
+		
+		@Type(value=java.net.URI.class, export=true),
+		@Type(java.net.URL.class),
+		
 
+		
 })
 package org.bsc.java2ts.jdk8;
 
