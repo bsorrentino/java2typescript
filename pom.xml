@@ -8,10 +8,51 @@
 
     <name>java2ts-processor::parent - ${project.version}</name>
 
+    <distributionManagement>
+        <repository>
+            <id>${release.repo.id}</id>
+            <url>${release.repo.url}</url>
+        </repository>
+        <snapshotRepository>
+            <id>${snapshot.repo.id}</id>
+            <url>${snapshot.repo.url}</url>
+            <uniqueVersion>false</uniqueVersion>
+        </snapshotRepository>
+        <site>
+            <id>${release.site.id}</id>
+            <url>${release.site.url}</url>
+        </site>
+    </distributionManagement>
+    <scm>
+        <connection>scm:git:https://github.com/bsorrentino/java2typescript.git</connection>
+        <developerConnection>scm:git:https://github.com/bsorrentino/java2typescript.git</developerConnection>
+        <url>https://github.com/bsorrentino/java2typescript.git</url>
+    </scm>
+
+    <inceptionYear>2017</inceptionYear>
+
+    <developers>
+        <developer>
+            <email>bartolomeo.sorrentino@gmail.com</email>
+            <name>Bartolomeo Sorrentino</name>
+            <timezone>GMT+1</timezone>
+            <roles>
+                <role>Owner</role>
+            </roles>
+        </developer>
+    </developers>
+
     <properties>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <!-- SONATYPE REPO -->
+        <snapshot.repo.id>sonatype-repo</snapshot.repo.id>
+        <snapshot.repo.url>https://oss.sonatype.org/content/repositories/snapshots</snapshot.repo.url>
+        <release.repo.id>sonatype-repo</release.repo.id>
+        <release.repo.url>https://oss.sonatype.org/service/local/staging/deploy/maven2</release.repo.url>
+
     </properties>
     <modules>
     		<module>processor</module>
@@ -39,7 +80,7 @@
 			    <artifactId>javax.json</artifactId>
 			    <version>1.1.2</version>
 			</dependency>
-			        
+
         </dependencies>
     </dependencyManagement>
 </project>
