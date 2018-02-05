@@ -192,31 +192,32 @@ public interface TypescriptHelper {
      */
     static String getName( Class<?> type, Class<?> declaringClass, boolean packageResolution ) {
         
-	final java.util.List<String> dc_parameters_list = 
-			Arrays.stream(declaringClass.getTypeParameters())
-				.map( (tp) -> tp.getName())
-				.collect(Collectors.toList());
-    
-	final java.util.List<String> type_parameters_list = 
-			   Arrays.stream(type.getTypeParameters())
-	    				.map( (tp) -> (dc_parameters_list.contains(tp.getName()) ) ? tp.getName() : "any" )
-	    				.collect(Collectors.toList());
-   
-	final java.util.List<String>  parameters = 
-			   dc_parameters_list.size() == type_parameters_list.size() ? dc_parameters_list : type_parameters_list ;
-   
-	boolean isFunctionaInterface = ( type.isInterface() && type.isAnnotationPresent(FunctionalInterface.class));
-   
-	final Package currentNS = (packageResolution) ? declaringClass.getPackage() : null;
-
-	return new StringBuilder()
-                .append( 
-	                type.getPackage().equals(currentNS) || isFunctionaInterface  ? 
-	                    type.getSimpleName() : 
-	                    type.getName()
-	                 )
-                .append( getClassParametersDecl(parameters) )
-                .toString();
+		final java.util.List<String> dc_parameters_list = 
+				Arrays.stream(declaringClass.getTypeParameters())
+					.map( (tp) -> tp.getName())
+					.collect(Collectors.toList());
+	    
+		final java.util.List<String> type_parameters_list = 
+				   Arrays.stream(type.getTypeParameters())
+		    				.map( tp -> (dc_parameters_list.contains(tp.getName()) ) ? tp.getName() : "any" )
+		    				//.map( tp -> tp.getName() )
+		    				.collect(Collectors.toList());
+	   
+		final java.util.List<String>  parameters = 
+				   dc_parameters_list.size() == type_parameters_list.size() ? dc_parameters_list : type_parameters_list ;
+	   
+		boolean isFunctionaInterface = ( type.isInterface() && type.isAnnotationPresent(FunctionalInterface.class));
+	   
+		final Package currentNS = (packageResolution) ? declaringClass.getPackage() : null;
+	
+		return new StringBuilder()
+	                .append( 
+		                type.getPackage().equals(currentNS) || isFunctionaInterface  ? 
+		                    type.getSimpleName() : 
+		                    type.getName()
+		                 )
+	                .append( getClassParametersDecl(parameters) )
+	                .toString();
     }
 
     /**
