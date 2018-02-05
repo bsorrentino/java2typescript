@@ -16,9 +16,11 @@
            <executable>jjs</executable>
            <workingDirectory>${basedir}/src/main/ts</workingDirectory>
            <arguments>
+             <argument>-scripting</argument>
              <argument>-classpath</argument>
              <classpath/>
              <argument>app.js</argument>
+             <argument>--</argument>            
            </arguments>
          </configuration>
        </plugin>
