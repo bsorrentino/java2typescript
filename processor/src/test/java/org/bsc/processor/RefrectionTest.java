@@ -90,11 +90,21 @@ public class RefrectionTest {
 		}
 
 		{
-		final Method m = type.getMethod("method2");			
+		final Method m = type.getMethod("method2", Sample2.class);			
 		final Type rType = m.getGenericReturnType();
-		final String result = TypescriptHelper.convertJavaToTS(rType, type, Collections.emptyMap(), true);
+		final String result = TypescriptHelper.convertJavaToTS(rType, type, 
+				Collections.emptyMap(),
+				true);
 		Assert.assertThat( result, IsNull.notNullValue());		
 		Assert.assertThat( result, IsEqual.equalTo("string"));
+		
+		final Type pType = m.getParameters()[0].getParameterizedType();
+		final String rresult = TypescriptHelper.convertJavaToTS(pType, type, 
+				declaredClassMap(Sample2.class),
+				true);
+		Assert.assertThat( rresult, IsNull.notNullValue());		
+		Assert.assertThat( rresult, IsEqual.equalTo("Sample2<string>"));
+		
 		}
 		
 		{

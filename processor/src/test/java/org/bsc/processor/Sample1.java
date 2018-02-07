@@ -13,7 +13,7 @@ public interface Sample1<E> {
 	
 	<E2> BiPredicate<E2, E2> method1_3();
 	
-	String method2();
+	String method2( Sample2<String> s2 );
 	
 	E method3();
 	
