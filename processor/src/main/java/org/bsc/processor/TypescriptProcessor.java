@@ -2,9 +2,10 @@ package org.bsc.processor;
 
 import static org.bsc.processor.TypescriptHelper.convertJavaToTS;
 import static org.bsc.processor.TypescriptHelper.getClassDecl;
-import static org.bsc.processor.TypescriptHelper.getName;
+import static org.bsc.processor.TypescriptHelper.getTypeName;
 import static org.bsc.processor.TypescriptHelper.getSimpleName;
 import static org.bsc.processor.TypescriptHelper.isStaticMethod;
+import static org.bsc.processor.TypescriptHelper.getParameterName;
 
 import java.beans.PropertyDescriptor;
 import java.io.Closeable;
@@ -193,7 +194,7 @@ public class TypescriptProcessor extends AbstractProcessorEx {
 				final String typeName = pClass.getTypeName();
 
 				try {
-					final String name = getName( pClass, pd.getPropertyType(), true);
+					final String name = getTypeName( pClass, pd.getPropertyType(), true);
 
 					final String r = rType.getTypeName()
 							.replaceAll(typeName, name)
@@ -230,23 +231,23 @@ public class TypescriptProcessor extends AbstractProcessorEx {
      * @param declaredClassMap
      * @return
      */
-    private String getMethodParametersDecl(	Method m, 
-    											Class<?> declaringClass, 
-    											java.util.Map<String, Class<?>> declaredClassMap,
-    											boolean packageResolution ) 
+    protected String getMethodParametersDecl(	Method m, 
+    												Class<?> declaringClass, 
+    												java.util.Map<String, Class<?>> declaredClassMap,
+    												boolean packageResolution ) 
     {
-        final Class<?> returnType = m.getReturnType();
-
         final Parameter[] params = m.getParameters();
 
         final String params_string =
         		Arrays.stream(params)
         				.map( (tp) ->
         					String.format( "%s:%s",
-        						tp.getName(),
+        						getParameterName(tp),
         						convertJavaToTS(tp.getType(),declaringClass,declaredClassMap, packageResolution) ) )
         				.collect(Collectors.joining(", "))
         				;
+
+        final Type returnType = m.getGenericReturnType();
 
 	    	final String tsType = 
 	    			convertJavaToTS(	returnType,

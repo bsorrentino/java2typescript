@@ -5,13 +5,61 @@ import static java.lang.String.format;
 import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
+import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.Parameter;
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
+import java.lang.reflect.WildcardType;
 import java.util.Arrays;
+import java.util.function.BiFunction;
+import java.util.function.BiPredicate;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-public interface TypescriptHelper {
+public class TypescriptHelper {
+	
+    /**
+     * 
+     */
+    public static BiPredicate<Class<?>, Class<?>> isPackageMatch = (a, b ) -> 
+		a.getPackage().equals(b.getPackage()) ;
+    
+	/**
+	 * 
+	 */
+	public static Predicate<Class<?>> isFunctionalInterface = type ->
+		type.isInterface() && type.isAnnotationPresent(FunctionalInterface.class);
+		
+	/**
+	 * 
+	 */
+	public static BiFunction<Class<?>,TypeVariable<?>, Boolean> typeParameterMatch = (declaringClass, typeParameter) -> 		 
+		Arrays.stream(declaringClass.getTypeParameters())
+					.map( (tp) -> tp.getName())
+					.anyMatch( name -> name.equals(typeParameter.getName()))
+					;
+
+	private final static Consumer<String> log = msg -> System.out.println(msg);
+
+	/**
+	 * 
+	 * @param p
+	 * @return
+	 */
+	public static final String getParameterName( Parameter p ) {
+		final String name = p.getName();
+		
+		switch( name ) {	
+		case "function":
+			return "func";
+		default:
+			return name;
+		}
+	}
 	
 	
 	/**
@@ -87,7 +135,7 @@ public interface TypescriptHelper {
             if( superclass!=null ) {
             		inherited
                 		.append( " extends ")
-                		.append( getName(superclass, type, true) )      
+                		.append( getTypeName(superclass, type, true) )      
                         ;
             }
         }
@@ -97,7 +145,7 @@ public interface TypescriptHelper {
         if(interfaces.length > 0 ) {
         	          
         		final String ifc = Arrays.stream(interfaces)
-								.map( (c) -> getName(c,type, true) )
+								.map( (c) -> getTypeName(c,type, true) )
 								.collect( Collectors.joining(", "))
 								;
         		inherited
@@ -165,7 +213,7 @@ public interface TypescriptHelper {
      * @param type
      * @return
      */
-    static String getName( Class<?> type ) {
+    static String getTypeName( Class<?> type ) {
         return type.getName().concat(getClassParametersDecl(type));
     }
 
@@ -176,11 +224,11 @@ public interface TypescriptHelper {
      * @return
      * @throws ClassNotFoundException
      */
-    static String getName( Type type, Class<?> declaringClass, boolean packageResolution ) throws ClassNotFoundException {
+    static String getTypeName( Type type, Class<?> declaringClass, boolean packageResolution ) throws ClassNotFoundException {
     	
 		final Class<?> clazz = Class.forName(type.getTypeName());
 		
-		return getName( clazz, declaringClass, packageResolution );
+		return getTypeName( clazz, declaringClass, packageResolution );
     	
     }
     
@@ -190,7 +238,7 @@ public interface TypescriptHelper {
      * @param declaringClass
      * @return
      */
-    static String getName( Class<?> type, Class<?> declaringClass, boolean packageResolution ) {
+    static String getTypeName( Class<?> type, Class<?> declaringClass, boolean packageResolution ) {
         
 		final java.util.List<String> dc_parameters_list = 
 				Arrays.stream(declaringClass.getTypeParameters())
@@ -200,25 +248,137 @@ public interface TypescriptHelper {
 		final java.util.List<String> type_parameters_list = 
 				   Arrays.stream(type.getTypeParameters())
 		    				.map( tp -> (dc_parameters_list.contains(tp.getName()) ) ? tp.getName() : "any" )
-		    				//.map( tp -> tp.getName() )
 		    				.collect(Collectors.toList());
 	   
 		final java.util.List<String>  parameters = 
 				   dc_parameters_list.size() == type_parameters_list.size() ? dc_parameters_list : type_parameters_list ;
 	   
-		boolean isFunctionaInterface = ( type.isInterface() && type.isAnnotationPresent(FunctionalInterface.class));
+		//boolean isFunctionalInterface = ( type.isInterface() && type.isAnnotationPresent(FunctionalInterface.class));
 	   
 		final Package currentNS = (packageResolution) ? declaringClass.getPackage() : null;
 	
 		return new StringBuilder()
 	                .append( 
-		                type.getPackage().equals(currentNS) || isFunctionaInterface  ? 
+		                type.getPackage().equals(currentNS) || isFunctionalInterface.test(type)  ? 
 		                    type.getSimpleName() : 
 		                    type.getName()
 		                 )
 	                .append( getClassParametersDecl(parameters) )
 	                .toString();
     }
+
+    
+    /**
+     * 
+     * @param type
+     * @param declaringClass
+     * @param declaredClassMap
+     * @param packageResolution
+     * @return
+     * @throws Exception
+     */
+	public static String convertJavaToTS(	Type type, 
+											Class<?> declaringClass, 
+											java.util.Map<String, Class<?>> declaredClassMap,
+											boolean packageResolution)  
+	{
+		
+    
+
+		if( type instanceof ParameterizedType ) {
+
+			final ParameterizedType pType = (ParameterizedType) type;
+			
+			final Class<?> rawType = (Class<?>)pType.getRawType();
+
+			if( !declaredClassMap.containsKey(rawType.getName()) ) {
+	    			return format("any /*%s*/",rawType.getName());
+	        }
+			
+			String result = pType.getTypeName();
+						
+			if( isFunctionalInterface.test(rawType) || (packageResolution && isPackageMatch.test(rawType, declaringClass)) ) {					
+				result = result.replace( rawType.getName(), rawType.getSimpleName());
+			}
+				
+			final Type[] typeArgs = pType.getActualTypeArguments();
+			
+			for( Type t : typeArgs ) {
+				if( t instanceof ParameterizedType ) {
+					
+					final String typeName = convertJavaToTS( t, declaringClass, declaredClassMap, packageResolution);
+					log.accept(format( "Parameterized Type %s - %s",  t, typeName ));	
+					result = result.replace( t.getTypeName(), typeName);
+								
+				}
+				else if(  t instanceof TypeVariable ) {
+
+					log.accept(format( "type variable: %s",  t ));	
+					
+					final TypeVariable<?> tv = (TypeVariable<?>)t;
+					
+					if( !typeParameterMatch.apply(declaringClass, tv )) {
+						final String name = tv.getName();
+						result = result.replaceAll( "<"+name, "<any")
+	                                .replaceAll( ",\\s"+name, ", any")
+	                                .replaceAll( name +">", "any>")
+	                                ;
+						
+					}
+					continue;
+				}
+				else if( t instanceof Class ) {
+					log.accept(format( "class: %s",  t.getTypeName() ));	
+					
+					final String name = convertJavaToTS( (Class<?>)t, declaringClass, declaredClassMap, packageResolution);
+					
+					result = result.replace(t.getTypeName(), name);
+				}
+				else if( t instanceof WildcardType ) {
+					//throw new IllegalArgumentException( format("type argument <%s> 'WildcardType' is a  not supported yet!", t));
+					result = result.replace(t.getTypeName(), format( "any/*%s*/", t));
+				}
+				else if( t instanceof GenericArrayType ) {
+					throw new IllegalArgumentException( format("type argument <%s> 'GenericArrayType' is a  not supported yet!", t));					
+				}
+				
+			}
+			
+			return result;
+		}
+		else if(  type instanceof TypeVariable ) {
+			log.accept(format( "class: %s",  type.getTypeName() ));	
+
+			final TypeVariable<?> tv = (TypeVariable<?>)type;
+			
+			if( !typeParameterMatch.apply(declaringClass, tv )) {
+				final String name = tv.getName();						
+				return format("any/*%s*/", name);
+			}
+
+			return type.getTypeName();			
+		}
+		else if( type instanceof Class ) {
+			log.accept(format( "class: %s",  type.getTypeName() ));	
+
+			final String name = convertJavaToTS( (Class<?>)type, declaringClass, declaredClassMap, packageResolution);
+			return name;
+		}		
+		else if( type instanceof WildcardType ) {
+			throw new IllegalArgumentException( "type 'WildcardType' is a  not supported yet!");		
+		}
+		else if( type instanceof GenericArrayType ) {
+			final GenericArrayType t = (GenericArrayType)type;
+			log.accept(format( "generic array type: %s",  t.getGenericComponentType().getTypeName() ));	
+			//throw new IllegalArgumentException( format("type <%s> 'GenericArrayType' is a  not supported yet!", type));	
+			
+			return ( typeParameterMatch.apply(declaringClass, (TypeVariable<?>) t.getGenericComponentType() ))  ? 
+					format("[%s]", t.getGenericComponentType() ) :
+					format("[any/*%s*/]", t.getGenericComponentType() );
+		}
+		
+		throw new IllegalArgumentException( "type is a  not recognised type!");
+	}
 
     /**
      * 
@@ -228,10 +388,10 @@ public interface TypescriptHelper {
      * @param packageResolution
      * @return
      */
-    static String convertJavaToTS(	Class<?> type, 
-    									Class<?> declaringClass, 
-    									java.util.Map<String, Class<?>> declaredClassMap, 
-    									boolean packageResolution ) 
+    private static String convertJavaToTS(	Class<?> type, 
+    											Class<?> declaringClass, 
+    											java.util.Map<String, Class<?>> declaredClassMap, 
+    											boolean packageResolution ) 
     {
 		
     		if( type == null ) return "any";
@@ -251,10 +411,10 @@ public interface TypescriptHelper {
         if( type.isArray()) return format("[any] /* %s */",type.getName());
         
         if( declaredClassMap.containsKey(type.getName()) ) {
-                return getName(type, declaringClass, packageResolution);
+        		return getTypeName(type, declaringClass, packageResolution);
         }
         
-        return format("any /* %s */",type.getName());
+        return format("any /*%s*/",type.getName());
 		
     }
 
