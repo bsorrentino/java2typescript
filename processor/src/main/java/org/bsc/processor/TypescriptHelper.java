@@ -45,7 +45,9 @@ public class TypescriptHelper {
 				false
 					;
 
-	private final static Consumer<String> log = msg -> System.out.println(msg);
+	private final static void log( String fmt, Object ...args ) {
+		System.out.println( format( fmt, (Object[])args));
+	}
 
 	/**
 	 * 
@@ -309,13 +311,13 @@ public class TypescriptHelper {
 				if( t instanceof ParameterizedType ) {
 					
 					final String typeName = convertJavaToTS( t, declaringClass, declaredClassMap, packageResolution);
-					log.accept(format( "Parameterized Type %s - %s",  t, typeName ));	
+					log( "Parameterized Type %s - %s",  t, typeName );	
 					result = result.replace( t.getTypeName(), typeName);
 								
 				}
 				else if(  t instanceof TypeVariable ) {
 
-					log.accept(format( "type variable: %s",  t ));	
+					log( "type variable: %s",  t );	
 					
 					final TypeVariable<?> tv = (TypeVariable<?>)t;
 					
@@ -330,7 +332,7 @@ public class TypescriptHelper {
 					continue;
 				}
 				else if( t instanceof Class ) {
-					log.accept(format( "class: %s",  t.getTypeName() ));	
+					log( "class: %s",  t.getTypeName() );	
 					
 					final String name = convertJavaToTS( (Class<?>)t, declaringClass, declaredClassMap, packageResolution);
 					
@@ -342,7 +344,7 @@ public class TypescriptHelper {
 					final Type[] lb = wt.getLowerBounds();
 					final Type[] ub = wt.getUpperBounds();
 					
-					log.accept(format( "Wildcard Type : %s lb:%d up:%d",  type.getTypeName(), lb.length, ub.length ));	
+					log( "Wildcard Type : %s lb:%d up:%d",  type.getTypeName(), lb.length, ub.length );	
 					
 					if( lb.length <= 1 && ub.length==1) {
 						final Type tt  = (lb.length==1) ? lb[0] : ub[0];
@@ -362,7 +364,7 @@ public class TypescriptHelper {
 			return result;
 		}
 		else if(  type instanceof TypeVariable ) {
-			log.accept(format( "class: %s",  type.getTypeName() ));	
+			log( "class: %s",  type.getTypeName() );	
 
 			final TypeVariable<?> tv = (TypeVariable<?>)type;
 			
@@ -374,7 +376,7 @@ public class TypescriptHelper {
 			return type.getTypeName();			
 		}
 		else if( type instanceof Class ) {
-			log.accept(format( "class: %s",  type.getTypeName() ));	
+			log( "class: %s",  type.getTypeName() );	
 
 			final String name = convertJavaToTS( (Class<?>)type, declaringClass, declaredClassMap, packageResolution);
 			return name;
@@ -384,7 +386,7 @@ public class TypescriptHelper {
 		}
 		else if( type instanceof GenericArrayType ) {
 			final GenericArrayType t = (GenericArrayType)type;
-			log.accept(format( "generic array type: %s",  t.getGenericComponentType().getTypeName() ));	
+			log( "generic array type: %s",  t.getGenericComponentType().getTypeName() );	
 			//throw new IllegalArgumentException( format("type <%s> 'GenericArrayType' is a  not supported yet!", type));	
 			
 			return ( typeParameterMatch.apply(declaringClass, t.getGenericComponentType() ))  ? 
