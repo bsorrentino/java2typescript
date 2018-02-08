@@ -2,6 +2,7 @@ package org.bsc.processor;
 
 import java.util.concurrent.Future;
 import java.util.function.BiPredicate;
+import java.util.function.Consumer;
 
 public interface Sample1<E> {
 
@@ -14,6 +15,10 @@ public interface Sample1<E> {
 	<E2> BiPredicate<E2, E2> method1_3();
 	
 	String method2( Sample2<String> s2 );
+
+	String method2_1( Sample2<? extends CharSequence> s2 );
+	
+	String method2_2( Consumer<? extends E> s2 );
 	
 	E method3();
 	

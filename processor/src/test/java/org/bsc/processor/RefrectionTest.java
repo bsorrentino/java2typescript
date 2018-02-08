@@ -3,6 +3,7 @@ package org.bsc.processor;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.Collections;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -104,6 +105,40 @@ public class RefrectionTest {
 				true);
 		Assert.assertThat( rresult, IsNull.notNullValue());		
 		Assert.assertThat( rresult, IsEqual.equalTo("Sample2<string>"));
+		
+		}
+		{
+		final Method m = type.getMethod("method2_1", Sample2.class);			
+		final Type rType = m.getGenericReturnType();
+		final String result = TypescriptHelper.convertJavaToTS(rType, type, 
+				declaredClassMap(Sample2.class, CharSequence.class),
+				true);
+		Assert.assertThat( result, IsNull.notNullValue());		
+		Assert.assertThat( result, IsEqual.equalTo("string"));
+		
+		final Type pType = m.getParameters()[0].getParameterizedType();
+		final String rresult = TypescriptHelper.convertJavaToTS(pType, type, 
+				declaredClassMap(Sample2.class),
+				true);
+		Assert.assertThat( rresult, IsNull.notNullValue());		
+		Assert.assertThat( rresult, IsEqual.equalTo("Sample2<any /*java.lang.CharSequence*/>"));
+		
+		}
+		{
+		final Method m = type.getMethod("method2_2", Consumer.class);			
+		final Type rType = m.getGenericReturnType();
+		final String result = TypescriptHelper.convertJavaToTS(rType, type, 
+				declaredClassMap(Sample2.class, CharSequence.class),
+				true);
+		Assert.assertThat( result, IsNull.notNullValue());		
+		Assert.assertThat( result, IsEqual.equalTo("string"));
+		
+		final Type pType = m.getParameters()[0].getParameterizedType();
+		final String rresult = TypescriptHelper.convertJavaToTS(pType, type, 
+				declaredClassMap(Sample2.class, Consumer.class),
+				true);
+		Assert.assertThat( rresult, IsNull.notNullValue());		
+		Assert.assertThat( rresult, IsEqual.equalTo("Consumer<E>"));
 		
 		}
 		

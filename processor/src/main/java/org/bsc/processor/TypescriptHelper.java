@@ -37,10 +37,12 @@ public class TypescriptHelper {
 	/**
 	 * 
 	 */
-	public static BiFunction<Class<?>,TypeVariable<?>, Boolean> typeParameterMatch = (declaringClass, typeParameter) -> 		 
-		Arrays.stream(declaringClass.getTypeParameters())
+	public static BiFunction<Class<?>,Type, Boolean> typeParameterMatch = (declaringClass, type) ->	 	
+		( type instanceof TypeVariable ) ?
+				Arrays.stream(declaringClass.getTypeParameters())
 					.map( (tp) -> tp.getName())
-					.anyMatch( name -> name.equals(typeParameter.getName()))
+					.anyMatch( name -> name.equals(((TypeVariable<?>)type).getName())) :
+				false
 					;
 
 	private final static Consumer<String> log = msg -> System.out.println(msg);
@@ -335,8 +337,21 @@ public class TypescriptHelper {
 					result = result.replace(t.getTypeName(), name);
 				}
 				else if( t instanceof WildcardType ) {
-					//throw new IllegalArgumentException( format("type argument <%s> 'WildcardType' is a  not supported yet!", t));
-					result = result.replace(t.getTypeName(), format( "any/*%s*/", t));
+					final WildcardType wt = (WildcardType) t;
+					
+					final Type[] lb = wt.getLowerBounds();
+					final Type[] ub = wt.getUpperBounds();
+					
+					log.accept(format( "Wildcard Type : %s lb:%d up:%d",  type.getTypeName(), lb.length, ub.length ));	
+					
+					if( lb.length <= 1 && ub.length==1) {
+						final Type tt  = (lb.length==1) ? lb[0] : ub[0];
+						
+						result = result.replace( wt.getTypeName(), convertJavaToTS( tt, declaringClass, declaredClassMap, packageResolution));
+					}
+					else {
+						result = result.replace(wt.getTypeName(), format( "any/*%s*/", wt));						
+					}
 				}
 				else if( t instanceof GenericArrayType ) {
 					throw new IllegalArgumentException( format("type argument <%s> 'GenericArrayType' is a  not supported yet!", t));					
@@ -372,7 +387,7 @@ public class TypescriptHelper {
 			log.accept(format( "generic array type: %s",  t.getGenericComponentType().getTypeName() ));	
 			//throw new IllegalArgumentException( format("type <%s> 'GenericArrayType' is a  not supported yet!", type));	
 			
-			return ( typeParameterMatch.apply(declaringClass, (TypeVariable<?>) t.getGenericComponentType() ))  ? 
+			return ( typeParameterMatch.apply(declaringClass, t.getGenericComponentType() ))  ? 
 					format("[%s]", t.getGenericComponentType() ) :
 					format("[any/*%s*/]", t.getGenericComponentType() );
 		}

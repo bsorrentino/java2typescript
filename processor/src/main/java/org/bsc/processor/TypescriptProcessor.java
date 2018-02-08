@@ -243,7 +243,7 @@ public class TypescriptProcessor extends AbstractProcessorEx {
         				.map( (tp) ->
         					String.format( "%s:%s",
         						getParameterName(tp),
-        						convertJavaToTS(tp.getType(),declaringClass,declaredClassMap, packageResolution) ) )
+        						convertJavaToTS(tp.getParameterizedType(),declaringClass,declaredClassMap, packageResolution) ) )
         				.collect(Collectors.joining(", "))
         				;
 
