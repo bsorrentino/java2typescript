@@ -1,0 +1,78 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>\${groupId}</groupId>
+  <artifactId>\${artifactId}</artifactId>
+  <version>\${version}</version>
+  <dependencies>
+
+    <dependency>
+			<groupId>org.bsc.processor</groupId>
+			<artifactId>java2ts-processor</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+
+  </dependencies>
+
+  <profiles>
+		<profile>
+			<id>jjs</id>
+
+			<dependencies>
+
+				<dependency>
+					<groupId>org.bsc</groupId>
+					<artifactId>jvm-npm-core</artifactId>
+					<version>1.1.0</version>
+				</dependency>
+
+			</dependencies>
+
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>exec-maven-plugin</artifactId>
+						<version>1.6.0</version>
+						<configuration>
+							<executable>jjs</executable>
+							<workingDirectory>\${basedir}/src/main/ts</workingDirectory>
+							<arguments>
+								<argument>-scripting</argument>
+								<argument>-classpath</argument>
+								<classpath />
+								<argument>app.js</argument>
+								<argument>--</argument>
+							</arguments>
+						</configuration>
+					</plugin>
+
+					<plugin>
+						<groupId>org.bsc.maven</groupId>
+						<artifactId>maven-processor-plugin</artifactId>
+						<version>3.2.0</version>
+						<executions>
+							<execution>
+								<id>process</id>
+								<goals>
+									<goal>process</goal>
+								</goals>
+								<phase>generate-sources</phase>
+								<configuration>
+									<outputDirectory>\${project.build.directory}</outputDirectory>
+									<options>
+										<ts.outfile>\${typescript-filename}</ts.outfile>
+									</options>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+
+				</plugins>
+
+			</build>
+
+		</profile>
+	</profiles>
+
+</project>
