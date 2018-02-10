@@ -25,4 +25,6 @@ public interface Sample1<E> {
 	<C extends E> C method4();
 
 	<C extends Future<E>> C method5();
+	
+	void method6( String ...args );
 }

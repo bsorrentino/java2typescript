@@ -5,6 +5,7 @@ import static java.lang.String.format;
 import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
+import java.lang.reflect.Array;
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -386,6 +387,7 @@ public class TypescriptHelper {
 		}
 		else if( type instanceof GenericArrayType ) {
 			final GenericArrayType t = (GenericArrayType)type;
+			
 			log( "generic array type: %s",  t.getGenericComponentType().getTypeName() );	
 			//throw new IllegalArgumentException( format("type <%s> 'GenericArrayType' is a  not supported yet!", type));	
 			
@@ -425,7 +427,10 @@ public class TypescriptHelper {
         if( char[].class.equals(type) ) return "chararray";
         if( byte[].class.equals(type) ) return "bytearray";
         
-        if( type.isArray()) return format("[any] /* %s */",type.getName());
+        if( type.isArray()) {
+        		//return format("[any] /* %s */",type.getName());        		
+        		return format( "[%s]", convertJavaToTS(type.getComponentType(), declaringClass, declaredClassMap,packageResolution));
+        }
         
         if( declaredClassMap.containsKey(type.getName()) ) {
         		return getTypeName(type, declaringClass, packageResolution);

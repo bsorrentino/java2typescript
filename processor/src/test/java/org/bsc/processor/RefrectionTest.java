@@ -149,6 +149,17 @@ public class RefrectionTest {
 		Assert.assertThat( result, IsNull.notNullValue());		
 		Assert.assertThat( result, IsEqual.equalTo("E"));
 		}
+
+		{
+			
+		final String[] arr = {};
+		final Method m = type.getMethod("method6", arr.getClass());	
+		
+		final String result = processor.getMethodParametersAndReturnDecl( m, type, Collections.emptyMap(), true) ;
+		
+		Assert.assertThat( result, IsNull.notNullValue());		
+		Assert.assertThat( result, IsEqual.equalTo("( ...arg0:string[] ):void"));
+		}
 		
 	}
 }

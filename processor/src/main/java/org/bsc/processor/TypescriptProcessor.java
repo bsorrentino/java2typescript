@@ -2,19 +2,16 @@ package org.bsc.processor;
 
 import static org.bsc.processor.TypescriptHelper.convertJavaToTS;
 import static org.bsc.processor.TypescriptHelper.getClassDecl;
-import static org.bsc.processor.TypescriptHelper.getTypeName;
+import static org.bsc.processor.TypescriptHelper.getParameterName;
 import static org.bsc.processor.TypescriptHelper.getSimpleName;
 import static org.bsc.processor.TypescriptHelper.isStaticMethod;
-import static org.bsc.processor.TypescriptHelper.getParameterName;
 
-import java.beans.PropertyDescriptor;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
-import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.nio.file.Path;
@@ -163,67 +160,6 @@ public class TypescriptProcessor extends AbstractProcessorEx {
 
         return true;
     }
-
-    /**
-     *
-     * @param declaringClass
-     * @param pd
-     * @param declaredClassMap
-     * @return
-     */
-    private String getPropertyDecl(	Class<?> declaringClass, 
-    									PropertyDescriptor pd, 
-    									java.util.Map<String, Class<?>> declaredClassMap ) {
-
-	    final StringBuilder sb = new StringBuilder();
-
-	    sb.append(pd.getName());
-	    if( declaringClass.isInterface()) sb.append('?');
-
-	    sb.append(':');
-
-	    final Method getter = pd.getReadMethod();
-
-	    if( getter != null ) {
-
-			final Type rType = getter.getGenericReturnType();
-			if( rType instanceof ParameterizedType ) {
-
-				final Type pClass =  ((ParameterizedType)rType).getActualTypeArguments()[0];
-
-				final String typeName = pClass.getTypeName();
-
-				try {
-					final String name = getTypeName( pClass, pd.getPropertyType(), true);
-
-					final String r = rType.getTypeName()
-							.replaceAll(typeName, name)
-							.replaceAll("<[\\w\\?]>", "<any>")
-							;
-
-					info( "getPropertyDecl: [%s] [%s] [%s] [%s]", pd.getName(), typeName, rType.getTypeName(), r);
-
-					return sb.append( r ).toString();
-
-				} catch (ClassNotFoundException e) {
-
-					warn( "getPropertyDecl: type [%s] not found!", typeName);
-
-				}
-
-	    		}
-
-	    }
-
-	    final String tsType = convertJavaToTS( pd.getPropertyType(),
-                                                declaringClass,
-                                                declaredClassMap,
-                                                true);
-
-        return sb.append(tsType)
-                 .toString();
-	}
-
     /**
      * 
      * @param m
@@ -231,19 +167,27 @@ public class TypescriptProcessor extends AbstractProcessorEx {
      * @param declaredClassMap
      * @return
      */
-    protected String getMethodParametersDecl(	Method m, 
-    												Class<?> declaringClass, 
-    												java.util.Map<String, Class<?>> declaredClassMap,
-    												boolean packageResolution ) 
+    protected String getMethodParametersAndReturnDecl(	Method m, 
+    											Class<?> declaringClass, 
+    											java.util.Map<String, Class<?>> declaredClassMap,
+    											boolean packageResolution ) 
     {
         final Parameter[] params = m.getParameters();
 
         final String params_string =
         		Arrays.stream(params)
-        				.map( (tp) ->
-        					String.format( "%s:%s",
-        						getParameterName(tp),
-        						convertJavaToTS(tp.getParameterizedType(),declaringClass,declaredClassMap, packageResolution) ) )
+        				.map( (tp) -> {
+        					
+        					final String name = getParameterName(tp);
+        					
+        					
+        					if( tp.isVarArgs() ) {
+            					final String type = convertJavaToTS(tp.getType().getComponentType(),declaringClass,declaredClassMap, packageResolution) ;
+        						return String.format( "...%s:%s[]", name, type );
+        					}
+        					final String type = convertJavaToTS(tp.getParameterizedType(),declaringClass,declaredClassMap, packageResolution) ;
+        					return String.format( "%s:%s", name, type );
+        				})
         				.collect(Collectors.joining(", "))
         				;
 
@@ -299,7 +243,7 @@ public class TypescriptProcessor extends AbstractProcessorEx {
     		
     		appendStaticMethodTypeParameters(sb, m);
 
-        sb.append( getMethodParametersDecl(m, declaringClass, declaredClassMap, false) );
+        sb.append( getMethodParametersAndReturnDecl(m, declaringClass, declaredClassMap, false) );
 
         return  sb.toString();
 
@@ -334,7 +278,7 @@ public class TypescriptProcessor extends AbstractProcessorEx {
         }
 
         //if( m.getDeclaringClass().isInterface()) sb.append('?');
-        sb.append( getMethodParametersDecl(m, declaringClass, declaredClassMap, true) );
+        sb.append( getMethodParametersAndReturnDecl(m, declaringClass, declaredClassMap, true) );
 
         return  sb.toString();
 
