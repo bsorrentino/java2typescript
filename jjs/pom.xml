@@ -14,7 +14,9 @@
          <artifactId>exec-maven-plugin</artifactId>
          <version>1.6.0</version>
     		<configuration>
+            <!--
                <workingDirectory>${basedir}/src/main/ts</workingDirectory>
+            -->
     		</configuration>
          <executions>
            <execution>

@@ -5,7 +5,8 @@
 load('classpath:jvm-npm.js');
 
 require.paths = [
-  "../../../target/ts"
+  "src/main/ts",
+  "target/ts"
 ];
 
 java.lang.System.setProperty( "jvm-npm.debug", "true");
@@ -19,4 +20,4 @@ print( "args", $ARG.length );
 var process = { argv:$ARG, env:{TERM:'color'} } ;
 
 var exports = {};
-load('../../../target/ts/main.js');
+load('target/ts/main.js');
