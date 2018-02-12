@@ -25,6 +25,7 @@ It is not a transpiler from Java to Javascript like  [datathings/java2typescript
 ### Use Maven Archetype
 
 #### interactive mode
+
 ```
 mvn archetype:generate \
 -DarchetypeGroupId=org.bsc.processor \
