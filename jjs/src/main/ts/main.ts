@@ -7,7 +7,7 @@ import {Stream, URI, Arrays} from "./jdk8-types";
 let b = "hello jjs";
 
 
-let a = Arrays.asList( [ "item1", "item2", "item3"] );
+let a = Arrays.asList( [ "item1", "item2", "item3", "item4.1"] );
 
 print( colors.red(b) );
 
