@@ -17,7 +17,7 @@
             </includes>
         </fileSet>
 
-        <fileSet filtered="false" encoding="UTF-8">
+        <fileSet filtered="true" encoding="UTF-8">
             <directory>src/main/ts</directory>
             <includes>
                 <include>**/*.js</include>
@@ -29,7 +29,9 @@
         <fileSet encoding="UTF-8">
             <directory></directory>
             <includes>
-                <include>README.md</include>
+              <include>tsconfig.json</include>
+              <include>app.js</include>
+              <include>README.md</include>
             </includes>
         </fileSet>
     </fileSets>
