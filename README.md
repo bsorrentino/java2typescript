@@ -24,13 +24,13 @@ It is not a transpiler from Java to Javascript like  [datathings/java2typescript
 
 ### Use Maven Archetype
 
-#### interactive mode
+**Interactive Mode**
 
-```
-mvn archetype:generate \
--DarchetypeGroupId=org.bsc.processor \
--DarchetypeArtifactId=java2ts-processor-archetype \
--DarchetypeVersion=${project.version}
-```
+>```
+>mvn archetype:generate \
+>-DarchetypeGroupId=org.bsc.processor \
+>-DarchetypeArtifactId=java2ts-processor-archetype \
+>-DarchetypeVersion=${project.version}
+>```
 
 _Coming Soon ..._
