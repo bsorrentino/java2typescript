@@ -4,7 +4,8 @@
   <groupId>org.jjs</groupId>
   <artifactId>jjs</artifactId>
   <version>1.0.0-SNAPSHOT</version>
-  <packaging>war</packaging>
+  <name>java2ts-processor::sample</name>
+  <packaging>jar</packaging>
   <build>
     <finalName>jjs</finalName>
     <plugins>
@@ -12,17 +13,36 @@
          <groupId>org.codehaus.mojo</groupId>
          <artifactId>exec-maven-plugin</artifactId>
          <version>1.6.0</version>
-         <configuration>
-           <executable>jjs</executable>
-           <workingDirectory>${basedir}/src/main/ts</workingDirectory>
-           <arguments>
-             <argument>-scripting</argument>
-             <argument>-classpath</argument>
-             <classpath/>
-             <argument>app.js</argument>
-             <argument>--</argument>            
-           </arguments>
-         </configuration>
+    		<configuration>
+               <workingDirectory>${basedir}/src/main/ts</workingDirectory>
+    		</configuration>
+         <executions>
+           <execution>
+           	<id>jjs</id>
+  	         <configuration>
+  	           <executable>jjs</executable>
+  	           <arguments>
+  	             <argument>-scripting</argument>
+  	             <argument>-classpath</argument>
+  	             <classpath/>
+  	             <argument>app.js</argument>
+  	             <argument>--</argument>
+  	           </arguments>
+  	         </configuration>
+           </execution>
+         <execution>
+         	<id>tsc</id>
+          	<phase>process-resources</phase>
+          	<goals>
+          		<goal>exec</goal>
+          	</goals>
+	         <configuration>
+	           <executable>tsc</executable>
+	           <arguments>
+	           </arguments>
+	         </configuration>
+         </execution>
+         </executions>
        </plugin>
 
     </plugins>
