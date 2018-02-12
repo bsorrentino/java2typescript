@@ -2,7 +2,7 @@
 import * as colors from "colors/safe";
 import mustache = require("mustache");
 
-import {Stream, URI, Arrays} from "./jdk8-types";
+import {Stream, URI, Arrays} from "ts/jdk8-types";
 
 let b = "hello jjs";
 

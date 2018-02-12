@@ -56,7 +56,7 @@
     </properties>
     <modules>
     		<module>processor</module>
-    		<module>jdk8</module>
+    		<module>jjs</module>
         <module>archetype</module>
   </modules>
     <dependencyManagement>
