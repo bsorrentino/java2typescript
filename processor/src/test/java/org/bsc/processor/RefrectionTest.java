@@ -2,11 +2,14 @@ package org.bsc.processor;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
 import java.util.Collections;
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.hamcrest.core.Is;
 import org.hamcrest.core.IsEqual;
 import org.hamcrest.core.IsNull;
 import org.junit.Assert;
@@ -29,18 +32,29 @@ public class RefrectionTest {
 		
 		Stream.of(type.getTypeParameters()).forEach( v -> System.out.println(v.getName())) ;
 		
+		final java.util.Set<String> TypeVarSet = new java.util.HashSet<>(5);
 		
+		final Consumer<TypeVariable<?>> addTypeVar = tv -> TypeVarSet.add(tv.getName()) ;
+
 		{
 		final Method m = type.getMethod("method4");			
 		final Type rType = m.getGenericReturnType();
-		final String result = TypescriptHelper.convertJavaToTS(rType, type, Collections.emptyMap(), true);
+		final String result = TypescriptHelper.convertJavaToTS(rType, type, 
+				Collections.emptyMap(), 
+				true, 
+				Optional.empty(),
+				Optional.empty());
 		Assert.assertThat( result, IsNull.notNullValue());		
 		Assert.assertThat( result, IsEqual.equalTo("any/*C*/"));
 		}
 		{
 		final Method m = type.getMethod("method5");			
 		final Type rType = m.getGenericReturnType();
-		final String result = TypescriptHelper.convertJavaToTS(rType, type, Collections.emptyMap(), true);
+		final String result = TypescriptHelper.convertJavaToTS(rType, type, 
+				Collections.emptyMap(), 
+				true, 
+				Optional.empty(),
+				Optional.empty());
 		Assert.assertThat( result, IsNull.notNullValue());		
 		Assert.assertThat( result, IsEqual.equalTo("any/*C*/"));
 		}
@@ -49,7 +63,9 @@ public class RefrectionTest {
 		final Type rType = m.getGenericReturnType();
 		final String result = TypescriptHelper.convertJavaToTS(rType, type, 
 				declaredClassMap(Sample2.class),
-				true);
+				true,
+				Optional.empty(),
+				Optional.empty());
 		Assert.assertThat( result, IsNull.notNullValue());		
 		Assert.assertThat( result, IsEqual.equalTo("Sample2<string>"));
 		}
@@ -58,25 +74,35 @@ public class RefrectionTest {
 		final Type rType = m.getGenericReturnType();
 		final String result = TypescriptHelper.convertJavaToTS(rType, type, 
 				declaredClassMap(Sample2.class,java.lang.Comparable.class),
-				true);
+				true,
+				Optional.empty(),
+				Optional.empty());
 		Assert.assertThat( result, IsNull.notNullValue());		
 		Assert.assertThat( result, IsEqual.equalTo("java.lang.Comparable<Sample2<any>>"));
 		}
 		{
+		TypeVarSet.clear();
 		final Method m = type.getMethod("method1_3");			
 		final Type rType = m.getGenericReturnType();
 		final String result = TypescriptHelper.convertJavaToTS(rType, type, 
 				declaredClassMap(java.util.function.BiPredicate.class),
-				true);
+				true,
+				Optional.empty(),
+				Optional.of(addTypeVar));
 		Assert.assertThat( result, IsNull.notNullValue());		
-		Assert.assertThat( result, IsEqual.equalTo("BiPredicate<any, any>"));
+		Assert.assertThat( result, IsEqual.equalTo("BiPredicate<E2, E2>"));
+		Assert.assertThat( TypeVarSet.size(), IsEqual.equalTo(1));
+		Assert.assertThat( TypeVarSet.contains("E2"), Is.is(true));
+		
 		}		
 		{
 		final Method m = type.getMethod("method1_3");			
 		final Type rType = m.getGenericReturnType();
 		final String result = TypescriptHelper.convertJavaToTS(rType, type, 
 				Collections.emptyMap(),
-				true);
+				true,
+				Optional.empty(),
+				Optional.empty());
 		Assert.assertThat( result, IsNull.notNullValue());		
 		Assert.assertThat( result, IsEqual.equalTo("any /*java.util.function.BiPredicate*/"));
 		}		
@@ -85,7 +111,9 @@ public class RefrectionTest {
 		final Type rType = m.getGenericReturnType();
 		final String result = TypescriptHelper.convertJavaToTS(rType, type, 
 				declaredClassMap(java.util.Map.class),
-				true);
+				true,
+				Optional.empty(),
+				Optional.empty());
 		Assert.assertThat( result, IsNull.notNullValue());		
 		Assert.assertThat( result, IsEqual.equalTo("java.util.Map<E, string>"));
 		}
@@ -95,14 +123,18 @@ public class RefrectionTest {
 		final Type rType = m.getGenericReturnType();
 		final String result = TypescriptHelper.convertJavaToTS(rType, type, 
 				Collections.emptyMap(),
-				true);
+				true,
+				Optional.empty(),
+				Optional.empty());
 		Assert.assertThat( result, IsNull.notNullValue());		
 		Assert.assertThat( result, IsEqual.equalTo("string"));
 		
 		final Type pType = m.getParameters()[0].getParameterizedType();
 		final String rresult = TypescriptHelper.convertJavaToTS(pType, type, 
 				declaredClassMap(Sample2.class),
-				true);
+				true,
+				Optional.empty(),
+				Optional.empty());
 		Assert.assertThat( rresult, IsNull.notNullValue());		
 		Assert.assertThat( rresult, IsEqual.equalTo("Sample2<string>"));
 		
@@ -112,14 +144,18 @@ public class RefrectionTest {
 		final Type rType = m.getGenericReturnType();
 		final String result = TypescriptHelper.convertJavaToTS(rType, type, 
 				declaredClassMap(Sample2.class, CharSequence.class),
-				true);
+				true,
+				Optional.empty(),
+				Optional.empty());
 		Assert.assertThat( result, IsNull.notNullValue());		
 		Assert.assertThat( result, IsEqual.equalTo("string"));
 		
 		final Type pType = m.getParameters()[0].getParameterizedType();
 		final String rresult = TypescriptHelper.convertJavaToTS(pType, type, 
 				declaredClassMap(Sample2.class),
-				true);
+				true,
+				Optional.empty(),
+				Optional.empty());
 		Assert.assertThat( rresult, IsNull.notNullValue());		
 		Assert.assertThat( rresult, IsEqual.equalTo("Sample2<any /*java.lang.CharSequence*/>"));
 		
@@ -129,14 +165,18 @@ public class RefrectionTest {
 		final Type rType = m.getGenericReturnType();
 		final String result = TypescriptHelper.convertJavaToTS(rType, type, 
 				declaredClassMap(Sample2.class, CharSequence.class),
-				true);
+				true,
+				Optional.empty(),
+				Optional.empty());
 		Assert.assertThat( result, IsNull.notNullValue());		
 		Assert.assertThat( result, IsEqual.equalTo("string"));
 		
 		final Type pType = m.getParameters()[0].getParameterizedType();
 		final String rresult = TypescriptHelper.convertJavaToTS(pType, type, 
 				declaredClassMap(Sample2.class, Consumer.class),
-				true);
+				true,
+				Optional.empty(),
+				Optional.empty());
 		Assert.assertThat( rresult, IsNull.notNullValue());		
 		Assert.assertThat( rresult, IsEqual.equalTo("Consumer<E>"));
 		
@@ -145,7 +185,11 @@ public class RefrectionTest {
 		{
 		final Method m = type.getMethod("method3");			
 		final Type rType = m.getGenericReturnType();
-		final String result = TypescriptHelper.convertJavaToTS(rType, type, Collections.emptyMap(), true);
+		final String result = TypescriptHelper.convertJavaToTS(rType, type, 
+				Collections.emptyMap(), 
+				true, 
+				Optional.empty(),
+				Optional.empty());
 		Assert.assertThat( result, IsNull.notNullValue());		
 		Assert.assertThat( result, IsEqual.equalTo("E"));
 		}

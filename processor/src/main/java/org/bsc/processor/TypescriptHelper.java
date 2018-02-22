@@ -5,7 +5,6 @@ import static java.lang.String.format;
 import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
-import java.lang.reflect.Array;
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -15,6 +14,7 @@ import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.lang.reflect.WildcardType;
 import java.util.Arrays;
+import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.BiPredicate;
 import java.util.function.Consumer;
@@ -38,7 +38,7 @@ public class TypescriptHelper {
 	/**
 	 * 
 	 */
-	public static BiFunction<Class<?>,Type, Boolean> typeParameterMatch = (declaringClass, type) ->	 	
+	private static BiFunction<Class<?>,Type, Boolean> typeParameterMatch = (declaringClass, type) ->	 	
 		( type instanceof TypeVariable ) ?
 				Arrays.stream(declaringClass.getTypeParameters())
 					.map( (tp) -> tp.getName())
@@ -285,7 +285,9 @@ public class TypescriptHelper {
 	public static String convertJavaToTS(	Type type, 
 											Class<?> declaringClass, 
 											java.util.Map<String, Class<?>> declaredClassMap,
-											boolean packageResolution)  
+											boolean packageResolution,
+											Optional<BiFunction<Class<?>,Type, Boolean>> typeMatch,
+											Optional<Consumer<TypeVariable<?>>> onTypeMismatch)  
 	{
 		
     
@@ -311,7 +313,7 @@ public class TypescriptHelper {
 			for( Type t : typeArgs ) {
 				if( t instanceof ParameterizedType ) {
 					
-					final String typeName = convertJavaToTS( t, declaringClass, declaredClassMap, packageResolution);
+					final String typeName = convertJavaToTS( t, declaringClass, declaredClassMap, packageResolution,typeMatch,onTypeMismatch);
 					log( "Parameterized Type %s - %s",  t, typeName );	
 					result = result.replace( t.getTypeName(), typeName);
 								
@@ -322,13 +324,19 @@ public class TypescriptHelper {
 					
 					final TypeVariable<?> tv = (TypeVariable<?>)t;
 					
-					if( !typeParameterMatch.apply(declaringClass, tv )) {
-						final String name = tv.getName();
-						result = result.replaceAll( "<"+name, "<any")
-	                                .replaceAll( ",\\s"+name, ", any")
-	                                .replaceAll( name +">", "any>")
-	                                ;
-						
+					//if( !typeParameterMatch.apply(declaringClass, tv )) {
+					if( !typeMatch.orElseGet(() -> typeParameterMatch).apply(declaringClass, tv )) {
+
+						if( onTypeMismatch.isPresent() ) {
+							 onTypeMismatch.get().accept(tv);
+						 }
+						 else {
+							final String name = tv.getName();
+							result = result.replaceAll( "<"+name, "<any")
+		                                .replaceAll( ",\\s"+name, ", any")
+		                                .replaceAll( name +">", "any>")
+		                                ;	 
+						 }
 					}
 					continue;
 				}
@@ -350,7 +358,7 @@ public class TypescriptHelper {
 					if( lb.length <= 1 && ub.length==1) {
 						final Type tt  = (lb.length==1) ? lb[0] : ub[0];
 						
-						result = result.replace( wt.getTypeName(), convertJavaToTS( tt, declaringClass, declaredClassMap, packageResolution));
+						result = result.replace( wt.getTypeName(), convertJavaToTS( tt, declaringClass, declaredClassMap, packageResolution,typeMatch,onTypeMismatch));
 					}
 					else {
 						result = result.replace(wt.getTypeName(), format( "any/*%s*/", wt));						
@@ -369,7 +377,8 @@ public class TypescriptHelper {
 
 			final TypeVariable<?> tv = (TypeVariable<?>)type;
 			
-			if( !typeParameterMatch.apply(declaringClass, tv )) {
+			//if( !typeParameterMatch.apply(declaringClass, tv )) {
+			if( 	!typeMatch.orElseGet(() -> typeParameterMatch).apply(declaringClass, tv )) {
 				final String name = tv.getName();						
 				return format("any/*%s*/", name);
 			}

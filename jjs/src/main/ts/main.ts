@@ -11,7 +11,7 @@ let a = Arrays.asList( [ "item1", "item2", "item3", "item4.1"] );
 
 print( colors.red(b) );
 
-a.stream().forEach( (e) => {
+a.stream().forEach( (e:any) => {
   print( colors.green(e) );
 });
 

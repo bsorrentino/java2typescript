@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.RandomAccess;
 import java.util.Set;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -168,10 +169,14 @@ public class TypescriptProcessor extends AbstractProcessorEx {
      * @return
      */
     protected String getMethodParametersAndReturnDecl(	Method m, 
-    											Class<?> declaringClass, 
-    											java.util.Map<String, Class<?>> declaredClassMap,
-    											boolean packageResolution ) 
+    														Class<?> declaringClass, 
+    														java.util.Map<String, Class<?>> declaredClassMap,
+    														boolean packageResolution ) 
     {
+		final java.util.Set<String> TypeVarSet = new java.util.HashSet<>(5);
+    		
+    		final Consumer<TypeVariable<?>> addTypeVar = tv -> TypeVarSet.add(tv.getName()) ;
+    		
         final Parameter[] params = m.getParameters();
 
         final String params_string =
@@ -182,10 +187,20 @@ public class TypescriptProcessor extends AbstractProcessorEx {
         					
         					
         					if( tp.isVarArgs() ) {
-            					final String type = convertJavaToTS(tp.getType().getComponentType(),declaringClass,declaredClassMap, packageResolution) ;
+            					final String type = convertJavaToTS( tp.getType().getComponentType(),
+            														declaringClass,
+            														declaredClassMap, 
+            														packageResolution, 
+            														isStaticMethod(m) ? Optional.of( (c,t) -> false) : Optional.empty(),
+            														Optional.of( addTypeVar )) ;
         						return String.format( "...%s:%s[]", name, type );
         					}
-        					final String type = convertJavaToTS(tp.getParameterizedType(),declaringClass,declaredClassMap, packageResolution) ;
+        					final String type = convertJavaToTS( tp.getParameterizedType(),
+        														declaringClass,
+        														declaredClassMap, 
+        														packageResolution, 
+        														isStaticMethod(m) ? Optional.of( (c,t) -> false) : Optional.empty(),
+        														Optional.of( addTypeVar )) ;
         					return String.format( "%s:%s", name, type );
         				})
         				.collect(Collectors.joining(", "))
@@ -197,9 +212,19 @@ public class TypescriptProcessor extends AbstractProcessorEx {
 	    			convertJavaToTS(	returnType,
 	    							declaringClass,
 	    							declaredClassMap,
-	    							packageResolution);
-
-	    	return  new StringBuilder()
+	    							packageResolution,
+	    							isStaticMethod(m) ? Optional.of( (c,t) -> false) : Optional.empty(),
+	    							Optional.of( addTypeVar ));
+	    	
+	    	final StringBuilder result = new StringBuilder();
+	    	
+	    	if( !TypeVarSet.isEmpty() ) {
+	    		result
+	    			.append('<')
+    				.append( TypeVarSet.stream().collect(Collectors.joining(",")))
+    				.append('>');	    		
+	    	}
+	    	return  result
 	    	        		.append("( ")
 	    	        		.append(params_string)
 	    				.append(" ):")
@@ -212,7 +237,7 @@ public class TypescriptProcessor extends AbstractProcessorEx {
      * @param sb
      * @param m
      */
-    private void appendStaticMethodTypeParameters( final StringBuilder sb, final Method m ) {
+    private StringBuilder appendStaticMethodTypeParameters( final StringBuilder sb, final Method m ) {
 		final TypeVariable<?>[] return_type_parameters = m.getReturnType().getTypeParameters();
 
 		if( return_type_parameters.length > 0 ) {
@@ -226,6 +251,8 @@ public class TypescriptProcessor extends AbstractProcessorEx {
 			sb.append( pp );
 
         }
+		
+		return sb;
     }
     
     /**
@@ -241,7 +268,7 @@ public class TypescriptProcessor extends AbstractProcessorEx {
 
         	sb.append(m.getName());
     		
-    		appendStaticMethodTypeParameters(sb, m);
+    		//appendStaticMethodTypeParameters(sb, m).append( getMethodParametersAndReturnDecl(m, declaringClass, declaredClassMap, false) );
 
         sb.append( getMethodParametersAndReturnDecl(m, declaringClass, declaredClassMap, false) );
 
@@ -268,7 +295,7 @@ public class TypescriptProcessor extends AbstractProcessorEx {
 
         		sb.append("static ").append(m.getName());
         		
-        		appendStaticMethodTypeParameters(sb, m);
+        		//appendStaticMethodTypeParameters(sb, m);
 
         }
         else {
