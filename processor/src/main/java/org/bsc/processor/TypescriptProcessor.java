@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.RandomAccess;
 import java.util.Set;
-import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -188,18 +187,18 @@ public class TypescriptProcessor extends AbstractProcessorEx {
         					
         					if( tp.isVarArgs() ) {
             					final String type = convertJavaToTS( tp.getType().getComponentType(),
+            														m,
             														declaringClass,
             														declaredClassMap, 
             														packageResolution, 
-            														isStaticMethod(m) ? Optional.of( (c,t) -> false) : Optional.empty(),
             														Optional.of( addTypeVar )) ;
         						return String.format( "...%s:%s[]", name, type );
         					}
         					final String type = convertJavaToTS( tp.getParameterizedType(),
+        														m,
         														declaringClass,
         														declaredClassMap, 
         														packageResolution, 
-        														isStaticMethod(m) ? Optional.of( (c,t) -> false) : Optional.empty(),
         														Optional.of( addTypeVar )) ;
         					return String.format( "%s:%s", name, type );
         				})
@@ -210,10 +209,10 @@ public class TypescriptProcessor extends AbstractProcessorEx {
 
 	    	final String tsType = 
 	    			convertJavaToTS(	returnType,
+	    							m,
 	    							declaringClass,
 	    							declaredClassMap,
 	    							packageResolution,
-	    							isStaticMethod(m) ? Optional.of( (c,t) -> false) : Optional.empty(),
 	    							Optional.of( addTypeVar ));
 	    	
 	    	final StringBuilder result = new StringBuilder();
@@ -230,29 +229,6 @@ public class TypescriptProcessor extends AbstractProcessorEx {
 	    				.append(" ):")
 	    				.append(tsType)
 	    				.toString();
-    }
-    
-    /**
-     * 
-     * @param sb
-     * @param m
-     */
-    private StringBuilder appendStaticMethodTypeParameters( final StringBuilder sb, final Method m ) {
-		final TypeVariable<?>[] return_type_parameters = m.getReturnType().getTypeParameters();
-
-		if( return_type_parameters.length > 0 ) {
-
-			final String pp = 
-					Arrays.asList( return_type_parameters )
-    				.stream()
-    				.map( t -> t.getName() )
-    				.collect(Collectors.joining(",", "<", ">")) ;
-			
-			sb.append( pp );
-
-        }
-		
-		return sb;
     }
     
     /**
@@ -628,5 +604,30 @@ public class TypescriptProcessor extends AbstractProcessorEx {
             ;
     }
 
+    /**
+     * 
+     * @param sb
+     * @param m
+     */
+	@Deprecated
+    @SuppressWarnings("unused")
+    private StringBuilder appendStaticMethodTypeParameters( final StringBuilder sb, final Method m ) {
+		final TypeVariable<?>[] return_type_parameters = m.getReturnType().getTypeParameters();
+
+		if( return_type_parameters.length > 0 ) {
+
+			final String pp = 
+					Arrays.asList( return_type_parameters )
+    				.stream()
+    				.map( t -> t.getName() )
+    				.collect(Collectors.joining(",", "<", ">")) ;
+			
+			sb.append( pp );
+
+        }
+		
+		return sb;
+    }
+    
 
 }

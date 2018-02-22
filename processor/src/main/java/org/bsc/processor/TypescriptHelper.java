@@ -14,6 +14,7 @@ import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.lang.reflect.WildcardType;
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.BiPredicate;
@@ -272,26 +273,29 @@ public class TypescriptHelper {
 	                .toString();
     }
 
-    
+
     /**
      * 
      * @param type
-     * @param declaringClass
+     * @param declaringMethod
      * @param declaredClassMap
      * @param packageResolution
+     * @param typeMatch
+     * @param onTypeMismatch
      * @return
-     * @throws Exception
      */
 	public static String convertJavaToTS(	Type type, 
-											Class<?> declaringClass, 
+											Method declaringMethod, 
+											Class<?> declaringClass,	
 											java.util.Map<String, Class<?>> declaredClassMap,
 											boolean packageResolution,
-											Optional<BiFunction<Class<?>,Type, Boolean>> typeMatch,
 											Optional<Consumer<TypeVariable<?>>> onTypeMismatch)  
 	{
+		Objects.requireNonNull(type, "Type argument is null!");
+		Objects.requireNonNull(declaringMethod, "declaringMethod argument is null!");
+		Objects.requireNonNull(declaringClass, "declaringClass argument is null!");
+		Objects.requireNonNull(declaredClassMap, "declaredClassMap argument is null!");
 		
-    
-
 		if( type instanceof ParameterizedType ) {
 
 			final ParameterizedType pType = (ParameterizedType) type;
@@ -313,7 +317,12 @@ public class TypescriptHelper {
 			for( Type t : typeArgs ) {
 				if( t instanceof ParameterizedType ) {
 					
-					final String typeName = convertJavaToTS( t, declaringClass, declaredClassMap, packageResolution,typeMatch,onTypeMismatch);
+					final String typeName = convertJavaToTS( t, 
+															declaringMethod, 
+															declaringClass,
+															declaredClassMap, 
+															packageResolution,
+															onTypeMismatch);
 					log( "Parameterized Type %s - %s",  t, typeName );	
 					result = result.replace( t.getTypeName(), typeName);
 								
@@ -324,8 +333,7 @@ public class TypescriptHelper {
 					
 					final TypeVariable<?> tv = (TypeVariable<?>)t;
 					
-					//if( !typeParameterMatch.apply(declaringClass, tv )) {
-					if( !typeMatch.orElseGet(() -> typeParameterMatch).apply(declaringClass, tv )) {
+					if( isStaticMethod(declaringMethod) || !typeParameterMatch.apply(declaringClass, tv )) {
 
 						if( onTypeMismatch.isPresent() ) {
 							 onTypeMismatch.get().accept(tv);
@@ -358,7 +366,12 @@ public class TypescriptHelper {
 					if( lb.length <= 1 && ub.length==1) {
 						final Type tt  = (lb.length==1) ? lb[0] : ub[0];
 						
-						result = result.replace( wt.getTypeName(), convertJavaToTS( tt, declaringClass, declaredClassMap, packageResolution,typeMatch,onTypeMismatch));
+						result = result.replace( wt.getTypeName(), convertJavaToTS( tt, 
+																					declaringMethod, 
+																					declaringClass, 
+																					declaredClassMap, 
+																					packageResolution,
+																					onTypeMismatch));
 					}
 					else {
 						result = result.replace(wt.getTypeName(), format( "any/*%s*/", wt));						
@@ -377,8 +390,12 @@ public class TypescriptHelper {
 
 			final TypeVariable<?> tv = (TypeVariable<?>)type;
 			
-			//if( !typeParameterMatch.apply(declaringClass, tv )) {
-			if( 	!typeMatch.orElseGet(() -> typeParameterMatch).apply(declaringClass, tv )) {
+			if( isStaticMethod(declaringMethod) || !typeParameterMatch.apply(declaringClass, tv )) {
+
+				if( onTypeMismatch.isPresent() ) {
+					 onTypeMismatch.get().accept(tv);
+				 }
+
 				final String name = tv.getName();						
 				return format("any/*%s*/", name);
 			}
