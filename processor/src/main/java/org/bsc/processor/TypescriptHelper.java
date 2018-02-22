@@ -392,11 +392,13 @@ public class TypescriptHelper {
 			
 			if( isStaticMethod(declaringMethod) || !typeParameterMatch.apply(declaringClass, tv )) {
 
+				final String name = tv.getName();						
+
 				if( onTypeMismatch.isPresent() ) {
 					 onTypeMismatch.get().accept(tv);
-				 }
-
-				final String name = tv.getName();						
+					 return name;
+				}
+				
 				return format("any/*%s*/", name);
 			}
 
