@@ -56,7 +56,7 @@
     </properties>
     <modules>
     		<module>processor</module>
-    		<module>jjs</module>
+    		<module>sample</module>
         <module>archetype</module>
   </modules>
     <dependencyManagement>

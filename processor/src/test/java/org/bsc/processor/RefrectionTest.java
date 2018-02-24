@@ -161,37 +161,32 @@ public class RefrectionTest {
 		
 		}
 		{
-		final Method m = type.getMethod("method2_2", Consumer.class);			
-		final Type rType = m.getGenericReturnType();
-		final String result = TypescriptHelper.convertJavaToTS(rType, m, 
-				type,
-				declaredClassMap(Sample2.class, CharSequence.class),
-				true,
-				Optional.empty());
-		Assert.assertThat( result, IsNull.notNullValue());		
-		Assert.assertThat( result, IsEqual.equalTo("string"));
+			final Method m = type.getMethod("method2_2", Consumer.class);			
+			final String result = getReturnType( 
+					declaredClassMap(Sample2.class, CharSequence.class), 
+					type,
+					m);
+			
+			Assert.assertThat( result, IsNull.notNullValue());		
+			Assert.assertThat( result, IsEqual.equalTo("string"));
 		
-		final Type pType = m.getParameters()[0].getParameterizedType();
-		final String rresult = TypescriptHelper.convertJavaToTS(pType, m, 
-				type,
-				declaredClassMap(Sample2.class, Consumer.class),
-				true,
-				Optional.empty());
-		Assert.assertThat( rresult, IsNull.notNullValue());		
-		Assert.assertThat( rresult, IsEqual.equalTo("Consumer<E>"));
+			final Type pType = m.getParameters()[0].getParameterizedType();
+			final String rresult = TypescriptHelper.convertJavaToTS(pType, m, 
+					type,
+					declaredClassMap(Sample2.class, Consumer.class),
+					true,
+					Optional.empty());
+			Assert.assertThat( rresult, IsNull.notNullValue());		
+			Assert.assertThat( rresult, IsEqual.equalTo("Consumer<E>"));
 		
 		}
 		
 		{
-		final Method m = type.getMethod("method3");			
-		final Type rType = m.getGenericReturnType();
-		final String result = TypescriptHelper.convertJavaToTS(rType, m, 
-				type,
-				Collections.emptyMap(), 
-				true, 
-				Optional.empty());
-		Assert.assertThat( result, IsNull.notNullValue());		
-		Assert.assertThat( result, IsEqual.equalTo("E"));
+			final String result = getReturnType( 
+					type, 
+					"method3");
+			Assert.assertThat( result, IsNull.notNullValue());		
+			Assert.assertThat( result, IsEqual.equalTo("E"));
 		}
 
 		{
@@ -205,5 +200,36 @@ public class RefrectionTest {
 		Assert.assertThat( result, IsEqual.equalTo("( ...arg0:string[] ):void"));
 		}
 		
+		{
+			final String result = getReturnType( 
+					declaredClassMap(java.util.Map.class), 
+					type, 
+					"getAttributeMap");
+			Assert.assertThat( result, IsNull.notNullValue());		
+			Assert.assertThat( result, IsEqual.equalTo("java.util.Map<any /*java.lang.Object*/, any /*java.lang.Object*/>"));
+			
+		}
+		
+	}
+	
+	String getReturnType( Class<?> type, String methonName, Class<?> ...args ) throws Exception {
+		return getReturnType(Collections.emptyMap(), type, methonName, (Class<?>[])args);
+	}
+	
+	String getReturnType( java.util.Map<String, Class<?>> declaredClassMap, Class<?> type, String methodName, Class<?> ...args ) throws Exception 
+	{
+		final Method m = type.getMethod(methodName, (Class<?>[])args);			
+		return getReturnType( declaredClassMap, type, m);
+	}
+	
+	String getReturnType( java.util.Map<String, Class<?>> declaredClassMap, Class<?> type, Method m ) throws Exception 
+	{
+		final Type rType = m.getGenericReturnType();
+		final String result = TypescriptHelper.convertJavaToTS(rType, m, 
+				type,
+				declaredClassMap, 
+				true, 
+				Optional.empty());
+		return result;
 	}
 }

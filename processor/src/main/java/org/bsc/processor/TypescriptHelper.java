@@ -353,7 +353,11 @@ public class TypescriptHelper {
 					
 					final String name = convertJavaToTS( (Class<?>)t, declaringClass, declaredClassMap, packageResolution);
 					
-					result = result.replace(t.getTypeName(), name);
+					final String commented = format("/*%s*/", t.getTypeName());
+					result = result.replace( commented, "/*@*/")
+												.replace(t.getTypeName(), name)
+												.replace( "/*@*/", commented )
+												;
 				}
 				else if( t instanceof WildcardType ) {
 					final WildcardType wt = (WildcardType) t;

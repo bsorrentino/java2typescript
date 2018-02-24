@@ -27,4 +27,6 @@ public interface Sample1<E> {
 	<C extends Future<E>> C method5();
 	
 	void method6( String ...args );
+	
+	java.util.Map<Object,Object> getAttributeMap();
 }
