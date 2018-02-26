@@ -3,6 +3,7 @@ package org.bsc.processor;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -15,14 +16,61 @@ import org.hamcrest.core.IsNull;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class RefrectionTest {
+public class ProcessorTest {
 
 	final TypescriptProcessor processor = new TypescriptProcessor();
 	
-	private java.util.Map<String,Class<?>> declaredClassMap( Class<?> ... classes) {
+	private java.util.Map<String,TSType> declaredClassMap( Class<?> ... classes) {
 		return Stream.of( classes )
-			.collect( Collectors.toMap( c -> c.getName(), c -> c) )
+			.collect( Collectors.toMap( c -> c.getName(), c -> TSType.from(c) ))
 			;		
+	}
+	private java.util.Map<String,TSType> declaredTypeMap( TSType ... types) {
+		return Stream.of( types )
+			.collect( Collectors.toMap( t -> t.getValue().getName(), t -> t ))
+			;		
+	}
+	
+	@Test
+	public void testClassDecl() throws Exception {
+		
+		{
+			final String result  = TypescriptHelper.getClassDecl( TSType.from(ArrayList.class), Collections.emptyMap());
+		
+			Assert.assertThat( result, IsNull.notNullValue());		
+			Assert.assertThat( result, IsEqual.equalTo("class ArrayList<E>/* extends AbstractList<E> implements List<E>, RandomAccess, java.lang.Cloneable, java.io.Serializable*/ {"));
+		}
+		
+	}
+
+	@Test
+	public void testAlias() throws Exception {
+
+		final Class<?> type = Sample1.class;
+		
+		{
+			final Method m = type.getMethod("getAttributeList");			
+			final Type rType = m.getGenericReturnType();
+			final String result = TypescriptHelper.convertJavaToTS(rType, m, 
+					TSType.from(type),
+					declaredTypeMap( TSType.from(String.class), TSType.from(java.util.List.class, "List", true) ), 
+					true, 
+					Optional.empty());
+			Assert.assertThat( result, IsNull.notNullValue());	
+			Assert.assertThat( result, IsEqual.equalTo("List<string>"));
+		}
+		{
+			final Method m = type.getMethod("getAttributeList", java.util.List.class);			
+			
+			final String result = processor.getMethodParametersAndReturnDecl( m, 
+					TSType.from(type), 
+					declaredTypeMap( TSType.from(String.class), TSType.from(java.util.List.class, "List", true) ),  
+					true) ;			
+			
+			Assert.assertThat( result, IsNull.notNullValue());	
+			Assert.assertThat( result, IsEqual.equalTo("( arg0:List<int|null> ):List<string>"));
+		}
+		
 	}
 	
 	@Test
@@ -40,7 +88,7 @@ public class RefrectionTest {
 		final Method m = type.getMethod("method4");			
 		final Type rType = m.getGenericReturnType();
 		final String result = TypescriptHelper.convertJavaToTS(rType, m, 
-				type,
+				TSType.from(type),
 				Collections.emptyMap(), 
 				true, 
 				Optional.empty());
@@ -51,7 +99,7 @@ public class RefrectionTest {
 		final Method m = type.getMethod("method5");			
 		final Type rType = m.getGenericReturnType();
 		final String result = TypescriptHelper.convertJavaToTS(rType, m, 
-				type,
+				TSType.from(type),
 				Collections.emptyMap(), 
 				true, 
 				Optional.empty());
@@ -62,7 +110,7 @@ public class RefrectionTest {
 		final Method m = type.getMethod("method1_1");			
 		final Type rType = m.getGenericReturnType();
 		final String result = TypescriptHelper.convertJavaToTS(rType, m, 
-				type,
+				TSType.from(type),
 				declaredClassMap(Sample2.class),
 				true,
 				Optional.empty());
@@ -73,7 +121,7 @@ public class RefrectionTest {
 		final Method m = type.getMethod("method1_2");			
 		final Type rType = m.getGenericReturnType();
 		final String result = TypescriptHelper.convertJavaToTS(rType, m, 
-				type,
+				TSType.from(type),
 				declaredClassMap(Sample2.class,java.lang.Comparable.class),
 				true,
 				Optional.empty());
@@ -85,7 +133,7 @@ public class RefrectionTest {
 		final Method m = type.getMethod("method1_3");			
 		final Type rType = m.getGenericReturnType();
 		final String result = TypescriptHelper.convertJavaToTS(rType, m, 
-				type,
+				TSType.from(type),
 				declaredClassMap(java.util.function.BiPredicate.class),
 				true,
 				Optional.of(addTypeVar));
@@ -99,7 +147,7 @@ public class RefrectionTest {
 		final Method m = type.getMethod("method1_3");			
 		final Type rType = m.getGenericReturnType();
 		final String result = TypescriptHelper.convertJavaToTS(rType, m, 
-				type,
+				TSType.from(type),
 				Collections.emptyMap(),
 				true,
 				Optional.empty());
@@ -110,7 +158,7 @@ public class RefrectionTest {
 		final Method m = type.getMethod("method1");			
 		final Type rType = m.getGenericReturnType();
 		final String result = TypescriptHelper.convertJavaToTS(rType, m, 
-				type,
+				TSType.from(type),
 				declaredClassMap(java.util.Map.class),
 				true,
 				Optional.empty());
@@ -122,7 +170,7 @@ public class RefrectionTest {
 		final Method m = type.getMethod("method2", Sample2.class);			
 		final Type rType = m.getGenericReturnType();
 		final String result = TypescriptHelper.convertJavaToTS(rType, m, 
-				type,
+				TSType.from(type),
 				Collections.emptyMap(),
 				true,
 				Optional.empty());
@@ -131,7 +179,7 @@ public class RefrectionTest {
 		
 		final Type pType = m.getParameters()[0].getParameterizedType();
 		final String rresult = TypescriptHelper.convertJavaToTS(pType, m, 
-				type,
+				TSType.from(type),
 				declaredClassMap(Sample2.class),
 				true,
 				Optional.empty());
@@ -143,7 +191,7 @@ public class RefrectionTest {
 		final Method m = type.getMethod("method2_1", Sample2.class);			
 		final Type rType = m.getGenericReturnType();
 		final String result = TypescriptHelper.convertJavaToTS(rType, m, 
-				type,
+				TSType.from(type),
 				declaredClassMap(Sample2.class, CharSequence.class),
 				true,
 				Optional.empty());
@@ -152,7 +200,7 @@ public class RefrectionTest {
 		
 		final Type pType = m.getParameters()[0].getParameterizedType();
 		final String rresult = TypescriptHelper.convertJavaToTS(pType, m, 
-				type,
+				TSType.from(type),
 				declaredClassMap(Sample2.class),
 				true,
 				Optional.empty());
@@ -172,7 +220,7 @@ public class RefrectionTest {
 		
 			final Type pType = m.getParameters()[0].getParameterizedType();
 			final String rresult = TypescriptHelper.convertJavaToTS(pType, m, 
-					type,
+					TSType.from(type),
 					declaredClassMap(Sample2.class, Consumer.class),
 					true,
 					Optional.empty());
@@ -194,7 +242,7 @@ public class RefrectionTest {
 		final String[] arr = {};
 		final Method m = type.getMethod("method6", arr.getClass());	
 		
-		final String result = processor.getMethodParametersAndReturnDecl( m, type, Collections.emptyMap(), true) ;
+		final String result = processor.getMethodParametersAndReturnDecl( m, TSType.from(type), Collections.emptyMap(), true) ;
 		
 		Assert.assertThat( result, IsNull.notNullValue());		
 		Assert.assertThat( result, IsEqual.equalTo("( ...arg0:string[] ):void"));
@@ -216,17 +264,17 @@ public class RefrectionTest {
 		return getReturnType(Collections.emptyMap(), type, methonName, (Class<?>[])args);
 	}
 	
-	String getReturnType( java.util.Map<String, Class<?>> declaredClassMap, Class<?> type, String methodName, Class<?> ...args ) throws Exception 
+	String getReturnType( java.util.Map<String, TSType> declaredClassMap, Class<?> type, String methodName, Class<?> ...args ) throws Exception 
 	{
 		final Method m = type.getMethod(methodName, (Class<?>[])args);			
 		return getReturnType( declaredClassMap, type, m);
 	}
 	
-	String getReturnType( java.util.Map<String, Class<?>> declaredClassMap, Class<?> type, Method m ) throws Exception 
+	String getReturnType( java.util.Map<String, TSType> declaredClassMap, Class<?> type, Method m ) throws Exception 
 	{
 		final Type rType = m.getGenericReturnType();
 		final String result = TypescriptHelper.convertJavaToTS(rType, m, 
-				type,
+				TSType.from(type),
 				declaredClassMap, 
 				true, 
 				Optional.empty());

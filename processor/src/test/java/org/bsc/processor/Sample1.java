@@ -29,4 +29,8 @@ public interface Sample1<E> {
 	void method6( String ...args );
 	
 	java.util.Map<Object,Object> getAttributeMap();
+
+	java.util.List<String> getAttributeList();
+
+	java.util.List<String> getAttributeList( java.util.List<Integer> intList);
 }

@@ -18,7 +18,7 @@
 		@Type(java.util.Comparator.class), 
 		@Type(java.util.Collection.class), 
 		@Type(java.util.Map.class), 
-		@Type(java.util.List.class ), 
+		@Type(value=java.util.List.class, alias="List" ), 
 		@Type(java.util.Set.class), 
 		@Type(value=java.util.Arrays.class, export=true),
 		@Type(java.util.HashMap.class),

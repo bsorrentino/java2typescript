@@ -3,7 +3,6 @@ package org.bsc.processor;
 import static org.bsc.processor.TypescriptHelper.convertJavaToTS;
 import static org.bsc.processor.TypescriptHelper.getClassDecl;
 import static org.bsc.processor.TypescriptHelper.getParameterName;
-import static org.bsc.processor.TypescriptHelper.getSimpleName;
 import static org.bsc.processor.TypescriptHelper.isStaticMethod;
 
 import java.io.Closeable;
@@ -17,7 +16,6 @@ import java.lang.reflect.TypeVariable;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.RandomAccess;
@@ -51,32 +49,32 @@ public class TypescriptProcessor extends AbstractProcessorEx {
 
     final static String ENDL = ";\n";
 
-    static final List<Class<?>> PREDEFINED_CLASSES = Arrays.asList(
-    		Class.class,
-    		Serializable.class,
-    		Closeable.class,
-    		AutoCloseable.class,
-    		Comparable.class,
-    		Cloneable.class,
-    		RandomAccess.class,
-    		Consumer.class,
-    		UnaryOperator.class,
-    		Supplier.class,
-    		Predicate.class,
-    		Runnable.class
+    static final List<TSType> PREDEFINED_TYPES = Arrays.asList(
+    		TSType.from(Class.class),
+    		TSType.from(Serializable.class),
+    		TSType.from(Closeable.class),
+    		TSType.from(AutoCloseable.class),
+    		TSType.from(Comparable.class),
+    		TSType.from(Cloneable.class),
+    		TSType.from(RandomAccess.class),
+    		TSType.from(Consumer.class),
+    		TSType.from(UnaryOperator.class),
+    		TSType.from(Supplier.class),
+    		TSType.from(Predicate.class),
+    		TSType.from(Runnable.class)
     	);
 
-    static final List<TSType> REQUIRED_CLASSES = Arrays.asList(
-    		new TSType(java.lang.String.class,true),
-    		new TSType(java.lang.Iterable.class,true),
-    		new TSType(java.util.Iterator.class,true),
-    		new TSType(java.util.Collection.class),
-    		new TSType(java.util.Collections.class, true),
-    		new TSType(java.util.List.class),
-    		new TSType(java.util.Set.class),
-    		new TSType(java.util.Map.class),
-    		new TSType(java.util.stream.Stream.class, true),
-    		new TSType(java.util.Optional.class, true)
+    static final List<TSType> REQUIRED_TYPES = Arrays.asList(
+    		TSType.from(java.lang.String.class,true),
+    		TSType.from(java.lang.Iterable.class,true),
+    		TSType.from(java.util.Iterator.class,true),
+    		TSType.from(java.util.Collection.class),
+    		TSType.from(java.util.Collections.class, true),
+    		TSType.from(java.util.List.class),
+    		TSType.from(java.util.Set.class),
+    		TSType.from(java.util.Map.class),
+    		TSType.from(java.util.stream.Stream.class, true),
+    		TSType.from(java.util.Optional.class, true)
     	);
     
     /**
@@ -108,53 +106,62 @@ public class TypescriptProcessor extends AbstractProcessorEx {
     @Override
     public boolean process( Context processingContext ) throws Exception {
 
-        final String targetDefinitionFile	= processingContext.getOptionMap().getOrDefault("ts.outfile", "out");
+        final String targetDefinitionFile		= processingContext.getOptionMap().getOrDefault("ts.outfile", "out");
         //final String compatibility 		= processingContext.getOptionMap().getOrDefault("compatibility", "nashorn");
        
         final String definitionsFile	= targetDefinitionFile.concat(".d.ts");
-        final String typesFile		 = targetDefinitionFile.concat("-types.ts");
+        final String typesFile		= targetDefinitionFile.concat("-types.ts");
         
         try( 
         		final java.io.Writer wD = openFile( Paths.get(definitionsFile), "headerD.ts" ); 
         		final java.io.Writer wT = openFile( Paths.get(typesFile), "headerT.ts" );  
         	) {
         	    
-	        final Set<TSType> types = enumerateDeclaredPackageAndClass( processingContext );
-
-	        types.addAll(REQUIRED_CLASSES);
-	        	        
-	        final Set<Class<?>> classes = types.stream()
-	        										.map( t -> t.getValue() )
-	        										.collect( Collectors.toSet());
-	
-		    final java.util.Map<String, Class<?>> declaredClasses = 
-		    		classes.stream().collect( Collectors.toMap( clazz -> clazz.getName() , clazz -> clazz ));
-	
-			PREDEFINED_CLASSES.forEach( clazz -> declaredClasses.put( clazz.getName(), clazz) );
-	
-			types.stream()
-				.filter( t -> !PREDEFINED_CLASSES.contains(t.getValue()) )
-				.map( t -> processClass( t, declaredClasses))
-				.forEach( s -> {
+        		final Consumer<String> wD_append = s -> {
 					try {
 						wD.append( s );
 					} catch (IOException e) {
 						error( "error adding [%s]", s);
-					}
-				} );
-
-			wT.append( String.format("/// <reference path=\"%s\"/>", definitionsFile) ).append( "\n\n");
-			types.stream()
-				.filter( t -> t.isExport() )
-				.map( t -> t.getValue() )
-				.map( clazz -> processStatic( clazz, declaredClasses))
-				.forEach( s -> {
+					}        			
+        		};
+        		final Consumer<String> wT_append = s -> {
 					try {
 						wT.append( s );
 					} catch (IOException e) {
 						error( "error adding [%s]", s);
-					}
-				} );
+					}        			
+        		};
+        		
+	        final Set<TSType> types = enumerateDeclaredPackageAndClass( processingContext );
+
+	        types.addAll(REQUIRED_TYPES);
+	        	        
+		    final java.util.Map<String, TSType> declaredTypes = 
+		    		types.stream().collect( Collectors.toMap( tt -> tt.getValue().getName() , tt -> tt  ));
+	
+			PREDEFINED_TYPES.forEach( tt -> declaredTypes.put( tt.getValue().getName(), tt) );
+
+			// Generate Alias
+			wD.append("//\n")
+			  .append("// TYPE ALIASES\n")
+			  .append("//\n\n");
+			types.stream()
+				.filter( t -> t.hasAlias() )
+				.map( t -> TypescriptHelper.getAliasDeclaration(t.getValue(), t.getAlias()) )
+				.forEach( wD_append  );
+
+				
+	
+			types.stream()
+				.filter( tt -> !PREDEFINED_TYPES.contains(tt) )
+				.map( tt -> processClass( tt, declaredTypes))
+				.forEach( wD_append );
+
+			wT.append( "/// <reference path=\"").append(definitionsFile).append("\"/>" ).append( "\n\n");
+			types.stream()
+				.filter( t -> t.isExport() )
+				.map( t -> processStatic( t, declaredTypes))
+				.forEach( wT_append );
 
         } // end try-with-resources
 
@@ -163,13 +170,13 @@ public class TypescriptProcessor extends AbstractProcessorEx {
     /**
      * 
      * @param m
-     * @param declaringClass
-     * @param declaredClassMap
+     * @param declaringType
+     * @param declaredTypeMap
      * @return
      */
     protected String getMethodParametersAndReturnDecl(	Method m, 
-    														Class<?> declaringClass, 
-    														java.util.Map<String, Class<?>> declaredClassMap,
+    														TSType declaringType, 
+    														java.util.Map<String, TSType> declaredTypeMap,
     														boolean packageResolution ) 
     {
 		final java.util.Set<String> TypeVarSet = new java.util.HashSet<>(5);
@@ -188,16 +195,16 @@ public class TypescriptProcessor extends AbstractProcessorEx {
         					if( tp.isVarArgs() ) {
             					final String type = convertJavaToTS( tp.getType().getComponentType(),
             														m,
-            														declaringClass,
-            														declaredClassMap, 
+            														declaringType,
+            														declaredTypeMap, 
             														packageResolution, 
             														Optional.of( addTypeVar )) ;
         						return String.format( "...%s:%s[]", name, type );
         					}
         					final String type = convertJavaToTS( tp.getParameterizedType(),
         														m,
-        														declaringClass,
-        														declaredClassMap, 
+        														declaringType,
+        														declaredTypeMap, 
         														packageResolution, 
         														Optional.of( addTypeVar )) ;
         					return String.format( "%s:%s", name, type );
@@ -210,8 +217,8 @@ public class TypescriptProcessor extends AbstractProcessorEx {
 	    	final String tsType = 
 	    			convertJavaToTS(	returnType,
 	    							m,
-	    							declaringClass,
-	    							declaredClassMap,
+	    							declaringType,
+	    							declaredTypeMap,
 	    							packageResolution,
 	    							Optional.of( addTypeVar ));
 	    	
@@ -234,19 +241,17 @@ public class TypescriptProcessor extends AbstractProcessorEx {
     /**
      * 
      * @param m
-     * @param declaringClass
-     * @param declaredClassMap
+     * @param declaringType
+     * @param declaredTypeMap
      * @return
      */
-    private String getFactoryMethodDecl( final Method m, Class<?> declaringClass, java.util.Map<String, Class<?>> declaredClassMap ) {
+    private String getFactoryMethodDecl( final Method m, TSType declaringType, java.util.Map<String, TSType> declaredTypeMap ) {
 
         final StringBuilder sb = new StringBuilder();
 
         	sb.append(m.getName());
     		
-    		//appendStaticMethodTypeParameters(sb, m).append( getMethodParametersAndReturnDecl(m, declaringClass, declaredClassMap, false) );
-
-        sb.append( getMethodParametersAndReturnDecl(m, declaringClass, declaredClassMap, false) );
+        sb.append( getMethodParametersAndReturnDecl(m, declaringType, declaredTypeMap, false) );
 
         return  sb.toString();
 
@@ -259,19 +264,17 @@ public class TypescriptProcessor extends AbstractProcessorEx {
      * @param declaredClassMap
      * @return
      */
-    private String getMethodDecl( final Method m, Class<?> declaringClass, java.util.Map<String, Class<?>> declaredClassMap ) {
+    private String getMethodDecl( final Method m, TSType declaringClass, java.util.Map<String, TSType> declaredClassMap ) {
 
         final StringBuilder sb = new StringBuilder();
 
         if( Modifier.isStatic(m.getModifiers()) ) {
 
-        		if( declaringClass.isInterface() ) {
+        		if( declaringClass.getValue().isInterface() ) {
         			sb.append( "// ");
         		}
 
         		sb.append("static ").append(m.getName());
-        		
-        		//appendStaticMethodTypeParameters(sb, m);
 
         }
         else {
@@ -292,7 +295,7 @@ public class TypescriptProcessor extends AbstractProcessorEx {
      * @param type
      * @return
      */
-    private Set<Method> getMethods( final Class<?> type) {
+    private Set<Method> getMethods( final TSType type) {
 		final Predicate<Method> include = m ->
 			!m.isBridge() &&
 			!m.isSynthetic() &&
@@ -300,7 +303,7 @@ public class TypescriptProcessor extends AbstractProcessorEx {
 			Character.isJavaIdentifierStart(m.getName().charAt(0)) &&
 			m.getName().chars().skip(1).allMatch(Character::isJavaIdentifierPart);
 
-		return Stream.concat( Stream.of(type.getMethods()), Stream.of(type.getDeclaredMethods()) )
+		return Stream.concat( Stream.of(type.getValue().getMethods()), Stream.of(type.getValue().getDeclaredMethods()) )
 			.filter(include)
 			.collect( Collectors.toSet( ) );
 
@@ -310,28 +313,26 @@ public class TypescriptProcessor extends AbstractProcessorEx {
      *
      * @param sb
      * @param type
-     * @param declaredClassMap
+     * @param declaredTypeMap
      */
-    private void processNestedClasses( StringBuilder sb, TSType tstype, java.util.Map<String, Class<?>> declaredClassMap ) {
+    private void processNestedClasses( StringBuilder sb, TSType tstype, java.util.Map<String, TSType> declaredTypeMap ) {
 
-    		final Class<?> type = tstype.getValue();
-    		
-        final Class<?> nestedClasses[] = type.getClasses();
+        final Class<?> nestedClasses[] = tstype.getValue().getClasses();
 
         if( nestedClasses.length == 0 ) return;
 
         sb.append( "export module " )
-     	  .append(type.getSimpleName())
+     	  .append(tstype.getSimpleTypeName())
     	      .append(" {\n\n")
     	      ;
 
         Arrays.stream(nestedClasses)
-        		.map( cl ->  new TSType(cl) )
-        		.map( t -> processClass(t, declaredClassMap) )
-        		.forEach( (decl) -> sb.append(decl) );
+        		.map( cl ->  TSType.from(cl) )
+        		.map( t -> processClass(t, declaredTypeMap) )
+        		.forEach( decl -> sb.append(decl) );
 
         sb.append("\n} // end module ")
-        		.append(type.getSimpleName())
+        		.append(tstype.getSimpleTypeName())
         		.append('\n')
         	;
     }
@@ -342,16 +343,16 @@ public class TypescriptProcessor extends AbstractProcessorEx {
      * @param type
      * @param declaredClassMap
      */
-    private void processEnum( StringBuilder sb, Class<?> type, java.util.Map<String, Class<?>> declaredClassMap ) {
-    		if( !type.isEnum() ) return ;
+    private void processEnum( StringBuilder sb, TSType type, java.util.Map<String, TSType> declaredClassMap ) {
+    		if( !type.getValue().isEnum() ) return ;
 
-   		Arrays.stream( type.getEnumConstants() )
+   		Arrays.stream( type.getValue().getEnumConstants() )
 		.forEach( (c) -> {
 			sb.append( '\t' )
               .append( "static ")
               .append(  c.toString() )
               .append( ':')
-              .append( type.getSimpleName() )
+              .append( type.getSimpleTypeName() )
               .append( ';' )
               .append(  '\n' )
               ;
@@ -367,7 +368,7 @@ public class TypescriptProcessor extends AbstractProcessorEx {
      * @param declaredClass
      * @return
      */
-    private String processStatic( Class<?> type, java.util.Map<String, Class<?>> declaredClassMap ) {
+    private String processStatic( TSType type, java.util.Map<String, TSType> declaredClassMap ) {
     	
     		final StringBuilder sb = new StringBuilder();
     		
@@ -378,7 +379,7 @@ public class TypescriptProcessor extends AbstractProcessorEx {
 	        .collect( Collectors.toCollection(() -> new java.util.LinkedHashSet<Method>() ));
         
     		sb.append("interface ")
-			.append( type.getSimpleName() )
+			.append( type.getSimpleTypeName() )
 			.append("Static {\n\n")
 			//Append class property
 			.append("\treadonly class:any;\n");
@@ -396,11 +397,11 @@ public class TypescriptProcessor extends AbstractProcessorEx {
         
         sb.append( "}\n\n" )
         		.append("export const ")
-        		.append(type.getSimpleName())
+        		.append(type.getSimpleTypeName())
         		.append(": ")
-        		.append(type.getSimpleName())
+        		.append(type.getSimpleTypeName())
         		.append("Static = Java.type(\"")
-        		.append( type.getName() )
+        		.append( type.getTypeName() )
         		.append("\")")
         		.append( ENDL )
         		.append("\n\n")
@@ -416,33 +417,24 @@ public class TypescriptProcessor extends AbstractProcessorEx {
      * @param declaredClassMap
      * @return
      */
-    private String processClass( TSType tstype, java.util.Map<String, Class<?>> declaredClassMap )   {
+    private String processClass( TSType tstype, java.util.Map<String, TSType> declaredClassMap )   {
 
         final StringBuilder sb = new StringBuilder();
 
-		final Class<?> type = tstype.getValue();
-		
-        final String namespace = type.getPackage().getName();
+        final String namespace = tstype.getValue().getPackage().getName();
 
-        if( !type.isMemberClass() )
+        if( !tstype.getValue().isMemberClass() )
 	        sb.append( "declare namespace " )
 	           .append(namespace)
 	           .append(" {\n\n")
 	            ;
 
-        sb.append( getClassDecl(type, declaredClassMap) )
-          .append("\n\n");
+        sb.append( getClassDecl(tstype, declaredClassMap) ).append("\n\n");
 
-        processEnum(sb, type, declaredClassMap);
+        processEnum(sb, tstype, declaredClassMap);
 
-        /*
-		final BeanInfo bi = getBeanInfo(type);
-        
-        final PropertyDescriptor[] pds = bi.getPropertyDescriptors();
-
-		*/
         final java.util.Set<Method> methodSet =
-    	        getMethods( type )
+    	        getMethods( tstype )
     	        .stream()
     	        .filter( md -> (tstype.isExport() && isStaticMethod(md))==false )
     	        .filter( (md) -> {
@@ -454,41 +446,10 @@ public class TypescriptProcessor extends AbstractProcessorEx {
 	        					name.equals("notify")	||
 	        					name.equals("notifyAll") );
 	        })
-    	        /*
-    	        .filter( md ->  {// Remove setter and getter
-    	        	
-    	            final boolean match = Arrays.asList(pds)
-    	            			.stream()
-    	            			.noneMatch( pd -> (md.equals(pd.getReadMethod()) || md.equals(pd.getWriteMethod())) );
-
-    	            return match;
-    	        })
-    	        */
     	        .collect( Collectors.toCollection(() -> new java.util.LinkedHashSet<Method>() ));
 
-        /*
-        final java.util.Set<PropertyDescriptor> propertySet =
-        		Arrays.stream(pds)
-            .filter( TypescriptHelper::isPropertyValid )
-            .collect( Collectors.toCollection(() -> new java.util.LinkedHashSet<PropertyDescriptor>(pds.length) ))
-            ;
-
-        propertySet.stream()
-		    .map( pd -> {
-		    		final boolean duplicate = methodSet.stream().anyMatch( m -> m.getName().equals(pd.getName()));
-		    		final String decl = getPropertyDecl( type, pd, declaredClassMap);
-		    		return ( duplicate ) ? "// ".concat(decl) : decl;
-		    })
-        		.sorted()
-        		.forEach((decl) ->
-	            sb.append( '\t' )
-	              .append(decl)
-	              .append(  ENDL ))
-	              ;
-        */
-        
         methodSet.stream()
-	        .map( md -> getMethodDecl(md, type, declaredClassMap) )
+	        .map( md -> getMethodDecl(md, tstype, declaredClassMap) )
 	        .sorted().forEach( (decl) ->
 	            sb.append( '\t' )
 	              .append(decl)
@@ -496,13 +457,13 @@ public class TypescriptProcessor extends AbstractProcessorEx {
 	        		;
 
         sb.append("\n} // end ")
-        		.append(getSimpleName(type))
+        		.append(tstype.getSimpleTypeName())
         		.append('\n');
 
         // NESTED CLASSES
         processNestedClasses(sb, tstype, declaredClassMap);
 
-        if( !type.isMemberClass() )
+        if( !tstype.getValue().isMemberClass() )
         		sb.append("\n} // end namespace ")
         			.append( namespace )
         			.append('\n');
@@ -525,60 +486,7 @@ public class TypescriptProcessor extends AbstractProcessorEx {
         return (List<? extends AnnotationValue>)av.getValue();
 
     }
-    
-    
-	@SuppressWarnings("serial")
-	static class TSType extends HashMap<String,Object>{
-
-		public TSType() {
-			super(2);
-		}
-		public TSType( Class<?> cl ) {
-			this();
-			put( "value", cl);
-		}
-		public TSType( Class<?> cl, boolean export ) {
-			this();
-			put( "value", cl);
-			put( "export", export);
-			
-		}
-
-		public Class<?> getValue() {
-			return  getClassFrom(super.get("value"));
-		}
-		
-		public boolean isExport() {
-			return (boolean) super.getOrDefault("export", false);
-		}
-		
-	    /**
-	     *
-	     * @param dt
-	     * @return
-	     */
-	    private Class<?> getClassFrom( Object dt ) {
-	        	if( dt instanceof Class ) return (Class<?>)dt;
-	        	
-	    		try {
-	            return Class.forName(dt.toString());
-	        } catch (ClassNotFoundException e1) {
-	            throw new RuntimeException(String.format("class not found [%s]",dt), e1);
-	        }
-	    }
-		@Override
-		public boolean equals(Object o) {
-			return getValue().equals(((TSType)o).getValue());
-		}
-
-		@Override
-		public int hashCode() {
-			return getValue().hashCode();
-		}
-		
-    }
-    
-	
+    	
     /**
      *
      * @param processingContext
