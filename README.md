@@ -43,6 +43,73 @@ Just to answer the questions above that this project has been developed.
 
 ## Getting Started
 
+Let assume that you have successfully setup a java project
+
+### Declares the classes you want to generate the Typescript declaration for
+
+Create a file `package-info.java` and annotate the given package with `@Java2TS` that will contain all the `@Type` of which you want the Typescript declaration.
+
+**Example**
+```Java
+@Java2TS(declare = {
+
+    @Type(java.nio.file.Files.class, export="true"),
+    @Type(java.nio.file.Path.class),
+    @Type(java.nio.file.Paths.class, export="true"),
+
+		@Type(value=java.util.stream.Stream.class,export=true),
+
+		@Type(java.util.Collection.class),
+		@Type(java.util.Map.class),
+		@Type(value=java.util.List.class, alias="List" ),
+		@Type(java.util.Set.class),
+		@Type(value=java.util.Arrays.class, export=true),
+
+		@Type(java.util.Optional.class),
+
+		@Type(value=java.net.URI.class, export=true),
+		@Type(java.net.URL.class),
+
+})
+package org.mypackage;
+```
+
+### Add the dependency containing the Java2TS Processor
+
+```xml
+<dependency>
+  <groupId>org.bsc.processor</groupId>
+  <artifactId>java2ts-processor</artifactId>
+  <version>version</version>
+</dependency>
+
+```
+### Add the Annotation Processor Plugin
+
+```xml
+<plugin>
+  <groupId>org.bsc.maven</groupId>
+  <artifactId>maven-processor-plugin</artifactId>
+  <version>3.3.3</version>
+  <executions>
+    <execution>
+      <id>process</id>
+      <goals>
+        <goal>process</goal>
+      </goals>
+      <phase>generate-sources</phase>
+      <configuration>
+          <outputDirectory>${project.build.directory}</outputDirectory>
+       <options>
+            <ts.outfile>name</ts.outfile><!-- name of generated file -->
+       </options>
+      </configuration>
+    </execution>
+  </executions>
+</plugin>
+
+```
+
 ### Use Maven Archetype
 
 **Interactive Mode**
