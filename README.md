@@ -53,22 +53,22 @@ Create a file `package-info.java` and annotate the given package with `@Java2TS`
 ```Java
 @Java2TS(declare = {
 
-    @Type(java.nio.file.Files.class, export="true"),
-    @Type(java.nio.file.Path.class),
-    @Type(java.nio.file.Paths.class, export="true"),
+  @Type(java.nio.file.Files.class, export="true"),
+  @Type(java.nio.file.Path.class),
+  @Type(java.nio.file.Paths.class, export="true"),
 
-		@Type(value=java.util.stream.Stream.class,export=true),
+  @Type(value=java.util.stream.Stream.class,export=true),
 
-		@Type(java.util.Collection.class),
-		@Type(java.util.Map.class),
-		@Type(value=java.util.List.class, alias="List" ),
-		@Type(java.util.Set.class),
-		@Type(value=java.util.Arrays.class, export=true),
+  @Type(java.util.Collection.class),
+  @Type(java.util.Map.class),
+  @Type(value=java.util.List.class, alias="List" ),
+  @Type(java.util.Set.class),
+  @Type(value=java.util.Arrays.class, export=true),
 
-		@Type(java.util.Optional.class),
+  @Type(java.util.Optional.class),
 
-		@Type(value=java.net.URI.class, export=true),
-		@Type(java.net.URL.class),
+  @Type(value=java.net.URI.class, export=true),
+  @Type(java.net.URL.class),
 
 })
 package org.mypackage;
