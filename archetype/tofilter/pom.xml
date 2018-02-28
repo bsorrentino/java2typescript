@@ -13,22 +13,30 @@
 
   <dependencies>
 
-    <dependency>
-			<groupId>org.bsc.processor</groupId>
-			<artifactId>java2ts-processor</artifactId>
-			<version>${project.version}</version>
-		</dependency>
+	<dependency>
+		<groupId>org.bsc.processor</groupId>
+		<artifactId>java2ts-processor</artifactId>
+		<version>${project.version}</version>
+		<optional>true</optional>
+	</dependency>
 
     <dependency>
-      <groupId>org.bsc</groupId>
-      <artifactId>jvm-npm-core</artifactId>
-      <version>1.1.0</version>
+		<groupId>org.bsc</groupId>
+		<artifactId>jvm-npm-core</artifactId>
+		<version>1.1.0</version>
     </dependency>
 
   </dependencies>
 
   <build>
   	<plugins>
+		<plugin>
+		  <groupId>org.apache.maven.plugins</groupId>
+		  <artifactId>maven-compiler-plugin</artifactId>
+		  <configuration>
+		    <proc>none</proc>
+		  </configuration>
+		</plugin>
 
   		<plugin>
   			<groupId>org.codehaus.mojo</groupId>
@@ -60,6 +68,12 @@
              <executable>tsc</executable>
              <arguments>
              </arguments>
+             <!-- remove comment if want skip tsc error
+             <successCodes>
+               <code>2</code>
+             </successCodes>
+              -->
+             
            </configuration>
          </execution>
          </executions>
