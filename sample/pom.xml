@@ -12,13 +12,20 @@
   </parent>
 
   <build>
-    <finalName>jjs</finalName>
+    <finalName>sample</finalName>
     <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+            <proc>none</proc>
+        </configuration>
+      </plugin>
 
       <plugin>
         <groupId>org.bsc.maven</groupId>
         <artifactId>maven-processor-plugin</artifactId>
-        <version>3.2.0</version>
+        <version>3.3.3</version>
         <executions>
           <execution>
             <id>process</id>
@@ -27,7 +34,7 @@
             </goals>
             <phase>generate-sources</phase>
             <configuration>
-                <outputDirectory>${project.build.directory}</outputDirectory>
+             <outputDirectory>${project.build.directory}</outputDirectory>
              <options>
                   <ts.outfile>jdk8</ts.outfile>
              </options>
