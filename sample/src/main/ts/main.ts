@@ -15,7 +15,7 @@ a.stream().forEach( (e:any) => {
   print( colors.green(e) );
 });
 
-Stream.of<string>( "<item2>" ).forEach( (e) => {
+Stream.of<string>( "<item2>" ).forEach( e => {
   print( colors.green(e) );
 });
 
