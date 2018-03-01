@@ -17,7 +17,6 @@ import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.BiPredicate;
 import java.util.function.Consumer;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class TypescriptHelper {
@@ -27,12 +26,6 @@ public class TypescriptHelper {
      */
     public static BiPredicate<Class<?>, Class<?>> isPackageMatch = (a, b) ->
 		a.getPackage().equals(b.getPackage()) ;
-
-	/**
-	 *
-	 */
-	public static Predicate<Class<?>> isFunctionalInterface = type ->
-		type.isInterface() && type.isAnnotationPresent(FunctionalInterface.class);
 
 	/**
 	 *
@@ -228,7 +221,7 @@ public class TypescriptHelper {
 
 		return new StringBuilder()
 	                .append(
-		                type.getValue().getPackage().equals(currentNS) || isFunctionalInterface.test(type.getValue())  ?
+		                type.getValue().getPackage().equals(currentNS) || type.isFunctionalInterface()  ?
 		                    type.getSimpleTypeName() :
 		                    type.getTypeName()
 		                 )
@@ -273,8 +266,8 @@ public class TypescriptHelper {
 					.replace( rawType.getName(), tstype.getTypeName()) // use Alias
 					;
 
-			if( isFunctionalInterface.test(rawType) || (packageResolution && isPackageMatch.test(rawType, declaringType.getValue())) ) {
-				result = result.replace( rawType.getName(), rawType.getSimpleName());
+			if( tstype.isFunctionalInterface() || (packageResolution && isPackageMatch.test(tstype.getValue(), declaringType.getValue())) ) {
+				result = result.replace( tstype.getTypeName(), tstype.getSimpleTypeName());
 			}
 
 			final Type[] typeArgs = pType.getActualTypeArguments();
@@ -385,12 +378,13 @@ public class TypescriptHelper {
 		else if( type instanceof GenericArrayType ) {
 			final GenericArrayType t = (GenericArrayType)type;
 
-			log( "generic array type: %s",  t.getGenericComponentType().getTypeName() );
-			//throw new IllegalArgumentException( format("type <%s> 'GenericArrayType' is a  not supported yet!", type));
+			final Type componentType = t.getGenericComponentType();
 
-			return ( typeParameterMatch.apply(declaringType.getValue(), t.getGenericComponentType() ))  ?
-					format("[%s]", t.getGenericComponentType() ) :
-					format("[any/*%s*/]", t.getGenericComponentType() );
+			log( "generic array type: %s",  componentType.getTypeName() );
+
+			return ( typeParameterMatch.apply(declaringType.getValue(), componentType ))  ?
+					format("[%s]", componentType ) :
+					format("[any/*%s*/]", componentType );
 		}
 
 		throw new IllegalArgumentException( "type is a  not recognised type!");

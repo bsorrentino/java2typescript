@@ -11,4 +11,5 @@ public @interface Type {
 	Class<?> value();
 	boolean export() default false ;
 	String alias() default "";
+	boolean functional() default false ;
 }

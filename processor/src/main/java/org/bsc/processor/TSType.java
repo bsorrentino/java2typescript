@@ -29,6 +29,21 @@ public class TSType extends HashMap<String,Object> {
 		}};
 	}
 
+	/**
+	 * Assume that class is managed as Functional Interface
+	 * 
+	 * @param cl
+	 * @param alias
+	 * @return
+	 */
+	public static TSType functional( Class<?> cl,  String alias ) {
+		return new TSType() {{
+			put( "value", cl);
+			put( "alias", alias);
+			put("functional", true);
+		}};
+	}
+
 	protected static TSType from( Class<?> cl ) {
 		return new TSType() {{ put( "value", cl); }};
 	}
@@ -47,6 +62,15 @@ public class TSType extends HashMap<String,Object> {
 	 */
 	public boolean isExport() {
 		return (boolean) super.getOrDefault("export", false);
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	public boolean isFunctionalInterface() {
+		return ((boolean) super.getOrDefault("functional", false)) || 
+				(getValue().isInterface() && getValue().isAnnotationPresent(FunctionalInterface.class));
 	}
 
 	/**

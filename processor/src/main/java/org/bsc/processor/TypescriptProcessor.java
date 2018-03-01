@@ -144,6 +144,7 @@ public class TypescriptProcessor extends AbstractProcessorEx {
 			  .append("// TYPE ALIASES\n")
 			  .append("//\n\n");
 			types.stream()
+				.filter( t -> !t.isFunctionalInterface() )
 				.filter( t -> t.hasAlias() )
 				.map( t -> TypescriptHelper.getAliasDeclaration(t.getValue(), t.getAlias()) )
 				.forEach( wD_append  );
