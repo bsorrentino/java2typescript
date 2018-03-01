@@ -70,6 +70,7 @@
              </arguments>
              <!-- remove comment if want skip tsc error
              <successCodes>
+               <code>0</code>
                <code>2</code>
              </successCodes>
               -->
