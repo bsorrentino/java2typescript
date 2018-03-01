@@ -39,4 +39,5 @@ public interface Sample1<E> {
 
 	E creator( java.util.concurrent.Callable<E> supplier);
 
+	<T> void merge(Sample2<? extends Sample2<? extends T>> source);
 }

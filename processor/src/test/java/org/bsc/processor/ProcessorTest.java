@@ -31,6 +31,22 @@ public class ProcessorTest {
 			;		
 	}
 	
+	@Test
+	public void testWildcardType() throws Exception {
+		final TSType type = TSType.from(Sample1.class);
+		{
+			final Method m = type.getValue().getMethod("merge", Sample2.class );	
+			final String result = processor.getMethodParametersAndReturnDecl( m, 
+					type, 
+					declaredTypeMap( TSType.from(String.class), TSType.from(Sample2.class)), 
+					true) ;
+			
+			Assert.assertThat( result, IsNull.notNullValue());		
+			Assert.assertThat( result, IsEqual.equalTo("<T>( source:Sample2<T>/*? extends org.bsc.processor.Sample2<? extends T>*/ ):void"));
+		}
+	
+	}
+	
 	
 	@Test
 	public void testFunctionalInterface() throws Exception {
