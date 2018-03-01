@@ -21,6 +21,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.RandomAccess;
 import java.util.Set;
+import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
+import java.util.function.BiPredicate;
+import java.util.function.BinaryOperator;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -60,10 +64,14 @@ public class TypescriptProcessor extends AbstractProcessorEx {
     		TSType.from(Cloneable.class),
     		TSType.from(RandomAccess.class),
     		TSType.from(Function.class, "Func", false),
+    		TSType.from(BiFunction.class, "BiFunc", false),
     		TSType.from(Consumer.class),
+    		TSType.from(BiConsumer.class),
     		TSType.from(UnaryOperator.class),
+    		TSType.from(BinaryOperator.class),
     		TSType.from(Supplier.class),
     		TSType.from(Predicate.class),
+    		TSType.from(BiPredicate.class),
     		TSType.from(Runnable.class)
     	);
 
@@ -420,7 +428,7 @@ public class TypescriptProcessor extends AbstractProcessorEx {
         		.append(": ")
         		.append(type.getSimpleTypeName())
         		.append("Static = Java.type(\"")
-        		.append( type.getTypeName() )
+        		.append( type.getValue().getName() )
         		.append("\")")
         		.append( ENDL )
         		.append("\n\n")
