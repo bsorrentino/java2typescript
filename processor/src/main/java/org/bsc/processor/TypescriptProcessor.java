@@ -76,6 +76,7 @@ public class TypescriptProcessor extends AbstractProcessorEx {
     		TSType.from(java.util.Set.class),
     		TSType.from(java.util.Map.class),
     		TSType.from(java.util.stream.Stream.class, true),
+    		TSType.from(java.util.stream.Collectors.class,true),
     		TSType.from(java.util.Optional.class, true)
     	);
     
