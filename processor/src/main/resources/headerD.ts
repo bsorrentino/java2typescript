@@ -16,14 +16,18 @@ type bytearray = [char];
 type Runnable = () => void ;
 
 type Func<T,R> = ( t:T ) => R ;
+type BiFunc<T,U,R> = ( t:T, u:U ) => R ;
 
 type Supplier<T> = () => T ;
 
 type Consumer<T> = ( v:T ) => void ;
+type BiConsumer<T,U> = ( t:T, u:U ) => void ;
 
 type UnaryOperator<T> = ( v:T ) => T ;
+type BinaryOperator<T> = ( t:T, u:T ) => T ;
 
 type Predicate<T>  = ( v:T ) => boolean ;
+type BiPredicate<T,U>  = ( t:T, u:U ) => boolean ;
 
 type Comparator<T> = ( o1:T, o2:T ) => int ;
 
