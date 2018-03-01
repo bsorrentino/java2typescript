@@ -31,6 +31,36 @@ public class ProcessorTest {
 			;		
 	}
 	
+	
+	@Test
+	public void testFunctionalInterface() throws Exception {
+		final TSType type = TSType.from(Sample1.class);
+		{
+			final Method m = type.getValue().getMethod("transform", java.util.function.Function.class );	
+			final Type pType = m.getGenericParameterTypes()[0];
+			final String result = TypescriptHelper.convertJavaToTS(pType, m, 
+					type,
+					declaredTypeMap( TSType.from(String.class), TSType.from(java.util.function.Function.class, "Func", false)), 
+					true, 
+					Optional.empty());
+			Assert.assertThat( result, IsNull.notNullValue());		
+			Assert.assertThat( result, IsEqual.equalTo("Func<E, string>"));
+			
+			
+		}
+		{
+			final Method m = type.getValue().getMethod("transform", java.util.function.Function.class );	
+			final String result = processor.getMethodParametersAndReturnDecl( m, 
+					type, 
+					declaredTypeMap( TSType.from(String.class), TSType.from(java.util.function.Function.class, "Func", false)), 
+					true) ;
+			
+			Assert.assertThat( result, IsNull.notNullValue());		
+			Assert.assertThat( result, IsEqual.equalTo("( transformer:Func<E, string> ):string"));
+		}
+		
+	}
+
 	@Test
 	public void testClassDecl() throws Exception {
 		
@@ -68,7 +98,7 @@ public class ProcessorTest {
 					true) ;			
 			
 			Assert.assertThat( result, IsNull.notNullValue());	
-			Assert.assertThat( result, IsEqual.equalTo("( arg0:List<int|null> ):List<string>"));
+			Assert.assertThat( result, IsEqual.equalTo("( intList:List<int|null> ):List<string>"));
 		}
 		
 	}
@@ -245,7 +275,7 @@ public class ProcessorTest {
 		final String result = processor.getMethodParametersAndReturnDecl( m, TSType.from(type), Collections.emptyMap(), true) ;
 		
 		Assert.assertThat( result, IsNull.notNullValue());		
-		Assert.assertThat( result, IsEqual.equalTo("( ...arg0:string[] ):void"));
+		Assert.assertThat( result, IsEqual.equalTo("( ...args:string[] ):void"));
 		}
 		
 		{

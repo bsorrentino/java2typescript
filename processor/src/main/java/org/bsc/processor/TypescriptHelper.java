@@ -49,6 +49,12 @@ public class TypescriptHelper {
 		//System.out.println( format( fmt, (Object[])args));
 	}
 
+	public static final String processFunctionalInterface( TSType type  ) {
+		Objects.requireNonNull(type, "argument 'type' is not defined!");
+
+		return null;
+	}
+
 	/**
 	 *
 	 * @param type
@@ -88,16 +94,17 @@ public class TypescriptHelper {
 	}
 
     /**
-     *
-     * @param m
-     * @return
-     */
-    static boolean isStaticMethod( Method m ) {
-        final int modifier = m.getModifiers();
+    *
+    * @param m
+    * @return
+    */
+   static boolean isStaticMethod( Method m ) {
+   	
+       final int modifier = m.getModifiers();
 
-        return (Modifier.isStatic( modifier) &&
-        			Modifier.isPublic( modifier )) ;
-    }
+       return (Modifier.isStatic( modifier) &&
+       			Modifier.isPublic( modifier )) ;
+   }
 
     /**
      *
@@ -291,7 +298,7 @@ public class TypescriptHelper {
 
 					final TypeVariable<?> tv = (TypeVariable<?>)t;
 
-					if( isStaticMethod(declaringMethod) || !typeParameterMatch.apply(declaringType.getValue(), tv )) {
+					if( isStaticMethod( declaringMethod ) || !typeParameterMatch.apply(declaringType.getValue(), tv )) {
 
 						if( onTypeMismatch.isPresent() ) {
 							 onTypeMismatch.get().accept(tv);
@@ -352,7 +359,7 @@ public class TypescriptHelper {
 
 			final TypeVariable<?> tv = (TypeVariable<?>)type;
 
-			if( isStaticMethod(declaringMethod) || !typeParameterMatch.apply(declaringType.getValue(), tv )) {
+			if( isStaticMethod( declaringMethod ) || !typeParameterMatch.apply(declaringType.getValue(), tv )) {
 
 				final String name = tv.getName();
 

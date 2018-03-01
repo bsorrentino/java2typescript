@@ -21,6 +21,7 @@ import java.util.Optional;
 import java.util.RandomAccess;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
@@ -57,6 +58,7 @@ public class TypescriptProcessor extends AbstractProcessorEx {
     		TSType.from(Comparable.class),
     		TSType.from(Cloneable.class),
     		TSType.from(RandomAccess.class),
+    		TSType.from(Function.class, "Func", false),
     		TSType.from(Consumer.class),
     		TSType.from(UnaryOperator.class),
     		TSType.from(Supplier.class),
@@ -135,13 +137,8 @@ public class TypescriptProcessor extends AbstractProcessorEx {
 	        final Set<TSType> types = enumerateDeclaredPackageAndClass( processingContext );
 
 	        types.addAll(REQUIRED_TYPES);
-	        	        
-		    final java.util.Map<String, TSType> declaredTypes = 
-		    		types.stream().collect( Collectors.toMap( tt -> tt.getValue().getName() , tt -> tt  ));
-	
-			PREDEFINED_TYPES.forEach( tt -> declaredTypes.put( tt.getValue().getName(), tt) );
 
-			// Generate Alias
+	        // Generate Alias
 			wD.append("//\n")
 			  .append("// TYPE ALIASES\n")
 			  .append("//\n\n");
@@ -150,7 +147,11 @@ public class TypescriptProcessor extends AbstractProcessorEx {
 				.map( t -> TypescriptHelper.getAliasDeclaration(t.getValue(), t.getAlias()) )
 				.forEach( wD_append  );
 
-				
+	        	types.addAll(PREDEFINED_TYPES);     
+	        	
+		    final java.util.Map<String, TSType> declaredTypes = 
+		    			types.stream()
+		    			.collect( Collectors.toMap( tt -> tt.getValue().getName() , tt -> tt  ));
 	
 			types.stream()
 				.filter( tt -> !PREDEFINED_TYPES.contains(tt) )
