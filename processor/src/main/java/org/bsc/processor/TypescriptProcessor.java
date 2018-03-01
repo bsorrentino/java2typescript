@@ -8,6 +8,7 @@ import static org.bsc.processor.TypescriptHelper.isStaticMethod;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.Serializable;
+import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
@@ -195,15 +196,30 @@ public class TypescriptProcessor extends AbstractProcessorEx {
         					final String name = getParameterName(tp);
         					
         					
-        					if( tp.isVarArgs() ) {
-            					final String type = convertJavaToTS( tp.getType().getComponentType(),
+        					if( tp.isVarArgs() ) {   
+        						
+        						String type = null;
+        						if( tp.getParameterizedType() instanceof GenericArrayType ) {
+        							
+        							type = convertJavaToTS( ((GenericArrayType)tp.getParameterizedType()).getGenericComponentType(),
+											m,
+											declaringType,
+											declaredTypeMap, 
+											packageResolution, 
+											Optional.of( addTypeVar )) ;
+        						}
+        						else {
+        							type = convertJavaToTS( tp.getType().getComponentType(),
             														m,
             														declaringType,
             														declaredTypeMap, 
             														packageResolution, 
             														Optional.of( addTypeVar )) ;
-        						return String.format( "...%s:%s[]", name, type );
+        						}
+    							return String.format( "...%s:%s[]", name, type );
+        						
         					}
+        					
         					final String type = convertJavaToTS( tp.getParameterizedType(),
         														m,
         														declaringType,
