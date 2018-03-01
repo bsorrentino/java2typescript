@@ -58,6 +58,16 @@ public class ProcessorTest {
 			Assert.assertThat( result, IsNull.notNullValue());		
 			Assert.assertThat( result, IsEqual.equalTo("( transformer:Func<E, string> ):string"));
 		}
+		{
+			final Method m = type.getValue().getMethod("creator", java.util.concurrent.Callable.class );	
+			final String result = processor.getMethodParametersAndReturnDecl( m, 
+					type, 
+					declaredTypeMap( TSType.from(String.class), TSType.functional(java.util.concurrent.Callable.class, "Supplier")), 
+					true) ;
+			
+			Assert.assertThat( result, IsNull.notNullValue());		
+			Assert.assertThat( result, IsEqual.equalTo("( supplier:Supplier<E> ):E"));
+		}
 		
 	}
 

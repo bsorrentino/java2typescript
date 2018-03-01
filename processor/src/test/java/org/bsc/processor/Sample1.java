@@ -36,4 +36,7 @@ public interface Sample1<E> {
 	
 	
 	String transform( java.util.function.Function<E, String> transformer );
+
+	E creator( java.util.concurrent.Callable<E> supplier);
+
 }
