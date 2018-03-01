@@ -18,6 +18,7 @@ import java.util.function.BiFunction;
 import java.util.function.BiPredicate;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class TypescriptHelper {
 
@@ -39,7 +40,7 @@ public class TypescriptHelper {
 					;
 
 	private final static void log( String fmt, Object ...args ) {
-		//System.out.println( format( fmt, (Object[])args));
+		System.out.println( format( fmt, (Object[])args));
 	}
 
 	public static final String processFunctionalInterface( TSType type  ) {
@@ -322,18 +323,29 @@ public class TypescriptHelper {
 
 					final Type[] lb = wt.getLowerBounds();
 					final Type[] ub = wt.getUpperBounds();
-
+					
 					log( "Wildcard Type : %s lb:%d up:%d",  type.getTypeName(), lb.length, ub.length );
 
 					if( lb.length <= 1 && ub.length==1) {
 						final Type tt  = (lb.length==1) ? lb[0] : ub[0];
 
-						result = result.replace( wt.getTypeName(), convertJavaToTS( tt,
-																					declaringMethod,
-																					declaringType,
-																					declaredTypeMap,
-																					packageResolution,
-																					onTypeMismatch));
+						final String s = convertJavaToTS( tt,							
+								declaringMethod,
+								declaringType,
+								declaredTypeMap,
+								packageResolution,
+								onTypeMismatch);
+
+						if( tt instanceof ParameterizedType &&
+							Stream.of((Type[])((ParameterizedType)tt).getActualTypeArguments())
+								.anyMatch( arg -> (arg instanceof WildcardType) ))
+						{
+							// not supportded nested WildcardType						
+							result = format( "%s/*%s*/", s, wt.getTypeName() ) ;
+						}
+						else {
+							result = result.replace( wt.getTypeName(), s);
+						}
 					}
 					else {
 						result = result.replace(wt.getTypeName(), format( "any/*%s*/", wt));
@@ -382,9 +394,19 @@ public class TypescriptHelper {
 
 			log( "generic array type: %s",  componentType.getTypeName() );
 
-			return ( typeParameterMatch.apply(declaringType.getValue(), componentType ))  ?
-					format("[%s]", componentType ) :
-					format("[any/*%s*/]", componentType );
+			final String tt = convertJavaToTS( componentType,
+												declaringMethod,
+												declaringType,
+												declaredTypeMap,
+												packageResolution,
+												onTypeMismatch);
+			return format("[%s]", tt);
+			
+			
+			//return ( typeParameterMatch.apply(declaringType.getValue(), componentType ))  ?
+			//		format("[%s]", componentType ) :
+			//		format("[any/*%s*/]", componentType );
+			
 		}
 
 		throw new IllegalArgumentException( "type is a  not recognised type!");
