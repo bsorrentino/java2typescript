@@ -32,6 +32,62 @@ public class ProcessorTest {
 	}
 	
 	@Test
+	public void testWildcardType() throws Exception {
+		final TSType type = TSType.from(Sample1.class);
+		{
+			final Method m = type.getValue().getMethod("merge", Sample2.class );	
+			final String result = processor.getMethodParametersAndReturnDecl( m, 
+					type, 
+					declaredTypeMap( TSType.from(String.class), TSType.from(Sample2.class)), 
+					true) ;
+			
+			Assert.assertThat( result, IsNull.notNullValue());		
+			Assert.assertThat( result, IsEqual.equalTo("<T>( source:Sample2<T>/*? extends org.bsc.processor.Sample2<? extends T>*/ ):void"));
+		}
+	
+	}
+	
+	
+	@Test
+	public void testFunctionalInterface() throws Exception {
+		final TSType type = TSType.from(Sample1.class);
+		{
+			final Method m = type.getValue().getMethod("transform", java.util.function.Function.class );	
+			final Type pType = m.getGenericParameterTypes()[0];
+			final String result = TypescriptHelper.convertJavaToTS(pType, m, 
+					type,
+					declaredTypeMap( TSType.from(String.class), TSType.from(java.util.function.Function.class, "Func", false)), 
+					true, 
+					Optional.empty());
+			Assert.assertThat( result, IsNull.notNullValue());		
+			Assert.assertThat( result, IsEqual.equalTo("Func<E, string>"));
+			
+			
+		}
+		{
+			final Method m = type.getValue().getMethod("transform", java.util.function.Function.class );	
+			final String result = processor.getMethodParametersAndReturnDecl( m, 
+					type, 
+					declaredTypeMap( TSType.from(String.class), TSType.from(java.util.function.Function.class, "Func", false)), 
+					true) ;
+			
+			Assert.assertThat( result, IsNull.notNullValue());		
+			Assert.assertThat( result, IsEqual.equalTo("( transformer:Func<E, string> ):string"));
+		}
+		{
+			final Method m = type.getValue().getMethod("creator", java.util.concurrent.Callable.class );	
+			final String result = processor.getMethodParametersAndReturnDecl( m, 
+					type, 
+					declaredTypeMap( TSType.from(String.class), TSType.functional(java.util.concurrent.Callable.class, "Supplier")), 
+					true) ;
+			
+			Assert.assertThat( result, IsNull.notNullValue());		
+			Assert.assertThat( result, IsEqual.equalTo("( supplier:Supplier<E> ):E"));
+		}
+		
+	}
+
+	@Test
 	public void testClassDecl() throws Exception {
 		
 		{
@@ -68,7 +124,7 @@ public class ProcessorTest {
 					true) ;			
 			
 			Assert.assertThat( result, IsNull.notNullValue());	
-			Assert.assertThat( result, IsEqual.equalTo("( arg0:List<int|null> ):List<string>"));
+			Assert.assertThat( result, IsEqual.equalTo("( intList:List<int|null> ):List<string>"));
 		}
 		
 	}
@@ -245,7 +301,7 @@ public class ProcessorTest {
 		final String result = processor.getMethodParametersAndReturnDecl( m, TSType.from(type), Collections.emptyMap(), true) ;
 		
 		Assert.assertThat( result, IsNull.notNullValue());		
-		Assert.assertThat( result, IsEqual.equalTo("( ...arg0:string[] ):void"));
+		Assert.assertThat( result, IsEqual.equalTo("( ...args:string[] ):void"));
 		}
 		
 		{

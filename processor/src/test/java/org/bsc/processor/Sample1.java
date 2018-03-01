@@ -33,4 +33,11 @@ public interface Sample1<E> {
 	java.util.List<String> getAttributeList();
 
 	java.util.List<String> getAttributeList( java.util.List<Integer> intList);
+	
+	
+	String transform( java.util.function.Function<E, String> transformer );
+
+	E creator( java.util.concurrent.Callable<E> supplier);
+
+	<T> void merge(Sample2<? extends Sample2<? extends T>> source);
 }

@@ -8,6 +8,7 @@ import static org.bsc.processor.TypescriptHelper.isStaticMethod;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.Serializable;
+import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
@@ -20,7 +21,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.RandomAccess;
 import java.util.Set;
+import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
+import java.util.function.BiPredicate;
+import java.util.function.BinaryOperator;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
@@ -57,10 +63,15 @@ public class TypescriptProcessor extends AbstractProcessorEx {
     		TSType.from(Comparable.class),
     		TSType.from(Cloneable.class),
     		TSType.from(RandomAccess.class),
+    		TSType.from(Function.class, "Func", false),
+    		TSType.from(BiFunction.class, "BiFunc", false),
     		TSType.from(Consumer.class),
+    		TSType.from(BiConsumer.class),
     		TSType.from(UnaryOperator.class),
+    		TSType.from(BinaryOperator.class),
     		TSType.from(Supplier.class),
     		TSType.from(Predicate.class),
+    		TSType.from(BiPredicate.class),
     		TSType.from(Runnable.class)
     	);
 
@@ -74,6 +85,7 @@ public class TypescriptProcessor extends AbstractProcessorEx {
     		TSType.from(java.util.Set.class),
     		TSType.from(java.util.Map.class),
     		TSType.from(java.util.stream.Stream.class, true),
+    		TSType.from(java.util.stream.Collectors.class,true),
     		TSType.from(java.util.Optional.class, true)
     	);
     
@@ -135,22 +147,22 @@ public class TypescriptProcessor extends AbstractProcessorEx {
 	        final Set<TSType> types = enumerateDeclaredPackageAndClass( processingContext );
 
 	        types.addAll(REQUIRED_TYPES);
-	        	        
-		    final java.util.Map<String, TSType> declaredTypes = 
-		    		types.stream().collect( Collectors.toMap( tt -> tt.getValue().getName() , tt -> tt  ));
-	
-			PREDEFINED_TYPES.forEach( tt -> declaredTypes.put( tt.getValue().getName(), tt) );
 
-			// Generate Alias
+	        // Generate Alias
 			wD.append("//\n")
 			  .append("// TYPE ALIASES\n")
 			  .append("//\n\n");
 			types.stream()
+				.filter( t -> !t.isFunctionalInterface() )
 				.filter( t -> t.hasAlias() )
 				.map( t -> TypescriptHelper.getAliasDeclaration(t.getValue(), t.getAlias()) )
 				.forEach( wD_append  );
 
-				
+	        	types.addAll(PREDEFINED_TYPES);     
+	        	
+		    final java.util.Map<String, TSType> declaredTypes = 
+		    			types.stream()
+		    			.collect( Collectors.toMap( tt -> tt.getValue().getName() , tt -> tt  ));
 	
 			types.stream()
 				.filter( tt -> !PREDEFINED_TYPES.contains(tt) )
@@ -192,15 +204,30 @@ public class TypescriptProcessor extends AbstractProcessorEx {
         					final String name = getParameterName(tp);
         					
         					
-        					if( tp.isVarArgs() ) {
-            					final String type = convertJavaToTS( tp.getType().getComponentType(),
+        					if( tp.isVarArgs() ) {   
+        						
+        						String type = null;
+        						if( tp.getParameterizedType() instanceof GenericArrayType ) {
+        							
+        							type = convertJavaToTS( ((GenericArrayType)tp.getParameterizedType()).getGenericComponentType(),
+											m,
+											declaringType,
+											declaredTypeMap, 
+											packageResolution, 
+											Optional.of( addTypeVar )) ;
+        						}
+        						else {
+        							type = convertJavaToTS( tp.getType().getComponentType(),
             														m,
             														declaringType,
             														declaredTypeMap, 
             														packageResolution, 
             														Optional.of( addTypeVar )) ;
-        						return String.format( "...%s:%s[]", name, type );
+        						}
+    							return String.format( "...%s:%s[]", name, type );
+        						
         					}
+        					
         					final String type = convertJavaToTS( tp.getParameterizedType(),
         														m,
         														declaringType,
@@ -401,7 +428,7 @@ public class TypescriptProcessor extends AbstractProcessorEx {
         		.append(": ")
         		.append(type.getSimpleTypeName())
         		.append("Static = Java.type(\"")
-        		.append( type.getTypeName() )
+        		.append( type.getValue().getName() )
         		.append("\")")
         		.append( ENDL )
         		.append("\n\n")

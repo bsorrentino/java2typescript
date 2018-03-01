@@ -13,33 +13,23 @@ type char   = string;
 type chararray = [byte];
 type bytearray = [char];
 
-type Runnable = () => void;
+type Runnable = () => void ;
 
-type Supplier<T> = () => T;
+type Func<T,R> = ( t:T ) => R ;
+type BiFunc<T,U,R> = ( t:T, u:U ) => R ;
 
-type Consumer<T> = ( v:T) => void;
+type Supplier<T> = () => T ;
+
+type Consumer<T> = ( v:T ) => void ;
+type BiConsumer<T,U> = ( t:T, u:U ) => void ;
 
 type UnaryOperator<T> = ( v:T ) => T ;
+type BinaryOperator<T> = ( t:T, u:T ) => T ;
 
-type Predicate<T>  = ( v:T ) => boolean;
+type Predicate<T>  = ( v:T ) => boolean ;
+type BiPredicate<T,U>  = ( t:T, u:U ) => boolean ;
 
-type Comparator<T> = ( o1:T, o2:T ) => int;
-
-//
-// NASHORN
-//
-
-declare function print( ...args: any[]):void
-
-declare function load( module:string ):void
-
-declare namespace Java {
-
-  export function type<T>( t:string):T;
-
-  export function from<T>( list:java.util.List<T>):Array<T> ;
-}
-
+type Comparator<T> = ( o1:T, o2:T ) => int ;
 
 declare namespace java.lang {
 
@@ -65,4 +55,21 @@ declare namespace java.io {
 
 	interface Closeable {}
 	interface Serializable {}
+}
+
+
+//
+// Nashorn
+//
+
+declare function print( ...args: any[] ):void
+
+declare function load( module:string ):void
+
+declare namespace Java {
+
+  export function type<T>( t:string):T;
+
+  export function from<T>( list:java.util.List<T> ):Array<T> ;
+  
 }

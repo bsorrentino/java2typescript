@@ -1,6 +1,6 @@
 
 
-import {Stream,Arrays,URI,Collectors} from "ts/${typescript-filename}-types";
+import {Stream,Arrays,URI,Collectors} from "${typescript-filename}-types";
 
 
 
