@@ -2,8 +2,8 @@ package org.bsc.processor;
 
 import static java.lang.String.format;
 
-import java.beans.PropertyDescriptor;
 import java.lang.reflect.GenericArrayType;
+import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
@@ -40,7 +40,7 @@ public class TypescriptHelper {
 					;
 
 	private final static void log( String fmt, Object ...args ) {
-		System.out.println( format( fmt, (Object[])args));
+		//System.out.println( format( fmt, (Object[])args));
 	}
 
 	public static final String processFunctionalInterface( TSType type  ) {
@@ -92,7 +92,7 @@ public class TypescriptHelper {
     * @param m
     * @return
     */
-   static boolean isStaticMethod( Method m ) {
+   static <M extends Member> boolean isStatic(  M m ) {
    	
        final int modifier = m.getModifiers();
 
@@ -107,17 +107,8 @@ public class TypescriptHelper {
      */
     static boolean isFactoryMethod( Method m ) {
 
-    		return (isStaticMethod(m) &&
+    		return (isStatic(m) &&
         			m.getReturnType().equals(m.getDeclaringClass()));
-    }
-
-	/**
-	 *
-	 * @param pd
-	 * @return
-	 */
-    static boolean isPropertyValid( PropertyDescriptor pd ) {
-        return !( "class".equalsIgnoreCase(pd.getName()) );
     }
 
     /**
@@ -127,11 +118,12 @@ public class TypescriptHelper {
      * @param isSuperclassValid
      * @return
      */
-    static String getClassDecl( TSType tstype,
+    static StringBuilder getClassDecl(
+    							StringBuilder statement,
+    							TSType tstype,
     							java.util.Map<String, TSType> declaredClassMap )
     {
 
-        final StringBuilder statement = new StringBuilder();
         final StringBuilder inherited = new StringBuilder();
 
         if( tstype.getValue().isInterface() ) {
@@ -178,8 +170,8 @@ public class TypescriptHelper {
         					.append("*/");
         }
 
-        return statement.append( " {")
-        					.toString();
+        return statement.append( " {");
+        					
 
     }
 
@@ -233,22 +225,22 @@ public class TypescriptHelper {
     /**
      *
      * @param type
-     * @param declaringMethod
+     * @param declaringMember
      * @param declaredTypeMap
      * @param packageResolution
      * @param typeMatch
      * @param onTypeMismatch
      * @return
      */
-	public static String convertJavaToTS(	Type type,
-											Method declaringMethod,
+	public static <M extends Member> String convertJavaToTS(	Type type,
+											M declaringMember,
 											TSType declaringType,
 											java.util.Map<String, TSType> declaredTypeMap,
 											boolean packageResolution,
 											Optional<Consumer<TypeVariable<?>>> onTypeMismatch)
 	{
 		Objects.requireNonNull(type, "Type argument is null!");
-		Objects.requireNonNull(declaringMethod, "declaringMethod argument is null!");
+		Objects.requireNonNull(declaringMember, "declaringMethod argument is null!");
 		Objects.requireNonNull(declaringType, "declaringType argument is null!");
 		Objects.requireNonNull(declaredTypeMap, "declaredTypeMap argument is null!");
 
@@ -277,7 +269,7 @@ public class TypescriptHelper {
 				if( t instanceof ParameterizedType ) {
 
 					final String typeName = convertJavaToTS( t,
-															declaringMethod,
+															declaringMember,
 															declaringType,
 															declaredTypeMap,
 															packageResolution,
@@ -292,7 +284,7 @@ public class TypescriptHelper {
 
 					final TypeVariable<?> tv = (TypeVariable<?>)t;
 
-					if( isStaticMethod( declaringMethod ) || !typeParameterMatch.apply(declaringType.getValue(), tv )) {
+					if( isStatic( declaringMember ) || !typeParameterMatch.apply(declaringType.getValue(), tv )) {
 
 						if( onTypeMismatch.isPresent() ) {
 							 onTypeMismatch.get().accept(tv);
@@ -330,7 +322,7 @@ public class TypescriptHelper {
 						final Type tt  = (lb.length==1) ? lb[0] : ub[0];
 
 						final String s = convertJavaToTS( tt,							
-								declaringMethod,
+								declaringMember,
 								declaringType,
 								declaredTypeMap,
 								packageResolution,
@@ -364,7 +356,7 @@ public class TypescriptHelper {
 
 			final TypeVariable<?> tv = (TypeVariable<?>)type;
 
-			if( isStaticMethod( declaringMethod ) || !typeParameterMatch.apply(declaringType.getValue(), tv )) {
+			if( isStatic( declaringMember ) || !typeParameterMatch.apply(declaringType.getValue(), tv )) {
 
 				final String name = tv.getName();
 
@@ -395,7 +387,7 @@ public class TypescriptHelper {
 			log( "generic array type: %s",  componentType.getTypeName() );
 
 			final String tt = convertJavaToTS( componentType,
-												declaringMethod,
+												declaringMember,
 												declaringType,
 												declaredTypeMap,
 												packageResolution,

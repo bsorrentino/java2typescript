@@ -91,7 +91,8 @@ public class ProcessorTest {
 	public void testClassDecl() throws Exception {
 		
 		{
-			final String result  = TypescriptHelper.getClassDecl( TSType.from(ArrayList.class), Collections.emptyMap());
+			final String result  = 
+					TypescriptHelper.getClassDecl( new StringBuilder(), TSType.from(ArrayList.class), Collections.emptyMap()).toString();
 		
 			Assert.assertThat( result, IsNull.notNullValue());		
 			Assert.assertThat( result, IsEqual.equalTo("class ArrayList<E>/* extends AbstractList<E> implements List<E>, RandomAccess, java.lang.Cloneable, java.io.Serializable*/ {"));

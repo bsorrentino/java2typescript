@@ -63,6 +63,15 @@ public class TSType extends HashMap<String,Object> {
 	public boolean isExport() {
 		return (boolean) super.getOrDefault("export", false);
 	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public TSType setExport( boolean export ) {
+		super.put("export", export);
+		return this;
+	}
 
 	/**
 	 * 

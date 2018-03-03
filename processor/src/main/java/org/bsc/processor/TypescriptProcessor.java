@@ -3,11 +3,11 @@ package org.bsc.processor;
 import static org.bsc.processor.TypescriptHelper.convertJavaToTS;
 import static org.bsc.processor.TypescriptHelper.getClassDecl;
 import static org.bsc.processor.TypescriptHelper.getParameterName;
-import static org.bsc.processor.TypescriptHelper.isStaticMethod;
 
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.Serializable;
+import java.lang.reflect.Field;
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -318,6 +318,25 @@ public class TypescriptProcessor extends AbstractProcessorEx {
     }
 
     /**
+    *
+    * @param type
+    * @return
+    */
+   private Set<Field> getFields( final TSType type ) {
+	   
+		final Predicate<Field> std = f ->
+			!f.isSynthetic() &&
+			Modifier.isPublic( f.getModifiers() ) &&
+			Character.isJavaIdentifierStart(f.getName().charAt(0)) &&
+			f.getName().chars().skip(1).allMatch(Character::isJavaIdentifierPart);
+
+		return Stream.concat( Stream.of(type.getValue().getFields()), Stream.of(type.getValue().getDeclaredFields()) )
+			.filter(std)
+			.collect( Collectors.toSet( ) );
+
+   }
+    
+    /**
      *
      * @param type
      * @return
@@ -364,31 +383,44 @@ public class TypescriptProcessor extends AbstractProcessorEx {
         	;
     }
 
-    /**
-     *
-     * @param sb
-     * @param type
-     * @param declaredClassMap
-     */
-    private void processEnum( StringBuilder sb, TSType type, java.util.Map<String, TSType> declaredClassMap ) {
-    		if( !type.getValue().isEnum() ) return ;
-
-   		Arrays.stream( type.getValue().getEnumConstants() )
-		.forEach( (c) -> {
-			sb.append( '\t' )
-              .append( "static ")
-              .append(  c.toString() )
-              .append( ':')
-              .append( type.getSimpleTypeName() )
-              .append( ';' )
-              .append(  '\n' )
-              ;
-		});
-
-   		sb.append( '\n' );
-
+    
+    private StringBuilder processEnumDecl( StringBuilder sb, TSType type ) {
+		if( type.getValue().isEnum() ) {
+			type.setExport(true); // force export
+	   		Arrays.stream( type.getValue().getEnumConstants() )
+			.forEach( (c) -> 
+				sb.append( '\t' )
+	              .append( "// ")
+	              .append(  c.toString() )
+	              .append( ':')
+	              .append( type.getSimpleTypeName() )
+	              .append( ';' )
+	              .append(  '\n' )
+			);
+	   		sb.append('\n');
+		}
+		
+		return sb;
+		
     }
 
+    private StringBuilder processEnumType( StringBuilder sb, TSType type ) {
+		if( type.getValue().isEnum() ) {
+	   		Arrays.stream( type.getValue().getEnumConstants() )
+			.forEach( (c) -> 
+				sb.append( '\t' )
+	              .append(  c.toString() )
+	              .append( ':')
+	              .append( type.getTypeName() )
+	              .append( ';' )
+	              .append(  '\n' )
+			);
+	   		sb.append('\n');
+		}
+		
+		return sb;
+		
+    }
     
     /**
      * 
@@ -399,18 +431,21 @@ public class TypescriptProcessor extends AbstractProcessorEx {
     	
     		final StringBuilder sb = new StringBuilder();
     		
-    		final java.util.Set<Method> methodSet =
-	        getMethods( type )
-	        .stream()
-	        .filter( TypescriptHelper::isStaticMethod )
-	        .collect( Collectors.toCollection(() -> new java.util.LinkedHashSet<Method>() ));
-        
     		sb.append("interface ")
 			.append( type.getSimpleTypeName() )
 			.append("Static {\n\n")
+			;
+        
+    		processEnumType(sb, type)
 			//Append class property
 			.append("\treadonly class:any;\n");
 
+    		final java.util.Set<Method> methodSet =
+    		        getMethods( type )
+    		        .stream()
+    		        .filter( TypescriptHelper::isStatic )
+    		        .collect( Collectors.toCollection(() -> new java.util.LinkedHashSet<>() ));
+    	        
 		if( !methodSet.isEmpty() ) {
         		
         		methodSet.stream()
@@ -456,14 +491,14 @@ public class TypescriptProcessor extends AbstractProcessorEx {
 	           .append(" {\n\n")
 	            ;
 
-        sb.append( getClassDecl(tstype, declaredClassMap) ).append("\n\n");
+        getClassDecl( sb, tstype, declaredClassMap).append("\n\n");
 
-        processEnum(sb, tstype, declaredClassMap);
+        processEnumDecl(sb, tstype);
 
         final java.util.Set<Method> methodSet =
     	        getMethods( tstype )
     	        .stream()
-    	        .filter( md -> (tstype.isExport() && isStaticMethod(md))==false )
+    	        .filter( md -> (tstype.isExport() && TypescriptHelper.isStatic(md))==false )
     	        .filter( (md) -> {
 	        		final String name = md.getName();
 	        		return !( 	name.contains("$")		|| // remove unnamed
