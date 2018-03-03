@@ -6,7 +6,9 @@ import java.lang.reflect.TypeVariable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Optional;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -42,7 +44,27 @@ public class ProcessorTest {
 					true) ;
 			
 			Assert.assertThat( result, IsNull.notNullValue());		
-			Assert.assertThat( result, IsEqual.equalTo("<T>( source:Sample2<T>/*? extends org.bsc.processor.Sample2<? extends T>*/ ):void"));
+			Assert.assertThat( result, IsEqual.equalTo("<T>( source:Sample2<Sample2<T>> ):void"));
+		}
+		{
+			final Method m = type.getValue().getMethod("merge", BiConsumer.class );	
+			final String result = processor.getMethodParametersAndReturnDecl( m, 
+					type, 
+					declaredTypeMap( TSType.from(String.class), TSType.from(Sample2.class), TSType.from(BiConsumer.class)), 
+					true) ;
+			
+			Assert.assertThat( result, IsNull.notNullValue());		
+			Assert.assertThat( result, IsEqual.equalTo("<T>( source:BiConsumer<E, Sample2<Sample2<T>>> ):void"));
+		}
+		{
+			final Method m = type.getValue().getMethod("concatMap", Function.class );	
+			final String result = processor.getMethodParametersAndReturnDecl( m, 
+					type, 
+					declaredTypeMap( TSType.from(String.class), TSType.from(Sample2.class), TSType.functional(Function.class, "Func")), 
+					true) ;
+			
+			Assert.assertThat( result, IsNull.notNullValue());		
+			Assert.assertThat( result, IsEqual.equalTo("<T>( mapper:Func<E, Sample2<T>> ):T"));
 		}
 	
 	}

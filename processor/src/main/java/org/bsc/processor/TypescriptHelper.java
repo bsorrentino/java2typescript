@@ -42,6 +42,11 @@ public class TypescriptHelper {
 	private final static void log( String fmt, Object ...args ) {
 		//System.out.println( format( fmt, (Object[])args));
 	}
+	
+	private final static void debug( String fmt, Object ...args ) {
+		System.out.print( "DEBUG: ");		
+		System.out.println( format( fmt, (Object[])args));
+	}
 
 	public static final String processFunctionalInterface( TSType type  ) {
 		Objects.requireNonNull(type, "argument 'type' is not defined!");
@@ -328,15 +333,16 @@ public class TypescriptHelper {
 								packageResolution,
 								onTypeMismatch);
 
+						result = result.replace( wt.getTypeName(), s);
+
+						// CHECK FOR NESTED WILDCARDTYPE
 						if( tt instanceof ParameterizedType &&
 							Stream.of((Type[])((ParameterizedType)tt).getActualTypeArguments())
 								.anyMatch( arg -> (arg instanceof WildcardType) ))
 						{
-							// not supportded nested WildcardType						
-							result = format( "%s/*%s*/", s, wt.getTypeName() ) ;
-						}
-						else {
-							result = result.replace( wt.getTypeName(), s);
+							final Class<?> clazz = (Class<?>) (((ParameterizedType)tt).getRawType());
+							final String typeName = wt.getTypeName().replace( clazz.getName(), clazz.getSimpleName());
+							result = result.replace( typeName, s);
 						}
 					}
 					else {

@@ -1,8 +1,10 @@
 package org.bsc.processor;
 
 import java.util.concurrent.Future;
+import java.util.function.BiConsumer;
 import java.util.function.BiPredicate;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 public interface Sample1<E> {
 
@@ -40,4 +42,7 @@ public interface Sample1<E> {
 	E creator( java.util.concurrent.Callable<E> supplier);
 
 	<T> void merge(Sample2<? extends Sample2<? extends T>> source);
+	<T> void merge(BiConsumer<E,Sample2<? extends Sample2<? extends T>>> source);
+    <T> T concatMap(Function<? super E, ? extends Sample2<? extends T>> mapper);
+
 }
