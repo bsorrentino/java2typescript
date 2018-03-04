@@ -3,27 +3,76 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.bsc.processor</groupId>
     <artifactId>java2ts-processor-parent</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>0.1.0</version>
     <packaging>pom</packaging>
 
     <name>java2ts-processor::parent - ${project.version}</name>
+    <description>
+    Java Processor to generate Typescript Definition from Java classes - This is to help developing on JVM javascript engine (ie Nashorn/Rhino) using Typescript
+    </description>
+    <url>https://github.com/bsorrentino/java2typescript</url>
+    <distributionManagement>
+        <repository>
+            <id>${release.repo.id}</id>
+            <url>${release.repo.url}</url>
+        </repository>
+        <snapshotRepository>
+            <id>${snapshot.repo.id}</id>
+            <url>${snapshot.repo.url}</url>
+            <uniqueVersion>false</uniqueVersion>
+        </snapshotRepository>
+        <site>
+            <id>${release.site.id}</id>
+            <url>${release.site.url}</url>
+        </site>
+    </distributionManagement>
+    <scm>
+        <connection>scm:git:https://github.com/bsorrentino/java2typescript.git</connection>
+        <developerConnection>scm:git:https://github.com/bsorrentino/java2typescript.git</developerConnection>
+        <url>https://github.com/bsorrentino/java2typescript.git</url>
+    </scm>
+
+    <inceptionYear>2017</inceptionYear>
+
+	<licenses>
+		<license>
+			<name>The MIT License</name>
+			<url>https://opensource.org/licenses/MIT</url>
+		</license>
+	</licenses>
+	
+    <developers>
+        <developer>
+            <email>bartolomeo.sorrentino@gmail.com</email>
+            <name>Bartolomeo Sorrentino</name>
+            <timezone>GMT+1</timezone>
+            <roles>
+                <role>Owner</role>
+            </roles>
+        </developer>
+    </developers>
 
     <properties>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <!-- SONATYPE REPO -->
+        <snapshot.repo.id>sonatype-repo</snapshot.repo.id>
+        <snapshot.repo.url>https://oss.sonatype.org/content/repositories/snapshots</snapshot.repo.url>
+        <release.repo.id>sonatype-repo</release.repo.id>
+        <release.repo.url>https://oss.sonatype.org/service/local/staging/deploy/maven2</release.repo.url>
+
     </properties>
     <modules>
-    		<module>processor</module>
-    		<module>test</module>
-    </modules>
+        <module>processor</module>
+        <module>archetype</module>
+        <!-- 
+        <module>sample</module>
+         -->
+  </modules>
     <dependencyManagement>
         <dependencies>
-            <dependency>
-                <groupId>io.reactivex.rxjava2</groupId>
-                <artifactId>rxjava</artifactId>
-                <version>2.0.6</version>
-            </dependency>
             <dependency>
                 <groupId>edu.washington.cs.types.jsr308</groupId>
                 <artifactId>jsr308-compiler</artifactId>
@@ -38,7 +87,122 @@
                 <groupId>com.github.spullara.mustache.java</groupId>
                 <artifactId>compiler</artifactId>
                 <version>0.9.4</version>
-            </dependency>    
+            </dependency>
+			<dependency>
+			    <groupId>org.glassfish</groupId>
+			    <artifactId>javax.json</artifactId>
+			    <version>1.1.2</version>
+			</dependency>
+
         </dependencies>
     </dependencyManagement>
+    <build>
+
+      <pluginManagement>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-archetype-plugin</artifactId>
+            <version>3.0.1</version>
+          </plugin>
+
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-resources-plugin</artifactId>
+            <version>3.0.2</version>
+          </plugin>
+
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <version>3.7.0</version>
+            <configuration>
+            		<parameters>true</parameters>
+            </configuration>
+          </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>2.9.1</version>
+                <configuration>
+                    <additionalparam>-Xdoclint:none</additionalparam>
+                    <outputDirectory>${project.build.directory}/apidocs</outputDirectory>
+                </configuration>
+            </plugin>
+			<plugin>
+			    <groupId>org.apache.maven.plugins</groupId>
+			    <artifactId>maven-deploy-plugin</artifactId>
+			    <version>2.8.2</version>
+			  </plugin>
+			<plugin>
+			    <groupId>org.apache.maven.plugins</groupId>
+			    <artifactId>maven-source-plugin</artifactId>
+			    <version>3.0.1</version>
+			</plugin>
+
+        </plugins>
+      </pluginManagement>
+
+    </build>
+    <profiles>
+        <profile>
+            <id>release</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-enforcer-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>enforce-no-snapshots</id>
+                                <goals>
+                                    <goal>enforce</goal>
+                                </goals>
+                                <phase>verify</phase>
+                                <configuration>
+                                    <rules>
+                                        <requireReleaseDeps>
+                                            <message>No Snapshots Allowed!</message>
+                                        </requireReleaseDeps>
+                                    </rules>
+                                    <fail>true</fail>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <!--
+                    ====================================================================================
+                    mvn -Prelease source:jar javadoc:jar deploy -Dgpg.passphrase=thephrase
+                    ====================================================================================
+                    -->
+                    <plugin>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>1.3</version>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.sonatype.plugins</groupId>
+                        <artifactId>nexus-staging-maven-plugin</artifactId>
+                        <version>1.5.1</version>
+                        <extensions>true</extensions>
+                        <configuration>
+                            <serverId>sonatype-server</serverId>
+                            <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+                            <stagingProfileId />
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+    
 </project>

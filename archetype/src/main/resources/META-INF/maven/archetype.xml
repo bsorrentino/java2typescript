@@ -1,0 +1,20 @@
+<archetype>
+  <id>java2ts-processor-archetype</id>
+  <sources>
+    <source>src/main/java/package-info.java</source>
+  </sources>
+<!--
+  <testSources>
+    <source>src/test/java/AppTest.java</source>
+  </testSources>
+-->
+<resources>
+     <resource>src/main/ts/app.js</resource>
+     <resource>src/main/ts/main.ts</resource>
+     <resource>src/main/ts/nashorn.d.ts</resource>
+     <resource>src/main/ts/package.json</resource>
+     <resource>src/main/ts/tsconfig.json</resource>
+     <resource>README.md</resource>
+ </resources>
+
+</archetype>

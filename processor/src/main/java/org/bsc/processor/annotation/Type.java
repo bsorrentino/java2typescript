@@ -5,10 +5,11 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-
 @Retention(RetentionPolicy.SOURCE)
-@Target( {ElementType.TYPE, ElementType.PACKAGE} )
-public @interface Java2TS {
-    
-    Type[] declare() default {};
+@Target( {ElementType.ANNOTATION_TYPE} )
+public @interface Type {
+	Class<?> value();
+	boolean export() default false ;
+	String alias() default "";
+	boolean functional() default false ;
 }

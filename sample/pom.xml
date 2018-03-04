@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <artifactId>sample</artifactId>
+  <name>java2ts-processor::sample - ${project.version}</name>
+  <packaging>jar</packaging>
+
+  <parent>
+    <groupId>org.bsc.processor</groupId>
+    <artifactId>java2ts-processor-parent</artifactId>
+    <version>0.1.0</version>
+  </parent>
+
+  <build>
+    <finalName>sample</finalName>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+            <proc>none</proc>
+        </configuration>
+      </plugin>
+		<plugin>
+		   <groupId>org.apache.maven.plugins</groupId>
+		   <artifactId>maven-deploy-plugin</artifactId>
+			<configuration>
+				<skip>true</skip>
+			</configuration>
+		 </plugin>
+
+		<plugin>
+		    <groupId>org.apache.maven.plugins</groupId>
+		    <artifactId>maven-source-plugin</artifactId>
+		    <configuration>
+		    		<skipSource>true</skipSource>
+		    </configuration>
+		</plugin>
+      
+
+      <plugin>
+        <groupId>org.bsc.maven</groupId>
+        <artifactId>maven-processor-plugin</artifactId>
+        <version>3.3.3</version>
+        <executions>
+          <execution>
+            <id>process</id>
+            <goals>
+              <goal>process</goal>
+            </goals>
+            <phase>generate-sources</phase>
+            <configuration>
+             <outputDirectory>${project.build.directory}</outputDirectory>
+             <options>
+                  <ts.outfile>jdk8</ts.outfile>
+             </options>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+      
+         <groupId>org.codehaus.mojo</groupId>
+         <artifactId>exec-maven-plugin</artifactId>
+         <version>1.6.0</version>
+    		<configuration>
+            <!--
+               <workingDirectory>${basedir}/src/main/ts</workingDirectory>
+            -->
+    		</configuration>
+         <executions>
+           <execution>
+           	<id>jjs</id>
+  	         <configuration>
+  	           <executable>jjs</executable>
+  	           <arguments>
+  	             <argument>-scripting</argument>
+  	             <argument>-classpath</argument>
+  	             <classpath/>
+  	             <argument>app.js</argument>
+  	             <argument>--</argument>
+  	           </arguments>
+  	         </configuration>
+           </execution>
+         <execution>
+         	<id>tsc</id>
+          	<phase>process-sources</phase>
+          	<goals>
+          		<goal>exec</goal>
+          	</goals>
+	         <configuration>
+	           <executable>tsc</executable>
+	           <arguments>
+	           </arguments>
+	         </configuration>
+         </execution>
+         </executions>
+       </plugin>
+
+    </plugins>
+  </build>
+  <properties>
+    <maven.compiler.source>1.8</maven.compiler.source>
+    <maven.compiler.target>1.8</maven.compiler.target>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.bsc</groupId>
+      <artifactId>jvm-npm-core</artifactId>
+      <version>1.1.0</version>
+  </dependency>
+
+  <dependency>
+    <groupId>org.bsc.processor</groupId>
+    <artifactId>java2ts-processor</artifactId>
+    <version>${project.version}</version>
+  </dependency>
+
+
+  </dependencies>
+</project>

@@ -1,0 +1,62 @@
+<?xml version="1.0"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+      <groupId>org.bsc.processor</groupId>
+    <artifactId>java2ts-processor-parent</artifactId>
+    <version>0.1.0</version>
+  </parent>
+  <artifactId>java2ts-processor-archetype</artifactId>
+  <name>java2ts-processor::archetype - ${project.version}</name>
+  <packaging>maven-archetype</packaging>
+
+  <build>
+    <extensions>
+      <extension>
+        <groupId>org.apache.maven.archetype</groupId>
+        <artifactId>archetype-packaging</artifactId>
+        <version>3.0.1</version>
+      </extension>
+    </extensions>
+<!--
+      <resources>
+        <resource>
+          <directory>src/main/resources</directory>
+          <filtering>true</filtering>
+          <includes>
+            <include>archetype-resources/pom.xml</include>
+          </includes>
+        </resource>
+      </resources>
+-->
+      <plugins>
+
+        <plugin>
+           <artifactId>maven-resources-plugin</artifactId>
+           <version>3.0.2</version>
+           <executions>
+             <execution>
+               <id>copy-resources</id>
+               <!-- here the phase you need -->
+               <phase>validate</phase>
+               <goals>
+                 <goal>copy-resources</goal>
+               </goals>
+               <configuration>
+                 <escapeString>\</escapeString>
+                 <outputDirectory>${project.build.outputDirectory}/archetype-resources</outputDirectory>
+                 <resources>
+                   <resource>
+                     <directory>${basedir}/tofilter</directory>
+                     <filtering>true</filtering>
+                   </resource>
+                 </resources>
+               </configuration>
+             </execution>
+           </executions>
+         </plugin>
+
+      </plugins>
+    </build>
+</project>
