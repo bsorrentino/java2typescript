@@ -7,7 +7,7 @@ load('classpath:jvm-npm.js');
 require.paths = [
   "src/main/ts",
   "target/ts/src/main/ts",
-  "target/ts/target"
+  "target/ts/target/ts"
 ];
 
 java.lang.System.setProperty( "jvm-npm.debug", "false");

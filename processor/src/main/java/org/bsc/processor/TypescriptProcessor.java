@@ -7,6 +7,7 @@ import static org.bsc.processor.TypescriptHelper.getParameterName;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.Serializable;
+import java.lang.reflect.Executable;
 import java.lang.reflect.Field;
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.Method;
@@ -188,7 +189,7 @@ public class TypescriptProcessor extends AbstractProcessorEx {
      * @param declaredTypeMap
      * @return
      */
-    protected String getMethodParametersAndReturnDecl(	Method m, 
+    protected <E extends Executable> String getMethodParametersAndReturnDecl(	E m, 
     														TSType declaringType, 
     														java.util.Map<String, TSType> declaredTypeMap,
     														boolean packageResolution ) 
@@ -241,16 +242,19 @@ public class TypescriptProcessor extends AbstractProcessorEx {
         				.collect(Collectors.joining(", "))
         				;
 
-        final Type returnType = m.getGenericReturnType();
-
-	    	final String tsType = 
-	    			convertJavaToTS(	returnType,
-	    							m,
-	    							declaringType,
-	    							declaredTypeMap,
-	    							packageResolution,
-	    							Optional.of( addTypeVar ));
-	    	
+        final Type returnType =  ( m instanceof Method ) ?
+        								((Method)m).getGenericReturnType() :
+        								declaringType.getValue();
+        								
+	   final String  tsReturnType = 
+		    			convertJavaToTS(	returnType,
+		    							m,
+		    							declaringType,
+		    							declaredTypeMap,
+		    							packageResolution,
+		    							Optional.of( addTypeVar ));
+	   
+	   
 	    	final StringBuilder result = new StringBuilder();
 	    	
 	    	if( !TypeVarSet.isEmpty() ) {
@@ -263,29 +267,10 @@ public class TypescriptProcessor extends AbstractProcessorEx {
 	    	        		.append("( ")
 	    	        		.append(params_string)
 	    				.append(" ):")
-	    				.append(tsType)
+	    				.append(tsReturnType)
 	    				.toString();
     }
     
-    /**
-     * 
-     * @param m
-     * @param declaringType
-     * @param declaredTypeMap
-     * @return
-     */
-    private String getFactoryMethodDecl( final Method m, TSType declaringType, java.util.Map<String, TSType> declaredTypeMap ) {
-
-        final StringBuilder sb = new StringBuilder();
-
-        	sb.append(m.getName());
-    		
-        sb.append( getMethodParametersAndReturnDecl(m, declaringType, declaredTypeMap, false) );
-
-        return  sb.toString();
-
-    }
-
     /**
      *
      * @param m
@@ -448,6 +433,15 @@ public class TypescriptProcessor extends AbstractProcessorEx {
 			//Append class property
 			.append("\treadonly class:any;\n");
 
+    		Stream.of(type.getValue().getConstructors())
+			.filter( c -> Modifier.isPublic(c.getModifiers()) )
+			.forEach( c -> {
+				sb.append("\tnew")
+					.append( getMethodParametersAndReturnDecl( c, type, declaredClassMap, false) )
+					.append(ENDL);
+				}
+			);
+    		
     		final java.util.Set<Method> methodSet =
     		        getMethods( type )
     		        .stream()
@@ -457,10 +451,11 @@ public class TypescriptProcessor extends AbstractProcessorEx {
 		if( !methodSet.isEmpty() ) {
         		
         		methodSet.stream()
-	            .map( md -> getFactoryMethodDecl(md, type, declaredClassMap) )
-	            .sorted().forEach( (decl) ->
+	            		.sorted( (a,b) -> a.getName().compareTo(b.getName()))
+	            		.forEach( md ->
 		    	        sb.append( '\t' )
-		    	          .append(decl)
+		    	        	  .append(md.getName()) 
+		    	          .append( getMethodParametersAndReturnDecl( md, type, declaredClassMap, false) )
 		    	          .append(  ENDL ))
 	    	    		;
         }
