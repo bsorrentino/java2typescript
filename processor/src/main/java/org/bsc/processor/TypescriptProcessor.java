@@ -18,9 +18,11 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.RandomAccess;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.BiPredicate;
@@ -355,6 +357,11 @@ public class TypescriptProcessor extends AbstractProcessorEx {
 
     }
 
+    public static <T> Predicate<T> distinctByKey(Function<? super T,Object> keyExtractor) {
+        Map<Object,Boolean> seen = new ConcurrentHashMap<>();
+        return t -> seen.putIfAbsent(keyExtractor.apply(t), Boolean.TRUE) == null;
+    }
+
     /**
      *
      * @param sb
@@ -372,7 +379,8 @@ public class TypescriptProcessor extends AbstractProcessorEx {
     	      .append(" {\n\n")
     	      ;
 
-        Arrays.stream(nestedClasses)
+        Stream.of(nestedClasses)
+        		.filter( distinctByKey( c -> c.getSimpleName() ) )
         		.map( cl ->  TSType.from(cl) )
         		.map( t -> processClass(t, declaredTypeMap) )
         		.forEach( decl -> sb.append(decl) );

@@ -22,18 +22,18 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>edu.washington.cs.types.jsr308</groupId>
-            <artifactId>jsr308-compiler</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.kohsuke.metainf-services</groupId>
             <artifactId>metainf-services</artifactId>
             <optional>true</optional>
         </dependency>
-			<dependency>
-			    <groupId>org.glassfish</groupId>
-			    <artifactId>javax.json</artifactId>
-			</dependency>
-        
+        <dependency>
+            <groupId>edu.washington.cs.types.jsr308</groupId>
+            <artifactId>jsr308-compiler</artifactId>
+        </dependency>
+		<dependency>
+		    <groupId>org.glassfish</groupId>
+		    <artifactId>javax.json</artifactId>
+            <optional>true</optional>
+		</dependency>
     </dependencies>
 </project>
