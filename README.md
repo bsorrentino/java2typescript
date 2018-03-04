@@ -1,3 +1,6 @@
+<a href="http://search.maven.org/#search%7Cga%7C1%7Ca%3A%22java2ts-processor%22"><img src="https://img.shields.io/maven-central/v/org.bsc.processor/java2ts-processor.svg">
+
+
 # java2typescript
 
 Java Processor to **generate [Typescript](https://www.typescriptlang.org/)  Definition file (.d.ts)** from whatever Java classes.
@@ -112,13 +115,13 @@ package org.mypackage;
 
 ### Use Maven Archetype
 
+The easier way to start your **Typescript on JVM** project is using the provided maven archetype
+
 **Interactive Mode**
 
 >```
 >mvn archetype:generate \
 >-DarchetypeGroupId=org.bsc.processor \
 >-DarchetypeArtifactId=java2ts-processor-archetype \
->-DarchetypeVersion=${project.version}
+>-DarchetypeVersion=0.1.0
 >```
-
-_Coming Soon ..._
