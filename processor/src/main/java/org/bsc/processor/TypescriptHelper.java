@@ -2,6 +2,7 @@ package org.bsc.processor;
 
 import static java.lang.String.format;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
@@ -17,6 +18,7 @@ import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.BiPredicate;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -249,6 +251,15 @@ public class TypescriptHelper {
 		Objects.requireNonNull(declaringType, "declaringType argument is null!");
 		Objects.requireNonNull(declaredTypeMap, "declaredTypeMap argument is null!");
 
+		/**
+		 * 
+		 */
+		final Predicate<TypeVariable<?>> typeMismatch = ( tv ) -> {
+			if( isStatic(declaringMember) ) return true;
+			if( declaringMember instanceof Constructor ) return true;
+			return !typeParameterMatch.apply(declaringType.getValue(), tv );
+		};
+		
 		if( type instanceof ParameterizedType ) {
 
 			final ParameterizedType pType = (ParameterizedType) type;
@@ -289,7 +300,7 @@ public class TypescriptHelper {
 
 					final TypeVariable<?> tv = (TypeVariable<?>)t;
 
-					if( isStatic( declaringMember ) || !typeParameterMatch.apply(declaringType.getValue(), tv )) {
+					if( typeMismatch.test(tv)) {
 
 						if( onTypeMismatch.isPresent() ) {
 							 onTypeMismatch.get().accept(tv);
@@ -362,7 +373,7 @@ public class TypescriptHelper {
 
 			final TypeVariable<?> tv = (TypeVariable<?>)type;
 
-			if( isStatic( declaringMember ) || !typeParameterMatch.apply(declaringType.getValue(), tv )) {
+			if( typeMismatch.test(tv) ) {
 
 				final String name = tv.getName();
 
