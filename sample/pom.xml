@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <artifactId>jjs</artifactId>
+  <artifactId>sample</artifactId>
   <name>java2ts-processor::sample - ${project.version}</name>
   <packaging>jar</packaging>
 
   <parent>
     <groupId>org.bsc.processor</groupId>
     <artifactId>java2ts-processor-parent</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>0.1.0</version>
   </parent>
 
   <build>
@@ -21,6 +21,22 @@
             <proc>none</proc>
         </configuration>
       </plugin>
+		<plugin>
+		   <groupId>org.apache.maven.plugins</groupId>
+		   <artifactId>maven-deploy-plugin</artifactId>
+			<configuration>
+				<skip>true</skip>
+			</configuration>
+		 </plugin>
+
+		<plugin>
+		    <groupId>org.apache.maven.plugins</groupId>
+		    <artifactId>maven-source-plugin</artifactId>
+		    <configuration>
+		    		<skipSource>true</skipSource>
+		    </configuration>
+		</plugin>
+      
 
       <plugin>
         <groupId>org.bsc.maven</groupId>
@@ -44,6 +60,7 @@
       </plugin>
 
       <plugin>
+      
          <groupId>org.codehaus.mojo</groupId>
          <artifactId>exec-maven-plugin</artifactId>
          <version>1.6.0</version>
@@ -68,7 +85,7 @@
            </execution>
          <execution>
          	<id>tsc</id>
-          	<phase>process-resources</phase>
+          	<phase>process-sources</phase>
           	<goals>
           		<goal>exec</goal>
           	</goals>
