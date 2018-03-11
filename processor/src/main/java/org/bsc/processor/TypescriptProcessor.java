@@ -169,7 +169,7 @@ public class TypescriptProcessor extends AbstractProcessorEx {
 	
 			types.stream()
 				.filter( tt -> !PREDEFINED_TYPES.contains(tt) )
-				.map( tt -> processClass( tt, declaredTypes))
+				.map( tt -> processClass( 0, tt, declaredTypes))
 				.forEach( wD_append );
 
 			wT.append( "/// <reference path=\"").append(definitionsFile).append("\"/>" ).append( "\n\n");
@@ -353,7 +353,7 @@ public class TypescriptProcessor extends AbstractProcessorEx {
      * @param type
      * @param declaredTypeMap
      */
-    private void processNestedClasses( StringBuilder sb, TSType tstype, java.util.Map<String, TSType> declaredTypeMap ) {
+    private void processNestedClasses( StringBuilder sb, int level, TSType tstype, java.util.Map<String, TSType> declaredTypeMap ) {
 
         final Class<?> nestedClasses[] = tstype.getValue().getClasses();
 
@@ -367,7 +367,7 @@ public class TypescriptProcessor extends AbstractProcessorEx {
         Stream.of(nestedClasses)
         		.filter( distinctByKey( c -> c.getSimpleName() ) )
         		.map( cl ->  TSType.from(cl) )
-        		.map( t -> processClass(t, declaredTypeMap) )
+        		.map( t -> processClass( level + 1, t, declaredTypeMap) )
         		.forEach( decl -> sb.append(decl) );
 
         sb.append("\n} // end module ")
@@ -482,7 +482,7 @@ public class TypescriptProcessor extends AbstractProcessorEx {
      * @param declaredClassMap
      * @return
      */
-    private String processClass( TSType tstype, java.util.Map<String, TSType> declaredClassMap )   {
+    private String processClass( int level, TSType tstype, java.util.Map<String, TSType> declaredClassMap )   {
 
         final StringBuilder sb = new StringBuilder();
 
@@ -526,7 +526,7 @@ public class TypescriptProcessor extends AbstractProcessorEx {
         		.append('\n');
 
         // NESTED CLASSES
-        processNestedClasses(sb, tstype, declaredClassMap);
+        if( level == 0 ) processNestedClasses( sb, level, tstype, declaredClassMap);
 
         if( !tstype.getValue().isMemberClass() )
         		sb.append("\n} // end namespace ")
