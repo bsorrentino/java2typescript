@@ -12,6 +12,8 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.bsc.java2typescript.TSType;
+import org.bsc.java2typescript.TypescriptConverter;
 import org.hamcrest.core.Is;
 import org.hamcrest.core.IsEqual;
 import org.hamcrest.core.IsNull;
@@ -20,7 +22,7 @@ import org.junit.Test;
 
 public class ProcessorTest {
 
-	final TypescriptProcessor processor = new TypescriptProcessor();
+    final TypescriptConverter converter = new TypescriptConverter();
 	
 	private java.util.Map<String,TSType> declaredClassMap( Class<?> ... classes) {
 		return Stream.of( classes )
@@ -38,7 +40,7 @@ public class ProcessorTest {
 		final TSType type = TSType.from(Sample1.class);
 		{
 			final Method m = type.getValue().getMethod("merge", Sample2.class );	
-			final String result = processor.getMethodParametersAndReturnDecl( m, 
+			final String result = converter.getMethodParametersAndReturnDecl( m, 
 					type, 
 					declaredTypeMap( TSType.from(String.class), TSType.from(Sample2.class)), 
 					true) ;
@@ -48,7 +50,7 @@ public class ProcessorTest {
 		}
 		{
 			final Method m = type.getValue().getMethod("merge", BiConsumer.class );	
-			final String result = processor.getMethodParametersAndReturnDecl( m, 
+			final String result = converter.getMethodParametersAndReturnDecl( m, 
 					type, 
 					declaredTypeMap( TSType.from(String.class), TSType.from(Sample2.class), TSType.from(BiConsumer.class)), 
 					true) ;
@@ -58,7 +60,7 @@ public class ProcessorTest {
 		}
 		{
 			final Method m = type.getValue().getMethod("concatMap", Function.class );	
-			final String result = processor.getMethodParametersAndReturnDecl( m, 
+			final String result = converter.getMethodParametersAndReturnDecl( m, 
 					type, 
 					declaredTypeMap( TSType.from(String.class), TSType.from(Sample2.class), TSType.functional(Function.class, "Func")), 
 					true) ;
@@ -76,7 +78,7 @@ public class ProcessorTest {
 		{
 			final Method m = type.getValue().getMethod("transform", java.util.function.Function.class );	
 			final Type pType = m.getGenericParameterTypes()[0];
-			final String result = TypescriptHelper.convertJavaToTS(pType, m, 
+			final String result = TypescriptConverter.convertJavaToTS(pType, m, 
 					type,
 					declaredTypeMap( TSType.from(String.class), TSType.from(java.util.function.Function.class, "Func", false)), 
 					true, 
@@ -88,7 +90,7 @@ public class ProcessorTest {
 		}
 		{
 			final Method m = type.getValue().getMethod("transform", java.util.function.Function.class );	
-			final String result = processor.getMethodParametersAndReturnDecl( m, 
+			final String result = converter.getMethodParametersAndReturnDecl( m, 
 					type, 
 					declaredTypeMap( TSType.from(String.class), TSType.from(java.util.function.Function.class, "Func", false)), 
 					true) ;
@@ -98,7 +100,7 @@ public class ProcessorTest {
 		}
 		{
 			final Method m = type.getValue().getMethod("creator", java.util.concurrent.Callable.class );	
-			final String result = processor.getMethodParametersAndReturnDecl( m, 
+			final String result = converter.getMethodParametersAndReturnDecl( m, 
 					type, 
 					declaredTypeMap( TSType.from(String.class), TSType.functional(java.util.concurrent.Callable.class, "Supplier")), 
 					true) ;
@@ -114,7 +116,7 @@ public class ProcessorTest {
 		
 		{
 			final String result  = 
-					TypescriptHelper.getClassDecl( new StringBuilder(), TSType.from(ArrayList.class), Collections.emptyMap()).toString();
+					converter.getClassDecl( TSType.from(ArrayList.class), Collections.emptyMap());
 		
 			Assert.assertThat( result, IsNull.notNullValue());		
 			Assert.assertThat( result, IsEqual.equalTo("class ArrayList<E>/* extends AbstractList<E> implements List<E>, RandomAccess, java.lang.Cloneable, java.io.Serializable*/ {"));
@@ -130,7 +132,7 @@ public class ProcessorTest {
 		{
 			final Method m = type.getMethod("getAttributeList");			
 			final Type rType = m.getGenericReturnType();
-			final String result = TypescriptHelper.convertJavaToTS(rType, m, 
+			final String result = TypescriptConverter.convertJavaToTS(rType, m, 
 					TSType.from(type),
 					declaredTypeMap( TSType.from(String.class), TSType.from(java.util.List.class, "List", true) ), 
 					true, 
@@ -141,7 +143,7 @@ public class ProcessorTest {
 		{
 			final Method m = type.getMethod("getAttributeList", java.util.List.class);			
 			
-			final String result = processor.getMethodParametersAndReturnDecl( m, 
+			final String result = converter.getMethodParametersAndReturnDecl( m, 
 					TSType.from(type), 
 					declaredTypeMap( TSType.from(String.class), TSType.from(java.util.List.class, "List", true) ),  
 					true) ;			
@@ -166,7 +168,7 @@ public class ProcessorTest {
 		{
 		final Method m = type.getMethod("method4");			
 		final Type rType = m.getGenericReturnType();
-		final String result = TypescriptHelper.convertJavaToTS(rType, m, 
+		final String result = TypescriptConverter.convertJavaToTS(rType, m, 
 				TSType.from(type),
 				Collections.emptyMap(), 
 				true, 
@@ -177,7 +179,7 @@ public class ProcessorTest {
 		{
 		final Method m = type.getMethod("method5");			
 		final Type rType = m.getGenericReturnType();
-		final String result = TypescriptHelper.convertJavaToTS(rType, m, 
+		final String result = TypescriptConverter.convertJavaToTS(rType, m, 
 				TSType.from(type),
 				Collections.emptyMap(), 
 				true, 
@@ -188,7 +190,7 @@ public class ProcessorTest {
 		{
 		final Method m = type.getMethod("method1_1");			
 		final Type rType = m.getGenericReturnType();
-		final String result = TypescriptHelper.convertJavaToTS(rType, m, 
+		final String result = TypescriptConverter.convertJavaToTS(rType, m, 
 				TSType.from(type),
 				declaredClassMap(Sample2.class),
 				true,
@@ -199,7 +201,7 @@ public class ProcessorTest {
 		{
 		final Method m = type.getMethod("method1_2");			
 		final Type rType = m.getGenericReturnType();
-		final String result = TypescriptHelper.convertJavaToTS(rType, m, 
+		final String result = TypescriptConverter.convertJavaToTS(rType, m, 
 				TSType.from(type),
 				declaredClassMap(Sample2.class,java.lang.Comparable.class),
 				true,
@@ -211,7 +213,7 @@ public class ProcessorTest {
 		TypeVarSet.clear();
 		final Method m = type.getMethod("method1_3");			
 		final Type rType = m.getGenericReturnType();
-		final String result = TypescriptHelper.convertJavaToTS(rType, m, 
+		final String result = TypescriptConverter.convertJavaToTS(rType, m, 
 				TSType.from(type),
 				declaredClassMap(java.util.function.BiPredicate.class),
 				true,
@@ -225,7 +227,7 @@ public class ProcessorTest {
 		{
 		final Method m = type.getMethod("method1_3");			
 		final Type rType = m.getGenericReturnType();
-		final String result = TypescriptHelper.convertJavaToTS(rType, m, 
+		final String result = TypescriptConverter.convertJavaToTS(rType, m, 
 				TSType.from(type),
 				Collections.emptyMap(),
 				true,
@@ -236,7 +238,7 @@ public class ProcessorTest {
 		{
 		final Method m = type.getMethod("method1");			
 		final Type rType = m.getGenericReturnType();
-		final String result = TypescriptHelper.convertJavaToTS(rType, m, 
+		final String result = TypescriptConverter.convertJavaToTS(rType, m, 
 				TSType.from(type),
 				declaredClassMap(java.util.Map.class),
 				true,
@@ -248,7 +250,7 @@ public class ProcessorTest {
 		{
 		final Method m = type.getMethod("method2", Sample2.class);			
 		final Type rType = m.getGenericReturnType();
-		final String result = TypescriptHelper.convertJavaToTS(rType, m, 
+		final String result = TypescriptConverter.convertJavaToTS(rType, m, 
 				TSType.from(type),
 				Collections.emptyMap(),
 				true,
@@ -257,7 +259,7 @@ public class ProcessorTest {
 		Assert.assertThat( result, IsEqual.equalTo("string"));
 		
 		final Type pType = m.getParameters()[0].getParameterizedType();
-		final String rresult = TypescriptHelper.convertJavaToTS(pType, m, 
+		final String rresult = TypescriptConverter.convertJavaToTS(pType, m, 
 				TSType.from(type),
 				declaredClassMap(Sample2.class),
 				true,
@@ -269,7 +271,7 @@ public class ProcessorTest {
 		{
 		final Method m = type.getMethod("method2_1", Sample2.class);			
 		final Type rType = m.getGenericReturnType();
-		final String result = TypescriptHelper.convertJavaToTS(rType, m, 
+		final String result = TypescriptConverter.convertJavaToTS(rType, m, 
 				TSType.from(type),
 				declaredClassMap(Sample2.class, CharSequence.class),
 				true,
@@ -278,7 +280,7 @@ public class ProcessorTest {
 		Assert.assertThat( result, IsEqual.equalTo("string"));
 		
 		final Type pType = m.getParameters()[0].getParameterizedType();
-		final String rresult = TypescriptHelper.convertJavaToTS(pType, m, 
+		final String rresult = TypescriptConverter.convertJavaToTS(pType, m, 
 				TSType.from(type),
 				declaredClassMap(Sample2.class),
 				true,
@@ -298,7 +300,7 @@ public class ProcessorTest {
 			Assert.assertThat( result, IsEqual.equalTo("string"));
 		
 			final Type pType = m.getParameters()[0].getParameterizedType();
-			final String rresult = TypescriptHelper.convertJavaToTS(pType, m, 
+			final String rresult = TypescriptConverter.convertJavaToTS(pType, m, 
 					TSType.from(type),
 					declaredClassMap(Sample2.class, Consumer.class),
 					true,
@@ -321,7 +323,7 @@ public class ProcessorTest {
 		final String[] arr = {};
 		final Method m = type.getMethod("method6", arr.getClass());	
 		
-		final String result = processor.getMethodParametersAndReturnDecl( m, TSType.from(type), Collections.emptyMap(), true) ;
+		final String result = converter.getMethodParametersAndReturnDecl( m, TSType.from(type), Collections.emptyMap(), true) ;
 		
 		Assert.assertThat( result, IsNull.notNullValue());		
 		Assert.assertThat( result, IsEqual.equalTo("( ...args:string[] ):void"));
@@ -352,7 +354,7 @@ public class ProcessorTest {
 	String getReturnType( java.util.Map<String, TSType> declaredClassMap, Class<?> type, Method m ) throws Exception 
 	{
 		final Type rType = m.getGenericReturnType();
-		final String result = TypescriptHelper.convertJavaToTS(rType, m, 
+		final String result = TypescriptConverter.convertJavaToTS(rType, m, 
 				TSType.from(type),
 				declaredClassMap, 
 				true, 

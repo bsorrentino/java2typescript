@@ -70,7 +70,8 @@
         <!-- 
         <module>sample</module>
          -->
-  </modules>
+        <module>core</module>
+    </modules>
     <dependencyManagement>
         <dependencies>
             <dependency>
