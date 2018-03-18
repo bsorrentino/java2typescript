@@ -1,6 +1,13 @@
 package org.bsc.java2typescript;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.HashMap;
+import java.util.Set;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 
 /**
@@ -115,6 +122,45 @@ public class TSType extends HashMap<String,Object> {
 	public final String getSimpleTypeName() {
 		return (hasAlias()) ? getAlias() : getValue().getSimpleName();
 	}
+
+    /**
+    *
+    * @param type
+    * @return
+    */
+   public Set<Field> getFields() {
+       
+        final Predicate<Field> std = f ->
+            !f.isSynthetic() &&
+            Modifier.isPublic( f.getModifiers() ) &&
+            Character.isJavaIdentifierStart(f.getName().charAt(0)) &&
+            f.getName().chars().skip(1).allMatch(Character::isJavaIdentifierPart);
+
+        return Stream.concat( Stream.of(getValue().getFields()), Stream.of(getValue().getDeclaredFields()) )
+            .filter(std)
+            .collect( Collectors.toSet( ) );
+
+   }
+          
+    /**
+    *
+    * @param type
+    * @return
+    */
+   public Set<Method> getMethods() {
+       final Predicate<Method> include = m ->
+           !m.isBridge() &&
+           !m.isSynthetic() &&
+           Modifier.isPublic( m.getModifiers() ) &&
+           Character.isJavaIdentifierStart(m.getName().charAt(0)) &&
+           m.getName().chars().skip(1).allMatch(Character::isJavaIdentifierPart);
+
+       return Stream.concat( Stream.of(getValue().getMethods()), Stream.of(getValue().getDeclaredMethods()) )
+           .filter(include)
+           .collect( Collectors.toSet( ) );
+
+   }
+   
 	
     /**
      *

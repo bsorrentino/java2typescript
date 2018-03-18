@@ -17,7 +17,6 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiFunction;
 import java.util.function.BiPredicate;
@@ -58,6 +57,11 @@ public class TypescriptConverter {
             System.out.println( format( fmt, (Object[])args));
         }
 
+        /**
+         * 
+         * @param type
+         * @return
+         */
         public static final String processFunctionalInterface( TSType type  ) {
             Objects.requireNonNull(type, "argument 'type' is not defined!");
 
@@ -107,7 +111,7 @@ public class TypescriptConverter {
         * @param m
         * @return
         */
-       static <M extends Member> boolean isStatic(  M m ) {
+       public static <M extends Member> boolean isStatic(  M m ) {
         
            final int modifier = m.getModifiers();
 
@@ -406,9 +410,12 @@ public class TypescriptConverter {
             return format("any /*%s*/",type.getName());
 
         }
-     
-        
-
+           
+        /**
+         * 
+         * @param keyExtractor
+         * @return
+         */
         public static <T> Predicate<T> distinctByKey(Function<? super T,Object> keyExtractor) {
             Map<Object,Boolean> seen = new ConcurrentHashMap<>();
             return t -> seen.putIfAbsent(keyExtractor.apply(t), Boolean.TRUE) == null;
@@ -443,7 +450,7 @@ public class TypescriptConverter {
                 );
                 
                 final java.util.Set<Method> methodSet =
-                        getMethods( ctx.type )
+                        ctx.type.getMethods()
                         .stream()
                         .filter( TypescriptConverter::isStatic )
                         .collect( Collectors.toCollection(() -> new java.util.LinkedHashSet<>() ));
@@ -475,35 +482,33 @@ public class TypescriptConverter {
              return ctx.toString();
         }
    
-              
-        /**
-        *
-        * @param type
-        * @return
-        */
-       private Set<Method> getMethods( final TSType type) {
-           final Predicate<Method> include = m ->
-               !m.isBridge() &&
-               !m.isSynthetic() &&
-               Modifier.isPublic( m.getModifiers() ) &&
-               Character.isJavaIdentifierStart(m.getName().charAt(0)) &&
-               m.getName().chars().skip(1).allMatch(Character::isJavaIdentifierPart);
-
-           return Stream.concat( Stream.of(type.getValue().getMethods()), Stream.of(type.getValue().getDeclaredMethods()) )
-               .filter(include)
-               .collect( Collectors.toSet( ) );
-
-       }
-       
-        
         /**
          * 
          * @param m
-         * @param declaringType
+         * @param type
          * @param declaredTypeMap
+         * @param packageResolution
          * @return
          */
-        protected <E extends Executable> String getMethodParametersAndReturnDecl( Context ctx,  E m, boolean packageResolution ) 
+        public <E extends Executable> String getMethodParametersAndReturnDecl( 
+                E m, 
+                TSType type, 
+                java.util.Map<String, TSType> declaredTypeMap, 
+                boolean packageResolution ) 
+        {
+            final Context ctx = new Context(type, declaredTypeMap);
+            
+            return getMethodParametersAndReturnDecl(ctx, m, packageResolution);
+        }
+        
+        /**
+         * 
+         * @param ctx
+         * @param m
+         * @param packageResolution
+         * @return
+         */
+        private <E extends Executable> String getMethodParametersAndReturnDecl( Context ctx,  E m, boolean packageResolution ) 
         {
             final java.util.Set<String> TypeVarSet = new java.util.HashSet<>(5);
                 
@@ -580,17 +585,15 @@ public class TypescriptConverter {
                             .append(" ):")
                             .append(tsReturnType)
                             .toString();
-        }
-       
-        
+        }    
+
         /**
-        *
-        * @param m
-        * @param declaringClass
-        * @param declaredClassMap
-        * @return
-        */
-       private String getMethodDecl( Context ctx, final Method m ) {
+         * 
+         * @param ctx
+         * @param m
+         * @return
+         */
+        private String getMethodDecl( Context ctx, final Method m ) {
 
            final StringBuilder sb = new StringBuilder();
 
@@ -601,19 +604,28 @@ public class TypescriptConverter {
                    }
 
                    sb.append("static ").append(m.getName());
-
            }
            else {
-
                    sb.append(m.getName());
-
            }
 
-           //if( m.getDeclaringClass().isInterface()) sb.append('?');
            sb.append( getMethodParametersAndReturnDecl(ctx,  m, true) );
 
            return  sb.toString();
 
+       }
+
+        /**
+         * 
+         * @param type
+         * @param declaredTypeMap
+         * @return
+         */
+       public String getClassDecl( TSType type, java.util.Map<String, TSType> declaredTypeMap ) {
+           final Context ctx = new Context(type, declaredTypeMap);
+           
+           return ctx.getClassDecl().toString();
+          
        }
         
        
@@ -802,12 +814,12 @@ public class TypescriptConverter {
         /**
         *
         * @param bi
-        * @param declaredClassMap
+        * @param declaredTypeMap
         * @return
         */
-       public String processClass( int level, TSType tstype, java.util.Map<String, TSType> declaredClassMap )   {
+       public String processClass( int level, TSType tstype, java.util.Map<String, TSType> declaredTypeMap )   {
 
-           final Context ctx = new Context( tstype, declaredClassMap);
+           final Context ctx = new Context( tstype, declaredTypeMap);
            
            final String namespace = tstype.getValue().getPackage().getName();
 
@@ -822,7 +834,7 @@ public class TypescriptConverter {
            ctx.processEnumDecl();
 
            final java.util.Set<Method> methodSet =
-                   getMethods( tstype )
+                   tstype.getMethods()
                    .stream()
                    .filter( md -> (tstype.isExport() && isStatic(md))==false )
                    .filter( (md) -> {
@@ -860,5 +872,4 @@ public class TypescriptConverter {
 
        }
         
-
 }
