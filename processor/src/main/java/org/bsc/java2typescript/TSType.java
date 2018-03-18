@@ -1,4 +1,4 @@
-package org.bsc.processor;
+package org.bsc.java2typescript;
 
 import java.util.HashMap;
 
@@ -45,7 +45,7 @@ public class TSType extends HashMap<String,Object> {
 		}};
 	}
 
-	protected static TSType from( Class<?> cl ) {
+	public static TSType from( Class<?> cl ) {
 		return new TSType() {{ put( "value", cl); }};
 	}
 	

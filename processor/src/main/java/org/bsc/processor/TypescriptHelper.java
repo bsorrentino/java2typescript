@@ -22,6 +22,8 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.bsc.java2typescript.TSType;
+
 public class TypescriptHelper {
 
     /**

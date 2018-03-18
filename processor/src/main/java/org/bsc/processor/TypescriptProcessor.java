@@ -46,6 +46,8 @@ import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
 import javax.tools.FileObject;
 
+import org.bsc.java2typescript.TSType;
+
 /**
  *
  * @author bsoorentino
@@ -572,7 +574,7 @@ public class TypescriptProcessor extends AbstractProcessorEx {
 	            .flatMap( entry -> this.getAnnotationValueValue(entry).stream() )
 	            .map( av -> av.getValue() )
 	            .filter( v -> v instanceof AnnotationMirror).map( v -> ((AnnotationMirror)v) )
-	            .map( am -> toMapObject(am, () -> new TSType() ) )				
+	            .map( am -> toMapObject(am, () -> TSType.from( Void.class) ) )				
     				.collect( Collectors.toSet() )
             ;
     }
