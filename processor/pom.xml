@@ -35,5 +35,12 @@
 		    <artifactId>javax.json</artifactId>
             <optional>true</optional>
 		</dependency>
+		
+		<dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>java2ts-processor-core</artifactId>
+            <version>${project.version}</version> 
+		</dependency>
+		
     </dependencies>
 </project>
