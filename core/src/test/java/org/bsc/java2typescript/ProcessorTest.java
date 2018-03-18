@@ -1,4 +1,4 @@
-package org.bsc.processor;
+package org.bsc.java2typescript;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;

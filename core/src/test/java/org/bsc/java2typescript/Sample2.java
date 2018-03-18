@@ -1,4 +1,4 @@
-package org.bsc.processor;
+package org.bsc.java2typescript;
 
 public interface Sample2<T> {
 
