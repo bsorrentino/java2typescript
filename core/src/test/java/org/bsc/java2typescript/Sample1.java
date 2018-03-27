@@ -1,4 +1,4 @@
-package org.bsc.processor;
+package org.bsc.java2typescript;
 
 import java.util.concurrent.Future;
 import java.util.function.BiConsumer;
