@@ -8,7 +8,7 @@
   <parent>
     <groupId>org.bsc.processor</groupId>
     <artifactId>java2ts-processor-parent</artifactId>
-    <version>0.1.0</version>
+    <version>0.2.0</version>
   </parent>
 
   <build>
@@ -36,7 +36,7 @@
 		    		<skipSource>true</skipSource>
 		    </configuration>
 		</plugin>
-      
+
 
       <plugin>
         <groupId>org.bsc.maven</groupId>
@@ -60,7 +60,7 @@
       </plugin>
 
       <plugin>
-      
+
          <groupId>org.codehaus.mojo</groupId>
          <artifactId>exec-maven-plugin</artifactId>
          <version>1.6.0</version>

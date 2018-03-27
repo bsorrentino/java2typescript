@@ -2,6 +2,8 @@ package org.bsc.java2typescript;
 
 import static java.lang.String.format;
 
+import java.io.Closeable;
+import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
 import java.lang.reflect.GenericArrayType;
@@ -14,21 +16,47 @@ import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.lang.reflect.WildcardType;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.RandomAccess;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.BiPredicate;
+import java.util.function.BinaryOperator;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
+import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class TypescriptConverter {
 
     final static String ENDL = ";\n";
+
+    public static final List<TSType> PREDEFINED_TYPES = Arrays.asList(
+            TSType.from(Class.class),
+            TSType.from(Serializable.class),
+            TSType.from(Closeable.class),
+            TSType.from(AutoCloseable.class),
+            TSType.from(Comparable.class),
+            TSType.from(Cloneable.class),
+            TSType.from(RandomAccess.class),
+            TSType.from(Function.class, "Func", false),
+            TSType.from(BiFunction.class, "BiFunc", false),
+            TSType.from(Consumer.class),
+            TSType.from(BiConsumer.class),
+            TSType.from(UnaryOperator.class),
+            TSType.from(BinaryOperator.class),
+            TSType.from(Supplier.class),
+            TSType.from(Predicate.class),
+            TSType.from(BiPredicate.class),
+            TSType.from(Runnable.class)
+        );
 
 
         /**
