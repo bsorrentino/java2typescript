@@ -62,7 +62,7 @@ public class ProcessorTest {
 			final Method m = type.getValue().getMethod("concatMap", Function.class );	
 			final String result = converter.getMethodParametersAndReturnDecl( m, 
 					type, 
-					declaredTypeMap( TSType.from(String.class), TSType.from(Sample2.class), TSType.functional(Function.class, "Func")), 
+					declaredTypeMap( TSType.from(String.class), TSType.from(Sample2.class), TSType.from(Function.class, "Func", false)), 
 					true) ;
 			
 			Assert.assertThat( result, IsNull.notNullValue());		
@@ -102,7 +102,7 @@ public class ProcessorTest {
 			final Method m = type.getValue().getMethod("creator", java.util.concurrent.Callable.class );	
 			final String result = converter.getMethodParametersAndReturnDecl( m, 
 					type, 
-					declaredTypeMap( TSType.from(String.class), TSType.functional(java.util.concurrent.Callable.class, "Supplier")), 
+					declaredTypeMap( TSType.from(String.class), TSType.from(java.util.concurrent.Callable.class, "Supplier", false)), 
 					true) ;
 			
 			Assert.assertThat( result, IsNull.notNullValue());		

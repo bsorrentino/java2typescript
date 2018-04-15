@@ -48,7 +48,22 @@ public class TypescriptProcessor extends AbstractProcessorEx {
     		TSType.from(java.util.Map.class),
     		TSType.from(java.util.stream.Stream.class, true),
     		TSType.from(java.util.stream.Collectors.class,true),
-    		TSType.from(java.util.Optional.class, true)
+    		TSType.from(java.util.Optional.class, true),
+    		
+            TSType.from(java.lang.Comparable.class),
+            TSType.from(java.util.function.Function.class, "Func", false),
+            TSType.from(java.util.function.BiFunction.class, "BiFunction", false),
+            TSType.from(java.util.function.Consumer.class, "Consumer", false),
+            TSType.from(java.util.function.BiConsumer.class, "BiConsumer", false),
+            TSType.from(java.util.function.UnaryOperator.class, "UnaryOperator", false),
+            TSType.from(java.util.function.BinaryOperator.class, "BinaryOperator", false),
+            TSType.from(java.util.function.Supplier.class, "Supplier", false),
+            TSType.from(java.util.function.Predicate.class, "Predicate", false),
+            TSType.from(java.util.function.BiPredicate.class, "BiPredicate", false),
+            TSType.from(java.lang.Runnable.class, "Runnable", false)
+            
+
+
     	);
     
     /**
@@ -109,18 +124,8 @@ public class TypescriptProcessor extends AbstractProcessorEx {
 	        final Set<TSType> types = enumerateDeclaredPackageAndClass( processingContext );
 
 	        types.addAll(REQUIRED_TYPES);
-
-	        // Generate Alias
-			wD.append("//\n")
-			  .append("// TYPE ALIASES\n")
-			  .append("//\n\n");
-			types.stream()
-				.filter( t -> !t.isFunctionalInterface() )
-				.filter( t -> t.hasAlias() )
-				.map( t -> TypescriptConverter.getAliasDeclaration(t.getValue(), t.getAlias()) )
-				.forEach( wD_append  );
-
-	        	types.addAll(PREDEFINED_TYPES);     
+	        
+	        types.addAll(PREDEFINED_TYPES);     
 	        	
 		    final java.util.Map<String, TSType> declaredTypes = 
 		    			types.stream()
