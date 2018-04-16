@@ -2,16 +2,16 @@
 import * as colors from "colors/safe";
 import mustache = require("mustache");
 
-import {Stream, URI, Arrays} from "ts/jdk8-types";
+import {Stream, URI, Arrays, Optional} from "ts/jdk8-types";
 
 let b = "hello jjs";
 
 
-let a = Arrays.asList( [ "item1", "item2", "item3", "item4.1"] );
+let a = Arrays.asList( "item1", "item2", "item3", "item4.1" );
 
 print( colors.red(b) );
 
-a.stream().forEach( (e:any) => {
+a.stream().forEach( e => {
   print( colors.green(e) );
 });
 
@@ -45,3 +45,6 @@ let uri = URI.create( u1 );
 print( uri.resolve( u2 ).toString() );
 print( URI.create( u1 + u2 ).normalize().toString() );
 print( uri.resolve( u3 ).toString() );
+
+print( Optional.empty().map( e => "element: " + e).orElse("nil") );
+print( Optional.of("HELLO").map( e => "element: " + e).orElse("nil") );

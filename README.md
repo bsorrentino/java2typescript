@@ -18,10 +18,14 @@ It is not a transpiler from Java to Javascript like  [datathings/java2typescript
 ## Similar projects
 
 * [typescript-generator](https://github.com/vojtechhabarta/typescript-generator)
+> typescript-generator is a tool for generating TypeScript definition files (.d.ts) from Java JSON classes. If you have REST service written in Java using object to JSON mapping you can use typescript-generator to generate TypeScript interfaces from Java classes.
+* [1c](https://1c.wizawu.com/#/whatis)
+> 1c is aimed to compile TypeScript to runnable code on both JVM and web browser. You can implement the full stack with TypeScript while using libraries from Maven and NPM together.
 
 ## Related Project
 
 * [jvm-npm](https://github.com/bsorrentino/jvm-npm)
+> NPM compliant CommonJS module loader for the JVM
 
 ## Description
 
@@ -123,5 +127,5 @@ The easier way to start your **Typescript on JVM** project is using the provided
 >mvn archetype:generate \
 >-DarchetypeGroupId=org.bsc.processor \
 >-DarchetypeArtifactId=java2ts-processor-archetype \
->-DarchetypeVersion=0.2.0
+>-DarchetypeVersion=1.0-beta1
 >```

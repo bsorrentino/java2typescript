@@ -52,7 +52,7 @@ public class ProcessorTest {
 			final Method m = type.getValue().getMethod("merge", BiConsumer.class );	
 			final String result = converter.getMethodParametersAndReturnDecl( m, 
 					type, 
-					declaredTypeMap( TSType.from(String.class), TSType.from(Sample2.class), TSType.from(BiConsumer.class)), 
+					declaredTypeMap( TSType.from(String.class), TSType.from(Sample2.class), TSType.from(BiConsumer.class, "BiConsumer", false)), 
 					true) ;
 			
 			Assert.assertThat( result, IsNull.notNullValue());		
@@ -62,7 +62,7 @@ public class ProcessorTest {
 			final Method m = type.getValue().getMethod("concatMap", Function.class );	
 			final String result = converter.getMethodParametersAndReturnDecl( m, 
 					type, 
-					declaredTypeMap( TSType.from(String.class), TSType.from(Sample2.class), TSType.functional(Function.class, "Func")), 
+					declaredTypeMap( TSType.from(String.class), TSType.from(Sample2.class), TSType.from(Function.class, "Func", false)), 
 					true) ;
 			
 			Assert.assertThat( result, IsNull.notNullValue());		
@@ -102,7 +102,7 @@ public class ProcessorTest {
 			final Method m = type.getValue().getMethod("creator", java.util.concurrent.Callable.class );	
 			final String result = converter.getMethodParametersAndReturnDecl( m, 
 					type, 
-					declaredTypeMap( TSType.from(String.class), TSType.functional(java.util.concurrent.Callable.class, "Supplier")), 
+					declaredTypeMap( TSType.from(String.class), TSType.from(java.util.concurrent.Callable.class, "Supplier", false)), 
 					true) ;
 			
 			Assert.assertThat( result, IsNull.notNullValue());		
@@ -214,8 +214,8 @@ public class ProcessorTest {
 		final Method m = type.getMethod("method1_3");			
 		final Type rType = m.getGenericReturnType();
 		final String result = TypescriptConverter.convertJavaToTS(rType, m, 
-				TSType.from(type),
-				declaredClassMap(java.util.function.BiPredicate.class),
+				TSType.from(type), 
+				declaredTypeMap( TSType.from(java.util.function.BiPredicate.class, "BiPredicate",false) ),
 				true,
 				Optional.of(addTypeVar));
 		Assert.assertThat( result, IsNull.notNullValue());		
@@ -302,7 +302,7 @@ public class ProcessorTest {
 			final Type pType = m.getParameters()[0].getParameterizedType();
 			final String rresult = TypescriptConverter.convertJavaToTS(pType, m, 
 					TSType.from(type),
-					declaredClassMap(Sample2.class, Consumer.class),
+					declaredTypeMap( TSType.from(Sample2.class), TSType.from(Consumer.class, "Consumer", false)),
 					true,
 					Optional.empty());
 			Assert.assertThat( rresult, IsNull.notNullValue());		
