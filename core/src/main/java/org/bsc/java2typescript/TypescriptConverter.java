@@ -22,15 +22,11 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.RandomAccess;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.BiPredicate;
-import java.util.function.BinaryOperator;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.function.Supplier;
-import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -43,27 +39,17 @@ public class TypescriptConverter {
             TSType.from(Serializable.class),
             TSType.from(Closeable.class),
             TSType.from(AutoCloseable.class),
-            TSType.from(Comparable.class),
             TSType.from(Cloneable.class),
-            TSType.from(RandomAccess.class),
-            TSType.from(Function.class, "Func", false),
-            TSType.from(BiFunction.class, "BiFunc", false),
-            TSType.from(Consumer.class),
-            TSType.from(BiConsumer.class),
-            TSType.from(UnaryOperator.class),
-            TSType.from(BinaryOperator.class),
-            TSType.from(Supplier.class),
-            TSType.from(Predicate.class),
-            TSType.from(BiPredicate.class),
-            TSType.from(Runnable.class)
-        );
+            TSType.from(RandomAccess.class)
+         );
 
 
         /**
          *
          */
-        public static BiPredicate<Class<?>, Class<?>> isPackageMatch = (a, b) ->
-            a.getPackage().equals(b.getPackage()) ;
+        public static BiPredicate<TSType, TSType> isNamespaceMatch = (a, b) -> 
+            b.supportNamespace()  && a.getNamespace().equals(b.getNamespace()) ;
+
 
         /**
          *
@@ -94,28 +80,6 @@ public class TypescriptConverter {
             Objects.requireNonNull(type, "argument 'type' is not defined!");
 
             return null;
-        }
-
-        /**
-         *
-         * @param type
-         * @param alias
-         * @return
-         */
-        public static final String getAliasDeclaration( Class<?> type, String alias  ) {
-            Objects.requireNonNull(type, "argument 'type' is not defined!");
-            Objects.requireNonNull(alias, "argument 'alias' is not defined!");
-
-            final TypeVariable<?>[] typeParameters = type.getTypeParameters();
-
-            if( typeParameters!=null && typeParameters.length > 0 ) {
-
-                final String pp = Arrays.stream(typeParameters).map( tp -> tp.getName() ).collect( Collectors.joining(",","<", ">"));
-                return format( "type %s%s = %s%s;\n\n", alias, pp, type.getName(), pp );
-
-            }
-
-            return format( "type %s = %s;\n\n", alias, type.getName() );
         }
 
         /**
@@ -158,7 +122,17 @@ public class TypescriptConverter {
                         m.getReturnType().equals(m.getDeclaringClass()));
         }
 
-
+        /**
+         * 
+         * @return
+         */
+        public static boolean isFunctionalInterface( final Class<?> c ) {
+            if( !c.isInterface()) return false;
+            if( c.isAnnotationPresent(FunctionalInterface.class)) return true;
+            
+            return Arrays.stream(c.getDeclaredMethods()).filter( m -> Modifier.isAbstract(m.getModifiers()) ).count() == 1;
+        }
+        
         /**
          *
          * @param type_parameters_list
@@ -198,7 +172,7 @@ public class TypescriptConverter {
 
             return new StringBuilder()
                         .append(
-                            type.getValue().getPackage().equals(currentNS) || type.isFunctionalInterface()  ?
+                            type.getValue().getPackage().equals(currentNS)  ?
                                 type.getSimpleTypeName() :
                                 type.getTypeName()
                              )
@@ -252,7 +226,7 @@ public class TypescriptConverter {
                         .replace( rawType.getName(), tstype.getTypeName()) // use Alias
                         ;
 
-                if( tstype.isFunctionalInterface() || (packageResolution && isPackageMatch.test(tstype.getValue(), declaringType.getValue())) ) {
+                if( packageResolution && isNamespaceMatch.test(tstype, declaringType) ) {
                     result = result.replace( tstype.getTypeName(), tstype.getSimpleTypeName());
                 }
 
@@ -540,7 +514,7 @@ public class TypescriptConverter {
         {
             final java.util.Set<String> TypeVarSet = new java.util.HashSet<>(5);
                 
-                final Consumer<TypeVariable<?>> addTypeVar = tv -> TypeVarSet.add(tv.getName()) ;
+            final Consumer<TypeVariable<?>> addTypeVar = tv -> TypeVarSet.add(tv.getName()) ;
                 
             final Parameter[] params = m.getParameters();
 
@@ -549,8 +523,7 @@ public class TypescriptConverter {
                             .map( (tp) -> {
                                 
                                 final String name = getParameterName(tp);
-                                
-                                
+                                                         
                                 if( tp.isVarArgs() ) {   
                                     
                                     String type = null;
@@ -621,7 +594,7 @@ public class TypescriptConverter {
          * @param m
          * @return
          */
-        private String getMethodDecl( Context ctx, final Method m ) {
+        private String getMethodDecl( Context ctx, final Method m, boolean optional ) {
 
            final StringBuilder sb = new StringBuilder();
 
@@ -635,6 +608,7 @@ public class TypescriptConverter {
            }
            else {
                    sb.append(m.getName());
+                   if( optional ) sb.append('?');
            }
 
            sb.append( getMethodParametersAndReturnDecl(ctx,  m, true) );
@@ -734,14 +708,17 @@ public class TypescriptConverter {
 
 
                }
-
+               
                sb.append( getTypeName(type, type, true) );
 
-               if( inherited.length()>0 ) {
+               if( inherited.length()>0 || type.hasAlias()) {
 
-                   sb.append("/*")
-                                   .append( inherited )
-                                   .append("*/");
+                   sb.append("/*");
+                   
+                   if( type.hasAlias() )        sb.append( type.getValue().getName() );
+                   if( inherited.length()>0 )   sb.append( inherited );
+                   
+                   sb.append("*/");
                }
 
                sb.append( " {");
@@ -849,40 +826,61 @@ public class TypescriptConverter {
 
            final Context ctx = new Context( tstype, declaredTypeMap);
            
-           final String namespace = tstype.getValue().getPackage().getName();
-
-           if( !tstype.getValue().isMemberClass() )
+           if( tstype.supportNamespace() )
                ctx.append( "declare namespace " )
-                  .append(namespace)
+                  .append( tstype.getNamespace() )
                   .append(" {\n\n")
                    ;
 
            ctx.getClassDecl().append("\n\n");
 
-           ctx.processEnumDecl();
-
-           final java.util.Set<Method> methodSet =
-                   tstype.getMethods()
-                   .stream()
-                   .filter( md -> (tstype.isExport() && isStatic(md))==false )
-                   .filter( (md) -> {
-                       final String name = md.getName();
-                       return !(   name.contains("$")      || // remove unnamed
-                                   name.equals("getClass")  ||
-                                   name.equals("hashCode")  ||
-                                   name.equals("wait")     ||
-                                   name.equals("notify")   ||
-                                   name.equals("notifyAll") );
-               })
-               .collect( Collectors.toCollection(() -> new java.util.LinkedHashSet<Method>() ));
-
-           methodSet.stream()
-               .map( md -> getMethodDecl(ctx, md) )
-               .sorted().forEach( (decl) ->
+           if( tstype.isFunctionalInterface() ) {
+               
+               tstype.getMethods().stream()
+               .filter( m -> Modifier.isAbstract(m.getModifiers()) )
+               .findFirst()
+               .ifPresent( m -> ctx.append( '\t' )
+                                   .append( getMethodParametersAndReturnDecl( ctx, m, false) )
+                                   .append( ENDL )) ;
+              
+               tstype.getMethods().stream()
+               .filter( m -> !Modifier.isAbstract(m.getModifiers()) )
+               .map( m -> getMethodDecl(ctx, m, true /*optional*/) )
+               .sorted()
+               .forEach( decl ->
                    ctx.append( '\t' )
                      .append(decl)
                      .append(  ENDL ))
                        ;
+               
+ 
+           } else {
+               
+               ctx.processEnumDecl();
+
+               final java.util.Set<Method> methodSet =
+                       tstype.getMethods()
+                       .stream()
+                       .filter( md -> (tstype.isExport() && isStatic(md))==false )
+                       .filter( (md) -> {
+                           final String name = md.getName();
+                           return !(   name.contains("$")      || // remove unnamed
+                                       name.equals("getClass")  ||
+                                       name.equals("hashCode")  ||
+                                       name.equals("wait")     ||
+                                       name.equals("notify")   ||
+                                       name.equals("notifyAll") );
+                   })
+                   .collect( Collectors.toCollection(() -> new java.util.LinkedHashSet<Method>() ));
+
+               methodSet.stream()
+                   .map( md -> getMethodDecl(ctx, md, false /*optional*/) )
+                   .sorted().forEach( (decl) ->
+                       ctx.append( '\t' )
+                         .append(decl)
+                         .append(  ENDL ))
+                           ;
+           }
 
            ctx.append("\n} // end ")
                    .append(tstype.getSimpleTypeName())
@@ -891,9 +889,9 @@ public class TypescriptConverter {
            // NESTED CLASSES
            if( level == 0 ) ctx.processNestedClasses( level );
 
-           if( !tstype.getValue().isMemberClass() )
+           if( tstype.supportNamespace() )
                    ctx.append("\n} // end namespace ")
-                       .append( namespace )
+                       .append( tstype.getNamespace() )
                        .append('\n');
 
            return ctx.toString();

@@ -6,7 +6,7 @@
 @Java2TS(declare = { 
 		@Type(java.lang.System.class),
 				
-		@Type(value=java.util.List.class, alias="List" ), 
+		@Type(value=java.util.List.class), 
 		@Type(value=java.util.Arrays.class, export=true),
 
 		@Type(java.nio.file.Files.class), 
@@ -18,7 +18,7 @@
 		@Type(value=java.net.URI.class, export=true),
 		@Type(java.net.URL.class),
 
-		@Type(value=java.util.concurrent.Callable.class, functional=true, alias="Supplier"),
+		@Type(value=java.util.concurrent.Callable.class, alias="Callable"),
 		
 
 		
