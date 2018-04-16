@@ -29,7 +29,7 @@ public class ConverterTest {
         Assert.assertThat(TypescriptConverter.isFunctionalInterface(java.lang.Runnable.class) , is(true));
         Assert.assertThat(TypescriptConverter.isFunctionalInterface(Consumer.class) , is(true));
         Assert.assertThat(TypescriptConverter.isFunctionalInterface(Action.class) , is(true));
-        Assert.assertThat(TypescriptConverter.isFunctionalInterface(Action.class, (m-> Assert.assertThat(m.getName(), equalTo("apply")))) , is(true));
+        Assert.assertThat(TypescriptConverter.isFunctionalInterface(Action.class), is(true));
         Assert.assertThat(TypescriptConverter.isFunctionalInterface(Action2.class) , is(false));
     }
 }
