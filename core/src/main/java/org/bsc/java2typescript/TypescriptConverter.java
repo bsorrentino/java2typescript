@@ -134,22 +134,6 @@ public class TypescriptConverter {
         }
         
         /**
-         * 
-         * @return
-         */
-        public static boolean isFunctionalInterface( final Class<?> c, Consumer<Method> consumer ) {
-            
-            if( !isFunctionalInterface(c) ) return false;
-            
-            Arrays.stream(c.getDeclaredMethods())
-                .filter( m -> Modifier.isAbstract(m.getModifiers()) )
-                .findFirst()
-                .ifPresent(consumer);
-            
-            return true;
-        }
-
-        /**
          *
          * @param type_parameters_list
          * @return
@@ -610,7 +594,7 @@ public class TypescriptConverter {
          * @param m
          * @return
          */
-        private String getMethodDecl( Context ctx, final Method m ) {
+        private String getMethodDecl( Context ctx, final Method m, boolean optional ) {
 
            final StringBuilder sb = new StringBuilder();
 
@@ -624,6 +608,7 @@ public class TypescriptConverter {
            }
            else {
                    sb.append(m.getName());
+                   if( optional ) sb.append('?');
            }
 
            sb.append( getMethodParametersAndReturnDecl(ctx,  m, true) );
@@ -723,14 +708,17 @@ public class TypescriptConverter {
 
 
                }
-
+               
                sb.append( getTypeName(type, type, true) );
 
-               if( inherited.length()>0 ) {
+               if( inherited.length()>0 || type.hasAlias()) {
 
-                   sb.append("/*")
-                                   .append( inherited )
-                                   .append("*/");
+                   sb.append("/*");
+                   
+                   if( type.hasAlias() )        sb.append( type.getValue().getName() );
+                   if( inherited.length()>0 )   sb.append( inherited );
+                   
+                   sb.append("*/");
                }
 
                sb.append( " {");
@@ -846,7 +834,27 @@ public class TypescriptConverter {
 
            ctx.getClassDecl().append("\n\n");
 
-           if( !TypescriptConverter.isFunctionalInterface(tstype.getValue(), m -> ctx.append( getMethodParametersAndReturnDecl( ctx, m, false) ))) {
+           if( tstype.isFunctionalInterface() ) {
+               
+               tstype.getMethods().stream()
+               .filter( m -> Modifier.isAbstract(m.getModifiers()) )
+               .findFirst()
+               .ifPresent( m -> ctx.append( '\t' )
+                                   .append( getMethodParametersAndReturnDecl( ctx, m, false) )
+                                   .append( ENDL )) ;
+              
+               tstype.getMethods().stream()
+               .filter( m -> !Modifier.isAbstract(m.getModifiers()) )
+               .map( m -> getMethodDecl(ctx, m, true /*optional*/) )
+               .sorted()
+               .forEach( decl ->
+                   ctx.append( '\t' )
+                     .append(decl)
+                     .append(  ENDL ))
+                       ;
+               
+ 
+           } else {
                
                ctx.processEnumDecl();
 
@@ -866,7 +874,7 @@ public class TypescriptConverter {
                    .collect( Collectors.toCollection(() -> new java.util.LinkedHashSet<Method>() ));
 
                methodSet.stream()
-                   .map( md -> getMethodDecl(ctx, md) )
+                   .map( md -> getMethodDecl(ctx, md, false /*optional*/) )
                    .sorted().forEach( (decl) ->
                        ctx.append( '\t' )
                          .append(decl)
