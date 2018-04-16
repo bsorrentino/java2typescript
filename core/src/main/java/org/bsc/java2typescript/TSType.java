@@ -128,6 +128,13 @@ public class TSType extends HashMap<String, Object> {
     }
     
     /**
+     * 
+     * @return
+     */
+    public boolean isFunctionalInterface() {
+        return TypescriptConverter.isFunctionalInterface( getValue() );
+    }
+    /**
      *
      * @param type
      * @return
