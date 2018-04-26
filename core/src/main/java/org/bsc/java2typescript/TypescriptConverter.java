@@ -680,6 +680,8 @@ public class TypescriptConverter {
 
                    if( type.getValue().isEnum() ) sb.append( "/* enum */" );
                    
+                   if( type.hasAlias()) sb.append("declare ");
+                   
                    sb.append( "class ");
 
                    final TSType superclass = TSType.from(type.getValue().getSuperclass());
@@ -887,7 +889,7 @@ public class TypescriptConverter {
                    .append('\n');
 
            // NESTED CLASSES
-           if( level == 0 ) ctx.processNestedClasses( level );
+           //if( level == 0 ) ctx.processNestedClasses( level );
 
            if( tstype.supportNamespace() )
                    ctx.append("\n} // end namespace ")
