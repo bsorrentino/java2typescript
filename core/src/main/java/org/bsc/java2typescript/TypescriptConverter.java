@@ -434,7 +434,7 @@ public class TypescriptConverter {
             
             Objects.requireNonNull(sb, "sb is null!");
 
-            return loadResourceByName( "headerD.ts", sb.orElseGet( () -> new StringBuilder() ));
+            return loadResourceByName( "headerT.ts", sb.orElseGet( () -> new StringBuilder() ));
  
         }
         
@@ -448,7 +448,7 @@ public class TypescriptConverter {
             
             Objects.requireNonNull(sb, "sb is null!");
 
-            return loadResourceByName( "headerT.ts", sb.orElseGet( () -> new StringBuilder() ));
+            return loadResourceByName( "headerD.ts", sb.orElseGet( () -> new StringBuilder() ));
  
         }
            
