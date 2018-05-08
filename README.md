@@ -29,7 +29,10 @@ It is not a transpiler from Java to Javascript like  [datathings/java2typescript
 
 ## DEMO
 
-To give an idea about **how to work** thre is a demo available online [here](https://java2ts-demo.herokuapp.com/). the Backend of such demo has been developed using typescript on jvm provided by this project itself ([dogfooding](https://en.wikipedia.org/wiki/Eating_your_own_dog_food)).
+To give an idea about **how to work** there is a demo available online [here](https://java2ts-demo.herokuapp.com/). 
+
+> The backend of such demo has been developed using typescript on jvm provided by this project itself ([dogfooding](https://en.wikipedia.org/wiki/Eating_your_own_dog_food)).
+> [java2typescript-demo project](https://github.com/bsorrentino/java2typescript-demo)
 
 ## Description
 
