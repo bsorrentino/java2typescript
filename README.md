@@ -134,5 +134,5 @@ The easier way to start your **Typescript on JVM** project is using the provided
 >mvn archetype:generate \
 >-DarchetypeGroupId=org.bsc.processor \
 >-DarchetypeArtifactId=java2ts-processor-archetype \
->-DarchetypeVersion=1.0-beta1
+>-DarchetypeVersion=1.0-beta2
 >```
