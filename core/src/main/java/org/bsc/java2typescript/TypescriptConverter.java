@@ -3,6 +3,7 @@ package org.bsc.java2typescript;
 import static java.lang.String.format;
 
 import java.io.Closeable;
+import java.io.IOException;
 import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
@@ -71,6 +72,7 @@ public class TypescriptConverter {
             System.out.println( format( fmt, (Object[])args));
         }
 
+        
         /**
          * 
          * @param type
@@ -412,6 +414,43 @@ public class TypescriptConverter {
             return format("any /*%s*/",type.getName());
 
         }
+        
+        private static StringBuilder loadResourceByName( String name, StringBuilder result ) throws IOException {
+            try(final java.io.InputStream is = TypescriptConverter.class.getClassLoader().getResourceAsStream(name) ) {
+                int c; while( (c = is.read()) != -1 ) result.append((char)c);
+            }
+            
+            return result;
+
+        }
+        
+        /**
+         * 
+         * @param sb
+         * @return
+         * @throws IOException
+         */
+        public static StringBuilder loadDefaultDefinition( Optional<StringBuilder> sb ) throws IOException {
+            
+            Objects.requireNonNull(sb, "sb is null!");
+
+            return loadResourceByName( "headerT.ts", sb.orElseGet( () -> new StringBuilder() ));
+ 
+        }
+        
+        /**
+         * 
+         * @param sb
+         * @return
+         * @throws IOException
+         */
+        public static StringBuilder loadDefaultDeclarations( Optional<StringBuilder> sb ) throws IOException {
+            
+            Objects.requireNonNull(sb, "sb is null!");
+
+            return loadResourceByName( "headerD.ts", sb.orElseGet( () -> new StringBuilder() ));
+ 
+        }
            
         /**
          * 
@@ -680,6 +719,8 @@ public class TypescriptConverter {
 
                    if( type.getValue().isEnum() ) sb.append( "/* enum */" );
                    
+                   if( type.hasAlias()) sb.append("declare ");
+                   
                    sb.append( "class ");
 
                    final TSType superclass = TSType.from(type.getValue().getSuperclass());
@@ -887,7 +928,7 @@ public class TypescriptConverter {
                    .append('\n');
 
            // NESTED CLASSES
-           if( level == 0 ) ctx.processNestedClasses( level );
+           //if( level == 0 ) ctx.processNestedClasses( level );
 
            if( tstype.supportNamespace() )
                    ctx.append("\n} // end namespace ")

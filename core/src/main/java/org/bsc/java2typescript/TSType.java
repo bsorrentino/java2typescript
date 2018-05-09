@@ -26,20 +26,20 @@ public class TSType extends HashMap<String, Object> {
         super(3);
     }
 
-    public static TSType from(Class<?> cl, boolean export) {
+    public static TSType from(Class<?> cl, boolean exports) {
         return new TSType() {
             {
                 put(VALUE, cl);
-                put(EXPORT, export);
+                put(EXPORT, exports);
             }
         };
     }
 
-    public static TSType from(Class<?> cl, String alias, boolean export) {
+    public static TSType from(Class<?> cl, String alias, boolean exports) {
         return new TSType() {
             {
                 put(VALUE, cl);
-                put(EXPORT, export);
+                put(EXPORT, exports);
                 put(ALIAS, alias);
             }
         };

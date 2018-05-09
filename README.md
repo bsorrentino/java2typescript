@@ -7,7 +7,7 @@ Java Processor to **generate [Typescript](https://www.typescriptlang.org/)  Defi
 
 ## What is it for ?
 
-This is to help developing on **JVM javascript engine** (ie [Nashorn](http://www.oracle.com/technetwork/articles/java/jf14-nashorn-2126515.html)/[Rhino](https://github.com/mozilla/rhino)) using [Typescript](https://www.typescriptlang.org/)
+This is to help developing on **JVM javascript engine** (ie [Nashorn](http://www.oracle.com/technetwork/articles/java/jf14-nashorn-2126515.html)) using [Typescript](https://www.typescriptlang.org/)
 
 The main goal is having the definitions available in the modern IDE like [Visual Studio Code](https://code.visualstudio.com/) and [Atom](https://atom.io/) and then use the **intellisense** feature available for java classes within typescript
 
@@ -26,6 +26,13 @@ It is not a transpiler from Java to Javascript like  [datathings/java2typescript
 
 * [jvm-npm](https://github.com/bsorrentino/jvm-npm)
 > NPM compliant CommonJS module loader for the JVM
+
+## DEMO
+
+To give an idea about **how to work** there is a demo available online [here](https://java2ts-demo.herokuapp.com/). 
+
+> The backend of such demo has been developed using typescript on jvm provided by this project itself ([dogfooding](https://en.wikipedia.org/wiki/Eating_your_own_dog_food)).
+> [java2typescript-demo project](https://github.com/bsorrentino/java2typescript-demo)
 
 ## Description
 
@@ -127,5 +134,5 @@ The easier way to start your **Typescript on JVM** project is using the provided
 >mvn archetype:generate \
 >-DarchetypeGroupId=org.bsc.processor \
 >-DarchetypeArtifactId=java2ts-processor-archetype \
->-DarchetypeVersion=1.0-beta1
+>-DarchetypeVersion=1.0-beta2
 >```
