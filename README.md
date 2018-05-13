@@ -5,6 +5,10 @@
 
 Java Processor to **generate [Typescript](https://www.typescriptlang.org/)  Definition file (.d.ts)** from whatever Java classes.
 
+## Diagram of solution
+
+![java2ts diagram](images/java2ts2.png)
+
 ## What is it for ?
 
 This is to help developing on **JVM javascript engine** (ie [Nashorn](http://www.oracle.com/technetwork/articles/java/jf14-nashorn-2126515.html)) using [Typescript](https://www.typescriptlang.org/)
@@ -29,7 +33,7 @@ It is not a transpiler from Java to Javascript like  [datathings/java2typescript
 
 ## DEMO
 
-To give an idea about **how to work** there is a demo available online [here](https://java2ts-demo.herokuapp.com/). 
+To give an idea about **how to work** there is a demo available online [here](https://java2ts-demo.herokuapp.com/).
 
 > The backend of such demo has been developed using typescript on jvm provided by this project itself ([dogfooding](https://en.wikipedia.org/wiki/Eating_your_own_dog_food)).
 > [java2typescript-demo project](https://github.com/bsorrentino/java2typescript-demo)
