@@ -69,7 +69,7 @@ public class TypescriptConverter {
         
         private final static void debug( String fmt, Object ...args ) {
             System.out.print( "DEBUG: ");       
-            System.out.println( format( fmt, (Object[])args));
+            System.out.println( format( fmt, args));
         }
 
         
@@ -301,7 +301,7 @@ public class TypescriptConverter {
 
                             // CHECK FOR NESTED WILDCARDTYPE
                             if( tt instanceof ParameterizedType &&
-                                Stream.of((Type[])((ParameterizedType)tt).getActualTypeArguments())
+                                Stream.of(((ParameterizedType)tt).getActualTypeArguments())
                                     .anyMatch( arg -> (arg instanceof WildcardType) ))
                             {
                                 final Class<?> clazz = (Class<?>) (((ParameterizedType)tt).getRawType());
@@ -314,7 +314,7 @@ public class TypescriptConverter {
                         }
                     }
                     else if( t instanceof GenericArrayType ) {
-                        throw new IllegalArgumentException( format("type argument <%s> 'GenericArrayType' is a  not supported yet!", t));
+                        //throw new IllegalArgumentException( format("type argument <%s> 'GenericArrayType' is a  not supported yet!", t));
                     }
 
                 }

@@ -341,6 +341,24 @@ public class ProcessorTest {
 		
 	}
 	
+	@Test
+	public void testSample1_GenericArrayType() throws Exception {
+		final Class<?> type = Sample1.class;
+		final Object[] arr = {};
+	
+		final Method m = type.getMethod("genericArrayType", arr.getClass());
+		final String result = 
+			converter.getMethodParametersAndReturnDecl( m, 
+								TSType.from(type), 
+								declaredTypeMap( TSType.from(java.util.List.class)),
+								true) ;
+		
+		Assert.assertThat( result, IsNull.notNullValue());		
+		Assert.assertThat( result, IsEqual.equalTo("( c:[E] ):java.util.List<T[]>"));
+
+	
+	}
+
 	String getReturnType( Class<?> type, String methonName, Class<?> ...args ) throws Exception {
 		return getReturnType(Collections.emptyMap(), type, methonName, (Class<?>[])args);
 	}
