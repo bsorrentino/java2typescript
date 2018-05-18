@@ -45,4 +45,7 @@ public interface Sample1<E> {
 	<T> void merge(BiConsumer<E,Sample2<? extends Sample2<? extends T>>> source);
     <T> T concatMap(Function<? super E, ? extends Sample2<? extends T>> mapper);
 
+	<T> java.util.List<T[]> genericArrayType( E[] c );
+
+
 }

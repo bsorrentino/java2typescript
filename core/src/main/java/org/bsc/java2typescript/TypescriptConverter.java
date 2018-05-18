@@ -55,7 +55,7 @@ public class TypescriptConverter {
         /**
          *
          */
-        private static BiFunction<Class<?>,Type, Boolean> typeParameterMatch = (declaringClass, type) ->
+        private static BiPredicate<Class<?>,Type> typeParameterMatch = (declaringClass, type) ->
             ( type instanceof TypeVariable ) ?
                     Arrays.stream(declaringClass.getTypeParameters())
                         .map( (tp) -> tp.getName())
@@ -63,13 +63,13 @@ public class TypescriptConverter {
                     false
                         ;
 
-        private final static void log( String fmt, Object ...args ) {
-            //System.out.println( format( fmt, (Object[])args));
+        protected final static void log( String fmt, Object ...args ) {
+            if( Boolean.getBoolean("debug") ) System.out.println( format( fmt, args));
         }
         
-        private final static void debug( String fmt, Object ...args ) {
+        protected final static void debug( String fmt, Object ...args ) {
             System.out.print( "DEBUG: ");       
-            System.out.println( format( fmt, (Object[])args));
+            System.out.println( format( fmt, args));
         }
 
         
@@ -192,7 +192,8 @@ public class TypescriptConverter {
          * @param onTypeMismatch
          * @return
          */
-        public static <M extends Member> String convertJavaToTS(    Type type,
+        public static <M extends Member> String convertJavaToTS( 
+                                                Type type,
                                                 M declaringMember,
                                                 TSType declaringType,
                                                 java.util.Map<String, TSType> declaredTypeMap,
@@ -208,9 +209,9 @@ public class TypescriptConverter {
              * 
              */
             final Predicate<TypeVariable<?>> typeMismatch = ( tv ) -> {
-                if( isStatic(declaringMember) ) return true;
+                if( isStatic(declaringMember) )              return true;
                 if( declaringMember instanceof Constructor ) return true;
-                return !typeParameterMatch.apply(declaringType.getValue(), tv );
+                return !typeParameterMatch.test(declaringType.getValue(), tv );
             };
             
             if( type instanceof ParameterizedType ) {
@@ -224,9 +225,20 @@ public class TypescriptConverter {
                         return format("any /*%s*/",rawType.getName());
                 }
 
-                String result = pType.getTypeName()
-                        .replace( rawType.getName(), tstype.getTypeName()) // use Alias
-                        ;
+                log( "ParameterizedType\n\t[%s]\n\traw[%s]\n\ttstype[%s]", 
+                pType.getTypeName(),
+                rawType.getName(),
+                tstype.getTypeName() );
+
+                String result = pType.getTypeName();
+                if( rawType.isMemberClass() ) {
+                    result = result 
+                    .replace( rawType.getDeclaringClass().getName().concat("."), "" ) // use Alias
+                    ;                    
+                }
+
+                result = result.replace( rawType.getName(), tstype.getTypeName()) // use Alias
+                ;
 
                 if( packageResolution && isNamespaceMatch.test(tstype, declaringType) ) {
                     result = result.replace( tstype.getTypeName(), tstype.getSimpleTypeName());
@@ -235,6 +247,7 @@ public class TypescriptConverter {
                 final Type[] typeArgs = pType.getActualTypeArguments();
 
                 for( Type t : typeArgs ) {
+
                     if( t instanceof ParameterizedType ) {
 
                         final String typeName = convertJavaToTS( t,
@@ -243,7 +256,7 @@ public class TypescriptConverter {
                                                                 declaredTypeMap,
                                                                 packageResolution,
                                                                 onTypeMismatch);
-                        log( "Parameterized Type %s - %s",  t, typeName );
+                        log( "Parameterized Type %s - %s",  t.getTypeName(), typeName );
                         result = result.replace( t.getTypeName(), typeName);
 
                     }
@@ -252,7 +265,6 @@ public class TypescriptConverter {
                         log( "type variable: %s",  t );
 
                         final TypeVariable<?> tv = (TypeVariable<?>)t;
-
                         if( typeMismatch.test(tv)) {
 
                             if( onTypeMismatch.isPresent() ) {
@@ -271,7 +283,7 @@ public class TypescriptConverter {
                     else if( t instanceof Class ) {
                         log( "class: %s",  t.getTypeName() );
 
-                        final String name = convertJavaToTS( (Class<?>)t, declaringType, declaredTypeMap, packageResolution);
+                        final String name = convertJavaToTS( (Class<?>)t, declaringType, declaredTypeMap, packageResolution, onTypeMismatch);
 
                         final String commented = format("/*%s*/", t.getTypeName());
                         result = result.replace( commented, "/*@*/")
@@ -285,7 +297,7 @@ public class TypescriptConverter {
                         final Type[] lb = wt.getLowerBounds();
                         final Type[] ub = wt.getUpperBounds();
                         
-                        log( "Wildcard Type : %s lb:%d up:%d",  type.getTypeName(), lb.length, ub.length );
+                        log( "Wildcard Type : %s lb:%d up:%d",  wt.getTypeName(), lb.length, ub.length );
 
                         if( lb.length <= 1 && ub.length==1) {
                             final Type tt  = (lb.length==1) ? lb[0] : ub[0];
@@ -299,14 +311,19 @@ public class TypescriptConverter {
 
                             result = result.replace( wt.getTypeName(), s);
 
-                            // CHECK FOR NESTED WILDCARDTYPE
-                            if( tt instanceof ParameterizedType &&
-                                Stream.of((Type[])((ParameterizedType)tt).getActualTypeArguments())
-                                    .anyMatch( arg -> (arg instanceof WildcardType) ))
-                            {
-                                final Class<?> clazz = (Class<?>) (((ParameterizedType)tt).getRawType());
-                                final String typeName = wt.getTypeName().replace( clazz.getName(), clazz.getSimpleName());
-                                result = result.replace( typeName, s);
+                            if( tt instanceof ParameterizedType ) {
+                                // FIX ISSUE #7
+                                result = result.replace( "? extends ", "" );
+                                
+                                // CHECK FOR NESTED WILDCARDTYPE
+                                if( Stream.of(((ParameterizedType)tt).getActualTypeArguments())
+                                        .anyMatch( arg -> (arg instanceof WildcardType) ))
+                                {
+                                    final Class<?> clazz = (Class<?>) (((ParameterizedType)tt).getRawType());
+
+                                    final String typeName = wt.getTypeName().replace( clazz.getName(), clazz.getSimpleName());
+                                    result = result.replace( typeName, s);
+                                }
                             }
                         }
                         else {
@@ -314,7 +331,7 @@ public class TypescriptConverter {
                         }
                     }
                     else if( t instanceof GenericArrayType ) {
-                        throw new IllegalArgumentException( format("type argument <%s> 'GenericArrayType' is a  not supported yet!", t));
+                        //throw new IllegalArgumentException( format("type argument <%s> 'GenericArrayType' is a  not supported yet!", t));
                     }
 
                 }
@@ -342,9 +359,7 @@ public class TypescriptConverter {
             }
             else if( type instanceof Class ) {
                 log( "class: %s",  type.getTypeName() );
-
-                final String name = convertJavaToTS( (Class<?>)type, declaringType, declaredTypeMap, packageResolution);
-                return name;
+                return convertJavaToTS( (Class<?>)type, declaringType, declaredTypeMap, packageResolution, onTypeMismatch);
             }
             else if( type instanceof WildcardType ) {
                 throw new IllegalArgumentException( "type 'WildcardType' is a  not supported yet!");
@@ -383,12 +398,13 @@ public class TypescriptConverter {
          * @return
          */
         private static String convertJavaToTS(  Class<?> type,
-                                                    TSType declaringType,
-                                                    java.util.Map<String, TSType> declaredTypeMap,
-                                                    boolean packageResolution )
+                                                TSType declaringType,
+                                                java.util.Map<String, TSType> declaredTypeMap,
+                                                boolean packageResolution,
+                                                Optional<Consumer<TypeVariable<?>>> onTypeMismatch )
         {
 
-                if( type == null ) return "any";
+            if( type == null ) return "any";
 
             if( Void.class.isAssignableFrom(type) || type.equals(Void.TYPE) ) return "void";
             if( Boolean.class.isAssignableFrom(type) || type.equals(Boolean.TYPE) ) return type.isPrimitive() ? "boolean" : "boolean|null" ;
@@ -403,12 +419,29 @@ public class TypescriptConverter {
             if( byte[].class.equals(type) ) return "bytearray";
 
             if( type.isArray()) {
-                    return format( "[%s]", convertJavaToTS(type.getComponentType(), declaringType, declaredTypeMap,packageResolution));
+                    return format( "[%s]", convertJavaToTS(type.getComponentType(), 
+                                                            declaringType, 
+                                                            declaredTypeMap,
+                                                            packageResolution,
+                                                            Optional.empty()));
             }
 
             final TSType tt = declaredTypeMap.get( type.getName() );
             if( tt!=null ) {
-                    return getTypeName(tt, declaringType, packageResolution);
+
+                // FIX ISSUE ON NEW 
+                onTypeMismatch.ifPresent( tm -> {
+                    Stream.of(((Class<?>)type).getTypeParameters())
+                    .filter( tv -> {
+                        if( type.equals(declaringType.getValue()) ) return true;
+                        return !typeParameterMatch.test(declaringType.getValue(), tv );    
+                    })
+                    .forEach( tv -> tm.accept(tv))
+                    ;
+    
+                });
+            
+                return getTypeName(tt, declaringType, packageResolution);
             }
 
             return format("any /*%s*/",type.getName());
@@ -469,17 +502,45 @@ public class TypescriptConverter {
          */
         public String processStatic( TSType type, java.util.Map<String, TSType> declaredTypeMap ) {
             
-                final Context ctx = new Context( type, declaredTypeMap);
-           
-                ctx.append("interface ")
-                .append( ctx.type.getSimpleTypeName() )
-                .append("Static {\n\n")
-                ;
-            
+            final Context ctx = new Context( type, declaredTypeMap);
+        
+            ctx.append("interface ")
+            .append( ctx.type.getSimpleTypeName() )
+            .append("Static {\n\n")
+            ;
+        
+            if (ctx.type.getValue().isEnum()) {
                 ctx.processEnumType();
+            }
+            
+            //Append class property
+            ctx.append("\treadonly class:any;\n");
+
+            if( isFunctionalInterface( type.getValue() ) ) {
                 
-                //Append class property
-                ctx.append("\treadonly class:any;\n");
+                final java.util.Set<String> TypeVarSet = new java.util.HashSet<>(5);
+                final String tstype = convertJavaToTS(  type.getValue(), 
+                                                        ctx.type, 
+                                                        declaredTypeMap,
+                                                        false,
+                                                        Optional.of( ( tv ) -> TypeVarSet.add(tv.getName()) )
+                                );
+                
+                ctx.append("\tnew");
+                if( !TypeVarSet.isEmpty() ) {
+                    ctx.append('<')
+                        .append( TypeVarSet.stream().collect(Collectors.joining(",")))
+                        .append('>');               
+                }
+                ctx.append("( arg0:")
+                    .append( tstype )
+                    .append(" ):")
+                    .append( tstype )
+                    .append(ENDL);
+
+            }
+
+            else {
 
                 Stream.of(ctx.type.getValue().getConstructors())
                 .filter( c -> Modifier.isPublic(c.getModifiers()) )
@@ -495,17 +556,19 @@ public class TypescriptConverter {
                         .stream()
                         .filter( TypescriptConverter::isStatic )
                         .collect( Collectors.toCollection(() -> new java.util.LinkedHashSet<>() ));
-                    
-            if( !methodSet.isEmpty() ) {
-                    
-                    methodSet.stream()
-                            .sorted( (a,b) -> a.getName().compareTo(b.getName()))
-                            .forEach( md ->
-                            ctx.append( '\t' )
-                                  .append(md.getName()) 
-                              .append( getMethodParametersAndReturnDecl( ctx, md, false) )
-                              .append(  ENDL ))
-                            ;
+                        
+                if( !methodSet.isEmpty() ) {
+                        
+                        methodSet.stream()
+                                .sorted( (a,b) -> a.getName().compareTo(b.getName()))
+                                .forEach( md ->
+                                ctx.append( '\t' )
+                                      .append(md.getName()) 
+                                  .append( getMethodParametersAndReturnDecl( ctx, md, false) )
+                                  .append(  ENDL ))
+                                ;
+                }
+    
             }
             
             ctx.append( "}\n\n" )
@@ -598,10 +661,11 @@ public class TypescriptConverter {
                             .collect(Collectors.joining(", "))
                             ;
 
-            final Type returnType =  ( m instanceof Method ) ?
+         final Type returnType =  ( m instanceof Method ) ?
                                             ((Method)m).getGenericReturnType() :
                                                 ctx.type.getValue();
-                                            
+
+                                               
            final String  tsReturnType = 
                             convertJavaToTS(    returnType,
                                             m,
@@ -655,208 +719,197 @@ public class TypescriptConverter {
            return  sb.toString();
 
        }
-
-        /**
-         * 
-         * @param type
-         * @param declaredTypeMap
-         * @return
-         */
-       public String getClassDecl( TSType type, java.util.Map<String, TSType> declaredTypeMap ) {
-           final Context ctx = new Context(type, declaredTypeMap);
-           
-           return ctx.getClassDecl().toString();
-          
-       }
-        
        
        class Context implements Cloneable {
-           final TSType type;
-           final java.util.Map<String, TSType> declaredTypeMap;
-           final StringBuilder sb = new StringBuilder();
-           
+            final TSType type;
+            final java.util.Map<String, TSType> declaredTypeMap;
+            final StringBuilder sb = new StringBuilder();
+    
             public Context(TSType type, Map<String, TSType> declaredClassMap) {
                 Objects.requireNonNull(type, "type is null!");
                 Objects.requireNonNull(declaredClassMap, "declaredClassMap is null!");
-
+    
                 this.type = type;
                 this.declaredTypeMap = declaredClassMap;
             }
-            
+    
             /**
              * 
              * @param cs
              * @return
              */
-            Context append( CharSequence cs ) {
+            Context append(CharSequence cs) {
                 sb.append(cs);
                 return this;
             }
-            
+    
             /**
              * 
              * @param ch
              * @return
              */
-            Context append( char ch ) {
+            Context append(char ch) {
                 sb.append(ch);
                 return this;
             }
-            
+    
             /**
-            * 
-            * @return
-            */
-           Context getClassDecl()
-           {
-
-               final StringBuilder inherited = new StringBuilder();
-
-               if( type.getValue().isInterface() ) {
-                   sb.append( "interface ");
-               }
-               else {
-
-                   if( type.getValue().isEnum() ) sb.append( "/* enum */" );
-                   
-                   if( type.hasAlias()) sb.append("declare ");
-                   
-                   sb.append( "class ");
-
-                   final TSType superclass = TSType.from(type.getValue().getSuperclass());
-
-                   if( superclass!=null ) {
-                           inherited
-                               .append( " extends ")
-                               .append( getTypeName(superclass, type, true) )
-                               ;
-                   }
-               }
-
-               final Class<?>[] interfaces = type.getValue().getInterfaces();
-
-               if(interfaces.length > 0 ) {
-
-                       final String ifc = Arrays.stream(interfaces)
-                                           .map( c -> TSType.from(c) )
-                                       .map( t -> getTypeName(t, type, true) )
-                                       .collect( Collectors.joining(", "))
-                                       ;
-                       inherited
-                           .append( (type.getValue().isInterface()) ? " extends " : " implements ")
-                           .append(     ifc )
-                           ;
-
-
-               }
-               
-               sb.append( getTypeName(type, type, true) );
-
-               if( inherited.length()>0 || type.hasAlias()) {
-
-                   sb.append("/*");
-                   
-                   if( type.hasAlias() )        sb.append( type.getValue().getName() );
-                   if( inherited.length()>0 )   sb.append( inherited );
-                   
-                   sb.append("*/");
-               }
-
-               sb.append( " {");
-                                   
-               return this;
-           }
-
-           /**
-            * 
-            * @return
-            */
-           Context processEnumDecl() {
-               if( type.getValue().isEnum() ) {
-                   type.setExport(true); // force export
-                   Arrays.stream( type.getValue().getEnumConstants() )
-                   .forEach( (c) -> 
-                       sb.append( '\t' )
-                         .append( "// ")
-                         .append(  c.toString() )
-                         .append( ':')
-                         .append( type.getSimpleTypeName() )
-                         .append( ';' )
-                         .append(  '\n' )
-                   );
-                   sb.append('\n');
-               }
-               
-               return this;
-               
-           }
+             * 
+             * @return
+             */
+            Context getClassDecl() {
+    
+                final StringBuilder inherited = new StringBuilder();
+    
+                if (type.getValue().isInterface()) {
+                    sb.append("interface ");
+                } else {
+    
+                    if (type.getValue().isEnum())
+                        sb.append("/* enum */");
+    
+                    if (type.hasAlias())
+                        sb.append("declare ");
+    
+                    sb.append("class ");
+    
+                    final TSType superclass = TSType.from(type.getValue().getSuperclass());
+    
+                    if (superclass != null) {
+                        inherited.append(" extends ").append(getTypeName(superclass, type, true));
+                    }
+                }
+    
+                final Class<?>[] interfaces = type.getValue().getInterfaces();
+    
+                if (interfaces.length > 0) {
+    
+                    final String ifc = Arrays.stream(interfaces).map(c -> TSType.from(c))
+                            .map(t -> getTypeName(t, type, true)).collect(Collectors.joining(", "));
+                    inherited.append((type.getValue().isInterface()) ? " extends " : " implements ").append(ifc);
+    
+                }
+    
+                sb.append(getTypeName(type, type, true));
+    
+                if (inherited.length() > 0 || type.hasAlias()) {
+    
+                    sb.append("/*");
+    
+                    if (type.hasAlias())
+                        sb.append(type.getValue().getName());
+                    if (inherited.length() > 0)
+                        sb.append(inherited);
+    
+                    sb.append("*/");
+                }
+    
+                sb.append(" {");
+    
+                return this;
+            }
+    
+            /**
+             * 
+             * @return
+             */
+            Context processEnumDecl() {
+                if (type.getValue().isEnum()) {
+                    type.setExport(true); // force export
+                    // fix #4
+                    //Arrays.stream(type.getValue().getEnumConstants())
+                    Arrays.stream(type.getValue().getFields())  
+                        .filter( f -> f.isEnumConstant() )                  
+                        .forEach((c) -> sb.append('\t')
+                                                .append("// ")
+                                                .append(c.getName())
+                                                .append(':')
+                                                .append(type.getSimpleTypeName())
+                                                .append(';')
+                                                .append('\n'));
+                    sb.append('\n');
+                }
+    
+                return this;
+    
+            }
+    
+            /**
+             *
+             * @param sb
+             * @param type
+             * @param declaredTypeMap
+             */
+            Context processMemberClasses(int level) {
+    
+                final Class<?> memberClasses[] = type.getValue().getClasses();
+    
+                if (memberClasses.length == 0)
+                    return this;
+    
+                // sb.append( "export module " )
+                // .append(type.getSimpleTypeName())
+                // .append(" {\n\n")
+                // ;
+    
+                Stream.of(memberClasses)
+                        .peek( c -> debug("nested class name[%s]", c.getName()) )
+                        //.filter(distinctByKey( c -> c.getSimpleName() ))
+                        .filter(distinctByKey(c -> c.getName()))
+                        .map(cl -> TSType.from(cl))
+                        .peek( t -> debug("nested type name[%s]", t.getTypeName()) )
+                        .map(t -> processClass(level + 1, t, declaredTypeMap))
+                        .forEach(decl -> sb.append(decl));
+    
+                // sb.append("\n} // end module ")
+                // .append(type.getSimpleTypeName())
+                // .append('\n')
+                // ;
+                return this;
+            }
+    
+            private Context processEnumType() {
+    
+                // fix #4
+                //Arrays.stream(type.getValue().getEnumConstants())
+                Arrays.stream(type.getValue().getFields())  
+                .filter( f -> f.isEnumConstant() )                  
+                .forEach((c) -> sb.append('\t')
+                                .append(c.getName())
+                                .append(':')
+                                .append(type.getTypeName())
+                                .append(';')
+                                .append('\n'));
+                sb.append('\n');
+    
+                return this;
+    
+            }
+    
+            public Context clone() {
+                return new Context(type, declaredTypeMap);
+            }
+    
+            /**
+             * 
+             */
+            @Override
+            public String toString() {
+                return sb.toString();
+            }    
            
-           /**
-           *
-           * @param sb
-           * @param type
-           * @param declaredTypeMap
-           */
-          Context processNestedClasses( int level ) {
-
-              final Class<?> nestedClasses[] = type.getValue().getClasses();
-
-              if( nestedClasses.length == 0 ) return this;
-
-              sb.append( "export module " )
-                .append(type.getSimpleTypeName())
-                    .append(" {\n\n")
-                    ;
-
-              Stream.of(nestedClasses)
-                      .filter( distinctByKey( c -> c.getSimpleName() ) )
-                      .map( cl ->  TSType.from(cl) )
-                      .map( t -> processClass( level + 1, t, declaredTypeMap) )
-                      .forEach( decl -> sb.append(decl) );
-
-              sb.append("\n} // end module ")
-                      .append(type.getSimpleTypeName())
-                      .append('\n')
-                  ;
-              return this;
-          }
-
-          
-          private Context processEnumType( ) {
-              
-              if( type.getValue().isEnum() ) {
-                  Arrays.stream( type.getValue().getEnumConstants() )
-                  .forEach( (c) -> 
-                      sb.append( '\t' )
-                        .append(  c.toString() )
-                        .append( ':')
-                        .append( type.getTypeName() )
-                        .append( ';' )
-                        .append(  '\n' )
-                  );
-                  sb.append('\n');
-              }
-              
-              return this;
-              
-          }
-          
-
-        public Context clone() {
-            return new Context(type, declaredTypeMap);
-        }
-         /**
-          * 
-          */
-        @Override
-        public String toString() {
-            return sb.toString();
-        }
-
-           
-        }
+        } // end Context
        
-       
+        /**
+         * 
+         * @param tstype
+         * @param declaredTypeMap
+         * @return
+         */
+        public Context contextOf( TSType tstype, java.util.Map<String, TSType> declaredTypeMap ) {
+            return new Context( tstype, declaredTypeMap);
+        }
+        
         /**
         *
         * @param bi
@@ -865,7 +918,7 @@ public class TypescriptConverter {
         */
        public String processClass( int level, TSType tstype, java.util.Map<String, TSType> declaredTypeMap )   {
 
-           final Context ctx = new Context( tstype, declaredTypeMap);
+           final Context ctx = contextOf( tstype, declaredTypeMap);
            
            if( tstype.supportNamespace() )
                ctx.append( "declare namespace " )
@@ -928,7 +981,7 @@ public class TypescriptConverter {
                    .append('\n');
 
            // NESTED CLASSES
-           //if( level == 0 ) ctx.processNestedClasses( level );
+           //if( level == 0 ) ctx.processMemberClasses( level );
 
            if( tstype.supportNamespace() )
                    ctx.append("\n} // end namespace ")

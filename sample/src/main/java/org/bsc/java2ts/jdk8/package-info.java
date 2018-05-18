@@ -3,25 +3,32 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-@Java2TS(declare = { 
+@Java2TS(declare = {
 		@Type(java.lang.System.class),
-				
-		@Type(value=java.util.List.class), 
+
+		@Type(value=java.util.List.class),
 		@Type(value=java.util.Arrays.class, export=true),
 
-		@Type(java.nio.file.Files.class), 
-		@Type(java.nio.file.Path.class), 
+		@Type(java.nio.file.Files.class),
+		@Type(java.nio.file.Path.class),
 		@Type(java.nio.file.Paths.class),
 		@Type(java.nio.file.AccessMode.class),
 
-		
+
 		@Type(value=java.net.URI.class, export=true),
 		@Type(java.net.URL.class),
 
-		@Type(value=java.util.concurrent.Callable.class, alias="Callable"),
-		
+		@Type(value=java.util.concurrent.Callable.class, export=true),
+		@Type(value=java.util.concurrent.ConcurrentHashMap.class, export=true),
+		@Type(value=java.lang.management.MemoryType.class, export=true),
 
-		
+		// Member Classes
+		@Type(value=java.util.Map.Entry.class),
+		//@Type(value= javax.swing.text.AbstractDocument.class),
+		//@Type(value= javax.swing.text.AbstractDocument.AttributeContext.class),
+
+		@Type(value=java.util.function.Consumer.class, alias="Consumer", export=true),
+
 })
 package org.bsc.java2ts.jdk8;
 

@@ -1,14 +1,15 @@
 package org.bsc.java2typescript;
 
 
+
+import static org.hamcrest.core.IsEqual.equalTo;
+
 import java.util.function.Consumer;
 
-import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsEqual.equalTo;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class ConverterTest {
+public class ConverterTest extends AbstractConverterTest {
 
     interface Action {
         
@@ -26,10 +27,11 @@ public class ConverterTest {
     public void functionalInterfaceTest() {
         
         
-        Assert.assertThat(TypescriptConverter.isFunctionalInterface(java.lang.Runnable.class) , is(true));
-        Assert.assertThat(TypescriptConverter.isFunctionalInterface(Consumer.class) , is(true));
-        Assert.assertThat(TypescriptConverter.isFunctionalInterface(Action.class) , is(true));
-        Assert.assertThat(TypescriptConverter.isFunctionalInterface(Action.class), is(true));
-        Assert.assertThat(TypescriptConverter.isFunctionalInterface(Action2.class) , is(false));
+        Assert.assertThat(TypescriptConverter.isFunctionalInterface(java.lang.Runnable.class) , equalTo(true));
+        Assert.assertThat(TypescriptConverter.isFunctionalInterface(Consumer.class) , equalTo(true));
+        Assert.assertThat(TypescriptConverter.isFunctionalInterface(Action.class) , equalTo(true));
+        Assert.assertThat(TypescriptConverter.isFunctionalInterface(Action.class), equalTo(true));
+        Assert.assertThat(TypescriptConverter.isFunctionalInterface(Action2.class) , equalTo(false));
     }
+    
 }

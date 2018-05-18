@@ -45,6 +45,9 @@
         <configuration>
     		</configuration>
          <executions>
+           <!-- 
+            mvn exec:exec@jjs
+           -->
            <execution>
            	<id>jjs</id>
   	         <configuration>

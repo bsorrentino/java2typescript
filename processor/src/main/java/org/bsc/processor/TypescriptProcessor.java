@@ -40,8 +40,7 @@ public class TypescriptProcessor extends AbstractProcessorEx {
     static final List<TSType> REQUIRED_TYPES = Arrays.asList(
     		TSType.from(java.lang.String.class,true),
     		TSType.from(java.lang.Iterable.class,true),
-    		TSType.from(java.util.Iterator.class,true),
-    		TSType.from(java.util.Collection.class),
+//    		TSType.from(java.util.Collection.class),
     		TSType.from(java.util.Collections.class, true),
     		TSType.from(java.util.List.class),
     		TSType.from(java.util.Set.class),
