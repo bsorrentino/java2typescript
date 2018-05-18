@@ -95,12 +95,18 @@ public class TSType extends HashMap<String, Object> {
         return (String) super.get(ALIAS);
     }
 
+    private String getMemberSimpleTypeName() {
+
+        return format( "%s$%s", getValue().getDeclaringClass().getSimpleName(), getValue().getSimpleName());
+    }
+
     /**
      * 
      * @return
      */
     public final String getTypeName() {
-        return (hasAlias()) ? getAlias() : format( "%s.%s", getNamespace(), getValue().getSimpleName());
+        return (hasAlias()) ? getAlias() : format( "%s.%s", getNamespace(), 
+                (getValue().isMemberClass() ? getMemberSimpleTypeName() : getValue().getSimpleName()));
     }
 
     /**
@@ -108,7 +114,8 @@ public class TSType extends HashMap<String, Object> {
      * @return
      */
     public final String getSimpleTypeName() {
-        return (hasAlias()) ? getAlias() : getValue().getSimpleName();
+        return (hasAlias()) ? getAlias() : 
+            ((getValue().isMemberClass()) ? getMemberSimpleTypeName() : getValue().getSimpleName());
     }
 
     /**
@@ -116,7 +123,7 @@ public class TSType extends HashMap<String, Object> {
      * @return
      */
     public final boolean supportNamespace() {
-        return !getValue().isMemberClass() && !hasAlias();
+        return !hasAlias();
     }
     
     /**
@@ -166,6 +173,19 @@ public class TSType extends HashMap<String, Object> {
     }
 
     /**
+     * 
+     * @param name
+     * @return
+     */
+    private Class<?> getMemberClassForName( String fqn ) throws ClassNotFoundException {
+        char[] ch = fqn.toCharArray();
+        int i = fqn.lastIndexOf('.');
+        ch[i] = '$';
+
+        return Class.forName(String.valueOf(ch));   
+    }
+    
+    /**
      *
      * @param dt
      * @return
@@ -174,10 +194,18 @@ public class TSType extends HashMap<String, Object> {
         if (dt instanceof Class)
             return (Class<?>) dt;
 
+        final String fqn = dt.toString();
         try {
-            return Class.forName(dt.toString());
+            return Class.forName(fqn);
+
         } catch (ClassNotFoundException e1) {
-            throw new RuntimeException(String.format("class not found [%s]", dt), e1);
+
+            try {
+                return getMemberClassForName(fqn);
+    
+            } catch (ClassNotFoundException e2) {
+                throw new RuntimeException(String.format("class not found [%s]", dt), e1);
+            }
         }
     }
 

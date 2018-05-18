@@ -63,11 +63,11 @@ public class TypescriptConverter {
                     false
                         ;
 
-        private final static void log( String fmt, Object ...args ) {
-            //System.out.println( format( fmt, (Object[])args));
+        protected final static void log( String fmt, Object ...args ) {
+            if( Boolean.getBoolean("debug") ) System.out.println( format( fmt, args));
         }
         
-        private final static void debug( String fmt, Object ...args ) {
+        protected final static void debug( String fmt, Object ...args ) {
             System.out.print( "DEBUG: ");       
             System.out.println( format( fmt, args));
         }
@@ -224,13 +224,26 @@ public class TypescriptConverter {
                         return format("any /*%s*/",rawType.getName());
                 }
 
-                String result = pType.getTypeName()
-                        .replace( rawType.getName(), tstype.getTypeName()) // use Alias
-                        ;
+                log( "ParameterizedType\n\t[%s]\n\traw[%s]\n\ttstype[%s]", 
+                pType.getTypeName(),
+                rawType.getName(),
+                tstype.getTypeName() );
+
+                String result = pType.getTypeName();
+                if( rawType.isMemberClass() ) {
+                    result = result 
+                    .replace( rawType.getDeclaringClass().getName().concat("."), "" ) // use Alias
+                    ;                    
+                }
+
+                result = result.replace( rawType.getName(), tstype.getTypeName()) // use Alias
+                ;
 
                 if( packageResolution && isNamespaceMatch.test(tstype, declaringType) ) {
                     result = result.replace( tstype.getTypeName(), tstype.getSimpleTypeName());
                 }
+
+                    
 
                 final Type[] typeArgs = pType.getActualTypeArguments();
 
@@ -243,7 +256,7 @@ public class TypescriptConverter {
                                                                 declaredTypeMap,
                                                                 packageResolution,
                                                                 onTypeMismatch);
-                        log( "Parameterized Type %s - %s",  t, typeName );
+                        log( "Parameterized Type %s - %s",  t.getTypeName(), typeName );
                         result = result.replace( t.getTypeName(), typeName);
 
                     }
@@ -655,208 +668,182 @@ public class TypescriptConverter {
            return  sb.toString();
 
        }
-
-        /**
-         * 
-         * @param type
-         * @param declaredTypeMap
-         * @return
-         */
-       public String getClassDecl( TSType type, java.util.Map<String, TSType> declaredTypeMap ) {
-           final Context ctx = new Context(type, declaredTypeMap);
-           
-           return ctx.getClassDecl().toString();
-          
-       }
-        
        
        class Context implements Cloneable {
-           final TSType type;
-           final java.util.Map<String, TSType> declaredTypeMap;
-           final StringBuilder sb = new StringBuilder();
-           
+            final TSType type;
+            final java.util.Map<String, TSType> declaredTypeMap;
+            final StringBuilder sb = new StringBuilder();
+    
             public Context(TSType type, Map<String, TSType> declaredClassMap) {
                 Objects.requireNonNull(type, "type is null!");
                 Objects.requireNonNull(declaredClassMap, "declaredClassMap is null!");
-
+    
                 this.type = type;
                 this.declaredTypeMap = declaredClassMap;
             }
-            
+    
             /**
              * 
              * @param cs
              * @return
              */
-            Context append( CharSequence cs ) {
+            Context append(CharSequence cs) {
                 sb.append(cs);
                 return this;
             }
-            
+    
             /**
              * 
              * @param ch
              * @return
              */
-            Context append( char ch ) {
+            Context append(char ch) {
                 sb.append(ch);
                 return this;
             }
-            
+    
             /**
-            * 
-            * @return
-            */
-           Context getClassDecl()
-           {
-
-               final StringBuilder inherited = new StringBuilder();
-
-               if( type.getValue().isInterface() ) {
-                   sb.append( "interface ");
-               }
-               else {
-
-                   if( type.getValue().isEnum() ) sb.append( "/* enum */" );
-                   
-                   if( type.hasAlias()) sb.append("declare ");
-                   
-                   sb.append( "class ");
-
-                   final TSType superclass = TSType.from(type.getValue().getSuperclass());
-
-                   if( superclass!=null ) {
-                           inherited
-                               .append( " extends ")
-                               .append( getTypeName(superclass, type, true) )
-                               ;
-                   }
-               }
-
-               final Class<?>[] interfaces = type.getValue().getInterfaces();
-
-               if(interfaces.length > 0 ) {
-
-                       final String ifc = Arrays.stream(interfaces)
-                                           .map( c -> TSType.from(c) )
-                                       .map( t -> getTypeName(t, type, true) )
-                                       .collect( Collectors.joining(", "))
-                                       ;
-                       inherited
-                           .append( (type.getValue().isInterface()) ? " extends " : " implements ")
-                           .append(     ifc )
-                           ;
-
-
-               }
-               
-               sb.append( getTypeName(type, type, true) );
-
-               if( inherited.length()>0 || type.hasAlias()) {
-
-                   sb.append("/*");
-                   
-                   if( type.hasAlias() )        sb.append( type.getValue().getName() );
-                   if( inherited.length()>0 )   sb.append( inherited );
-                   
-                   sb.append("*/");
-               }
-
-               sb.append( " {");
-                                   
-               return this;
-           }
-
-           /**
-            * 
-            * @return
-            */
-           Context processEnumDecl() {
-               if( type.getValue().isEnum() ) {
-                   type.setExport(true); // force export
-                   Arrays.stream( type.getValue().getEnumConstants() )
-                   .forEach( (c) -> 
-                       sb.append( '\t' )
-                         .append( "// ")
-                         .append(  c.toString() )
-                         .append( ':')
-                         .append( type.getSimpleTypeName() )
-                         .append( ';' )
-                         .append(  '\n' )
-                   );
-                   sb.append('\n');
-               }
-               
-               return this;
-               
-           }
+             * 
+             * @return
+             */
+            Context getClassDecl() {
+    
+                final StringBuilder inherited = new StringBuilder();
+    
+                if (type.getValue().isInterface()) {
+                    sb.append("interface ");
+                } else {
+    
+                    if (type.getValue().isEnum())
+                        sb.append("/* enum */");
+    
+                    if (type.hasAlias())
+                        sb.append("declare ");
+    
+                    sb.append("class ");
+    
+                    final TSType superclass = TSType.from(type.getValue().getSuperclass());
+    
+                    if (superclass != null) {
+                        inherited.append(" extends ").append(getTypeName(superclass, type, true));
+                    }
+                }
+    
+                final Class<?>[] interfaces = type.getValue().getInterfaces();
+    
+                if (interfaces.length > 0) {
+    
+                    final String ifc = Arrays.stream(interfaces).map(c -> TSType.from(c))
+                            .map(t -> getTypeName(t, type, true)).collect(Collectors.joining(", "));
+                    inherited.append((type.getValue().isInterface()) ? " extends " : " implements ").append(ifc);
+    
+                }
+    
+                sb.append(getTypeName(type, type, true));
+    
+                if (inherited.length() > 0 || type.hasAlias()) {
+    
+                    sb.append("/*");
+    
+                    if (type.hasAlias())
+                        sb.append(type.getValue().getName());
+                    if (inherited.length() > 0)
+                        sb.append(inherited);
+    
+                    sb.append("*/");
+                }
+    
+                sb.append(" {");
+    
+                return this;
+            }
+    
+            /**
+             * 
+             * @return
+             */
+            Context processEnumDecl() {
+                if (type.getValue().isEnum()) {
+                    type.setExport(true); // force export
+                    Arrays.stream(type.getValue().getEnumConstants()).forEach((c) -> sb.append('\t').append("// ")
+                            .append(c.toString()).append(':').append(type.getSimpleTypeName()).append(';').append('\n'));
+                    sb.append('\n');
+                }
+    
+                return this;
+    
+            }
+    
+            /**
+             *
+             * @param sb
+             * @param type
+             * @param declaredTypeMap
+             */
+            Context processMemberClasses(int level) {
+    
+                final Class<?> memberClasses[] = type.getValue().getClasses();
+    
+                if (memberClasses.length == 0)
+                    return this;
+    
+                // sb.append( "export module " )
+                // .append(type.getSimpleTypeName())
+                // .append(" {\n\n")
+                // ;
+    
+                Stream.of(memberClasses)
+                        .peek( c -> debug("nested class name[%s]", c.getName()) )
+                        //.filter(distinctByKey( c -> c.getSimpleName() ))
+                        .filter(distinctByKey(c -> c.getName()))
+                        .map(cl -> TSType.from(cl))
+                        .peek( t -> debug("nested type name[%s]", t.getTypeName()) )
+                        .map(t -> processClass(level + 1, t, declaredTypeMap))
+                        .forEach(decl -> sb.append(decl));
+    
+                // sb.append("\n} // end module ")
+                // .append(type.getSimpleTypeName())
+                // .append('\n')
+                // ;
+                return this;
+            }
+    
+            private Context processEnumType() {
+    
+                if (type.getValue().isEnum()) {
+                    Arrays.stream(type.getValue().getEnumConstants()).forEach((c) -> sb.append('\t').append(c.toString())
+                            .append(':').append(type.getTypeName()).append(';').append('\n'));
+                    sb.append('\n');
+                }
+    
+                return this;
+    
+            }
+    
+            public Context clone() {
+                return new Context(type, declaredTypeMap);
+            }
+    
+            /**
+             * 
+             */
+            @Override
+            public String toString() {
+                return sb.toString();
+            }    
            
-           /**
-           *
-           * @param sb
-           * @param type
-           * @param declaredTypeMap
-           */
-          Context processNestedClasses( int level ) {
-
-              final Class<?> nestedClasses[] = type.getValue().getClasses();
-
-              if( nestedClasses.length == 0 ) return this;
-
-              sb.append( "export module " )
-                .append(type.getSimpleTypeName())
-                    .append(" {\n\n")
-                    ;
-
-              Stream.of(nestedClasses)
-                      .filter( distinctByKey( c -> c.getSimpleName() ) )
-                      .map( cl ->  TSType.from(cl) )
-                      .map( t -> processClass( level + 1, t, declaredTypeMap) )
-                      .forEach( decl -> sb.append(decl) );
-
-              sb.append("\n} // end module ")
-                      .append(type.getSimpleTypeName())
-                      .append('\n')
-                  ;
-              return this;
-          }
-
-          
-          private Context processEnumType( ) {
-              
-              if( type.getValue().isEnum() ) {
-                  Arrays.stream( type.getValue().getEnumConstants() )
-                  .forEach( (c) -> 
-                      sb.append( '\t' )
-                        .append(  c.toString() )
-                        .append( ':')
-                        .append( type.getTypeName() )
-                        .append( ';' )
-                        .append(  '\n' )
-                  );
-                  sb.append('\n');
-              }
-              
-              return this;
-              
-          }
-          
-
-        public Context clone() {
-            return new Context(type, declaredTypeMap);
-        }
-         /**
-          * 
-          */
-        @Override
-        public String toString() {
-            return sb.toString();
-        }
-
-           
-        }
+        } // end Context
        
-       
+        /**
+         * 
+         * @param tstype
+         * @param declaredTypeMap
+         * @return
+         */
+        public Context contextOf( TSType tstype, java.util.Map<String, TSType> declaredTypeMap ) {
+            return new Context( tstype, declaredTypeMap);
+        }
+        
         /**
         *
         * @param bi
@@ -865,7 +852,7 @@ public class TypescriptConverter {
         */
        public String processClass( int level, TSType tstype, java.util.Map<String, TSType> declaredTypeMap )   {
 
-           final Context ctx = new Context( tstype, declaredTypeMap);
+           final Context ctx = contextOf( tstype, declaredTypeMap);
            
            if( tstype.supportNamespace() )
                ctx.append( "declare namespace " )
@@ -928,7 +915,7 @@ public class TypescriptConverter {
                    .append('\n');
 
            // NESTED CLASSES
-           //if( level == 0 ) ctx.processNestedClasses( level );
+           //if( level == 0 ) ctx.processMemberClasses( level );
 
            if( tstype.supportNamespace() )
                    ctx.append("\n} // end namespace ")

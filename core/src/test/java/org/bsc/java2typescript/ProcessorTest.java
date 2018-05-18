@@ -9,32 +9,16 @@ import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.bsc.java2typescript.TSType;
-import org.bsc.java2typescript.TypescriptConverter;
 import org.hamcrest.core.Is;
 import org.hamcrest.core.IsEqual;
 import org.hamcrest.core.IsNull;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class ProcessorTest {
+public class ProcessorTest extends AbstractConverterTest {
 
-    final TypescriptConverter converter = new TypescriptConverter();
-	
-	private java.util.Map<String,TSType> declaredClassMap( Class<?> ... classes) {
-		return Stream.of( classes )
-			.collect( Collectors.toMap( c -> c.getName(), c -> TSType.from(c) ))
-			;		
-	}
-	private java.util.Map<String,TSType> declaredTypeMap( TSType ... types) {
-		return Stream.of( types )
-			.collect( Collectors.toMap( t -> t.getValue().getName(), t -> t ))
-			;		
-	}
-	
 	@Test
 	public void testWildcardType() throws Exception {
 		final TSType type = TSType.from(Sample1.class);
@@ -114,9 +98,9 @@ public class ProcessorTest {
 	@Test
 	public void testClassDecl() throws Exception {
 		
+        TypescriptConverter.Context ctx = converter.contextOf(TSType.from(ArrayList.class), Collections.emptyMap());
 		{
-			final String result  = 
-					converter.getClassDecl( TSType.from(ArrayList.class), Collections.emptyMap());
+			final String result  = ctx.getClassDecl().toString();
 		
 			Assert.assertThat( result, IsNull.notNullValue());		
 			Assert.assertThat( result, IsEqual.equalTo("class ArrayList<E>/* extends AbstractList<E> implements List<E>, RandomAccess, java.lang.Cloneable, java.io.Serializable*/ {"));
@@ -359,24 +343,4 @@ public class ProcessorTest {
 	
 	}
 
-	String getReturnType( Class<?> type, String methonName, Class<?> ...args ) throws Exception {
-		return getReturnType(Collections.emptyMap(), type, methonName, (Class<?>[])args);
-	}
-	
-	String getReturnType( java.util.Map<String, TSType> declaredClassMap, Class<?> type, String methodName, Class<?> ...args ) throws Exception 
-	{
-		final Method m = type.getMethod(methodName, (Class<?>[])args);			
-		return getReturnType( declaredClassMap, type, m);
-	}
-	
-	String getReturnType( java.util.Map<String, TSType> declaredClassMap, Class<?> type, Method m ) throws Exception 
-	{
-		final Type rType = m.getGenericReturnType();
-		final String result = TypescriptConverter.convertJavaToTS(rType, m, 
-				TSType.from(type),
-				declaredClassMap, 
-				true, 
-				Optional.empty());
-		return result;
-	}
 }
