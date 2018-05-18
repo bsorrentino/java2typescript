@@ -211,7 +211,6 @@ public class TypescriptConverter {
             final Predicate<TypeVariable<?>> typeMismatch = ( tv ) -> {
                 if( isStatic(declaringMember) )              return true;
                 if( declaringMember instanceof Constructor ) return true;
-                if( declaringType.equals(type) )             return true;
                 return !typeParameterMatch.test(declaringType.getValue(), tv );
             };
             
@@ -284,7 +283,7 @@ public class TypescriptConverter {
                     else if( t instanceof Class ) {
                         log( "class: %s",  t.getTypeName() );
 
-                        final String name = convertJavaToTS( (Class<?>)t, declaringType, declaredTypeMap, packageResolution);
+                        final String name = convertJavaToTS( (Class<?>)t, declaringType, declaredTypeMap, packageResolution, onTypeMismatch);
 
                         final String commented = format("/*%s*/", t.getTypeName());
                         result = result.replace( commented, "/*@*/")
@@ -360,18 +359,7 @@ public class TypescriptConverter {
             }
             else if( type instanceof Class ) {
                 log( "class: %s",  type.getTypeName() );
-
-                // FIX ISSUE ON NEW 
-                onTypeMismatch.ifPresent( tm -> {
-                    Stream.of(((Class<?>)type).getTypeParameters())
-                    .filter( tv -> typeMismatch.test(tv) )
-                    .forEach( tv -> tm.accept(tv))
-                    ;
-    
-                });
-
-                final String name = convertJavaToTS( (Class<?>)type, declaringType, declaredTypeMap, packageResolution);
-                return name;
+                return convertJavaToTS( (Class<?>)type, declaringType, declaredTypeMap, packageResolution, onTypeMismatch);
             }
             else if( type instanceof WildcardType ) {
                 throw new IllegalArgumentException( "type 'WildcardType' is a  not supported yet!");
@@ -410,12 +398,13 @@ public class TypescriptConverter {
          * @return
          */
         private static String convertJavaToTS(  Class<?> type,
-                                                    TSType declaringType,
-                                                    java.util.Map<String, TSType> declaredTypeMap,
-                                                    boolean packageResolution )
+                                                TSType declaringType,
+                                                java.util.Map<String, TSType> declaredTypeMap,
+                                                boolean packageResolution,
+                                                Optional<Consumer<TypeVariable<?>>> onTypeMismatch )
         {
 
-                if( type == null ) return "any";
+            if( type == null ) return "any";
 
             if( Void.class.isAssignableFrom(type) || type.equals(Void.TYPE) ) return "void";
             if( Boolean.class.isAssignableFrom(type) || type.equals(Boolean.TYPE) ) return type.isPrimitive() ? "boolean" : "boolean|null" ;
@@ -430,12 +419,29 @@ public class TypescriptConverter {
             if( byte[].class.equals(type) ) return "bytearray";
 
             if( type.isArray()) {
-                    return format( "[%s]", convertJavaToTS(type.getComponentType(), declaringType, declaredTypeMap,packageResolution));
+                    return format( "[%s]", convertJavaToTS(type.getComponentType(), 
+                                                            declaringType, 
+                                                            declaredTypeMap,
+                                                            packageResolution,
+                                                            Optional.empty()));
             }
 
             final TSType tt = declaredTypeMap.get( type.getName() );
             if( tt!=null ) {
-                    return getTypeName(tt, declaringType, packageResolution);
+
+                // FIX ISSUE ON NEW 
+                onTypeMismatch.ifPresent( tm -> {
+                    Stream.of(((Class<?>)type).getTypeParameters())
+                    .filter( tv -> {
+                        if( type.equals(declaringType.getValue()) ) return true;
+                        return !typeParameterMatch.test(declaringType.getValue(), tv );    
+                    })
+                    .forEach( tv -> tm.accept(tv))
+                    ;
+    
+                });
+            
+                return getTypeName(tt, declaringType, packageResolution);
             }
 
             return format("any /*%s*/",type.getName());
@@ -496,17 +502,45 @@ public class TypescriptConverter {
          */
         public String processStatic( TSType type, java.util.Map<String, TSType> declaredTypeMap ) {
             
-                final Context ctx = new Context( type, declaredTypeMap);
-           
-                ctx.append("interface ")
-                .append( ctx.type.getSimpleTypeName() )
-                .append("Static {\n\n")
-                ;
-            
+            final Context ctx = new Context( type, declaredTypeMap);
+        
+            ctx.append("interface ")
+            .append( ctx.type.getSimpleTypeName() )
+            .append("Static {\n\n")
+            ;
+        
+            if (ctx.type.getValue().isEnum()) {
                 ctx.processEnumType();
+            }
+            
+            //Append class property
+            ctx.append("\treadonly class:any;\n");
+
+            if( isFunctionalInterface( type.getValue() ) ) {
                 
-                //Append class property
-                ctx.append("\treadonly class:any;\n");
+                final java.util.Set<String> TypeVarSet = new java.util.HashSet<>(5);
+                final String tstype = convertJavaToTS(  type.getValue(), 
+                                                        ctx.type, 
+                                                        declaredTypeMap,
+                                                        false,
+                                                        Optional.of( ( tv ) -> TypeVarSet.add(tv.getName()) )
+                                );
+                
+                ctx.append("\tnew");
+                if( !TypeVarSet.isEmpty() ) {
+                    ctx.append('<')
+                        .append( TypeVarSet.stream().collect(Collectors.joining(",")))
+                        .append('>');               
+                }
+                ctx.append("( arg0:")
+                    .append( tstype )
+                    .append(" ):")
+                    .append( tstype )
+                    .append(ENDL);
+
+            }
+
+            else {
 
                 Stream.of(ctx.type.getValue().getConstructors())
                 .filter( c -> Modifier.isPublic(c.getModifiers()) )
@@ -522,17 +556,19 @@ public class TypescriptConverter {
                         .stream()
                         .filter( TypescriptConverter::isStatic )
                         .collect( Collectors.toCollection(() -> new java.util.LinkedHashSet<>() ));
-                    
-            if( !methodSet.isEmpty() ) {
-                    
-                    methodSet.stream()
-                            .sorted( (a,b) -> a.getName().compareTo(b.getName()))
-                            .forEach( md ->
-                            ctx.append( '\t' )
-                                  .append(md.getName()) 
-                              .append( getMethodParametersAndReturnDecl( ctx, md, false) )
-                              .append(  ENDL ))
-                            ;
+                        
+                if( !methodSet.isEmpty() ) {
+                        
+                        methodSet.stream()
+                                .sorted( (a,b) -> a.getName().compareTo(b.getName()))
+                                .forEach( md ->
+                                ctx.append( '\t' )
+                                      .append(md.getName()) 
+                                  .append( getMethodParametersAndReturnDecl( ctx, md, false) )
+                                  .append(  ENDL ))
+                                ;
+                }
+    
             }
             
             ctx.append( "}\n\n" )
@@ -834,19 +870,17 @@ public class TypescriptConverter {
     
             private Context processEnumType() {
     
-                if (type.getValue().isEnum()) {
-                    // fix #4
-                    //Arrays.stream(type.getValue().getEnumConstants())
-                    Arrays.stream(type.getValue().getFields())  
-                    .filter( f -> f.isEnumConstant() )                  
-                    .forEach((c) -> sb.append('\t')
-                                    .append(c.getName())
-                                    .append(':')
-                                    .append(type.getTypeName())
-                                    .append(';')
-                                    .append('\n'));
-                    sb.append('\n');
-                }
+                // fix #4
+                //Arrays.stream(type.getValue().getEnumConstants())
+                Arrays.stream(type.getValue().getFields())  
+                .filter( f -> f.isEnumConstant() )                  
+                .forEach((c) -> sb.append('\t')
+                                .append(c.getName())
+                                .append(':')
+                                .append(type.getTypeName())
+                                .append(';')
+                                .append('\n'));
+                sb.append('\n');
     
                 return this;
     
