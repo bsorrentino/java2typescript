@@ -248,6 +248,7 @@ public class TypescriptConverter {
                 final Type[] typeArgs = pType.getActualTypeArguments();
 
                 for( Type t : typeArgs ) {
+
                     if( t instanceof ParameterizedType ) {
 
                         final String typeName = convertJavaToTS( t,
@@ -298,7 +299,7 @@ public class TypescriptConverter {
                         final Type[] lb = wt.getLowerBounds();
                         final Type[] ub = wt.getUpperBounds();
                         
-                        log( "Wildcard Type : %s lb:%d up:%d",  type.getTypeName(), lb.length, ub.length );
+                        log( "Wildcard Type : %s lb:%d up:%d",  wt.getTypeName(), lb.length, ub.length );
 
                         if( lb.length <= 1 && ub.length==1) {
                             final Type tt  = (lb.length==1) ? lb[0] : ub[0];
@@ -312,14 +313,19 @@ public class TypescriptConverter {
 
                             result = result.replace( wt.getTypeName(), s);
 
-                            // CHECK FOR NESTED WILDCARDTYPE
-                            if( tt instanceof ParameterizedType &&
-                                Stream.of(((ParameterizedType)tt).getActualTypeArguments())
-                                    .anyMatch( arg -> (arg instanceof WildcardType) ))
-                            {
-                                final Class<?> clazz = (Class<?>) (((ParameterizedType)tt).getRawType());
-                                final String typeName = wt.getTypeName().replace( clazz.getName(), clazz.getSimpleName());
-                                result = result.replace( typeName, s);
+                            if( tt instanceof ParameterizedType ) {
+                                // FIX ISSUE #7
+                                result = result.replace( "? extends ", "" );
+                                
+                                // CHECK FOR NESTED WILDCARDTYPE
+                                if( Stream.of(((ParameterizedType)tt).getActualTypeArguments())
+                                        .anyMatch( arg -> (arg instanceof WildcardType) ))
+                                {
+                                    final Class<?> clazz = (Class<?>) (((ParameterizedType)tt).getRawType());
+
+                                    final String typeName = wt.getTypeName().replace( clazz.getName(), clazz.getSimpleName());
+                                    result = result.replace( typeName, s);
+                                }
                             }
                         }
                         else {

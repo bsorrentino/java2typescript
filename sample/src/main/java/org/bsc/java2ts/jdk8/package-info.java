@@ -19,7 +19,7 @@
 		@Type(java.net.URL.class),
 
 		@Type(value=java.util.concurrent.Callable.class, alias="Callable"),
-		//@Type(value=java.util.concurrent.ConcurrentHashMap.class, export=true),
+		@Type(value=java.util.concurrent.ConcurrentHashMap.class, export=true),
 		@Type(value=java.lang.management.MemoryType.class, export=true),
 
 		// Member Classes
