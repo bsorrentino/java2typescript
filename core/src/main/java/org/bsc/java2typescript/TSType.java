@@ -211,7 +211,13 @@ public class TSType extends HashMap<String, Object> {
 
     @Override
     public boolean equals(Object o) {
-        return getValue().equals(((TSType) o).getValue());
+        if( o instanceof Class ) {
+            return getValue().equals(o);
+        }
+        if( o instanceof TSType ) {
+            return getValue().equals(((TSType) o).getValue());
+        }
+        return false;
     }
 
     @Override

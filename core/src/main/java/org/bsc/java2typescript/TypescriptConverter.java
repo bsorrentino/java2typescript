@@ -55,7 +55,7 @@ public class TypescriptConverter {
         /**
          *
          */
-        private static BiFunction<Class<?>,Type, Boolean> typeParameterMatch = (declaringClass, type) ->
+        private static BiPredicate<Class<?>,Type> typeParameterMatch = (declaringClass, type) ->
             ( type instanceof TypeVariable ) ?
                     Arrays.stream(declaringClass.getTypeParameters())
                         .map( (tp) -> tp.getName())
@@ -192,7 +192,8 @@ public class TypescriptConverter {
          * @param onTypeMismatch
          * @return
          */
-        public static <M extends Member> String convertJavaToTS(    Type type,
+        public static <M extends Member> String convertJavaToTS( 
+                                                Type type,
                                                 M declaringMember,
                                                 TSType declaringType,
                                                 java.util.Map<String, TSType> declaredTypeMap,
@@ -208,9 +209,10 @@ public class TypescriptConverter {
              * 
              */
             final Predicate<TypeVariable<?>> typeMismatch = ( tv ) -> {
-                if( isStatic(declaringMember) ) return true;
+                if( isStatic(declaringMember) )              return true;
                 if( declaringMember instanceof Constructor ) return true;
-                return !typeParameterMatch.apply(declaringType.getValue(), tv );
+                if( declaringType.equals(type) )             return true;
+                return !typeParameterMatch.test(declaringType.getValue(), tv );
             };
             
             if( type instanceof ParameterizedType ) {
@@ -243,8 +245,6 @@ public class TypescriptConverter {
                     result = result.replace( tstype.getTypeName(), tstype.getSimpleTypeName());
                 }
 
-                    
-
                 final Type[] typeArgs = pType.getActualTypeArguments();
 
                 for( Type t : typeArgs ) {
@@ -266,7 +266,6 @@ public class TypescriptConverter {
                         log( "type variable: %s",  t );
 
                         final TypeVariable<?> tv = (TypeVariable<?>)t;
-
                         if( typeMismatch.test(tv)) {
 
                             if( onTypeMismatch.isPresent() ) {
@@ -361,6 +360,15 @@ public class TypescriptConverter {
             }
             else if( type instanceof Class ) {
                 log( "class: %s",  type.getTypeName() );
+
+                // FIX ISSUE ON NEW 
+                onTypeMismatch.ifPresent( tm -> {
+                    Stream.of(((Class<?>)type).getTypeParameters())
+                    .filter( tv -> typeMismatch.test(tv) )
+                    .forEach( tv -> tm.accept(tv))
+                    ;
+    
+                });
 
                 final String name = convertJavaToTS( (Class<?>)type, declaringType, declaredTypeMap, packageResolution);
                 return name;
@@ -617,10 +625,11 @@ public class TypescriptConverter {
                             .collect(Collectors.joining(", "))
                             ;
 
-            final Type returnType =  ( m instanceof Method ) ?
+         final Type returnType =  ( m instanceof Method ) ?
                                             ((Method)m).getGenericReturnType() :
                                                 ctx.type.getValue();
-                                            
+
+                                               
            final String  tsReturnType = 
                             convertJavaToTS(    returnType,
                                             m,
