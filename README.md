@@ -67,6 +67,14 @@ Let assume that you have successfully setup a java project
 
 Create a file `package-info.java` and annotate the given package with `@Java2TS` that will contain all the `@Type` of which you want the Typescript declaration.
 
+** Type Attributes **
+
+Name | Mandatory | Type | Description
+--- | --- | --- | ---
+**value** | Yes | Class | Full Qualified Name of Java class
+**alias** | No | String | Assign a new name to exported class in typescript
+**export** | No | boolean | if **true**, other than typescript declaration adds definition in file *`-types.ts`. **It is need for instantiable classes, in order  to use `new` operator or factory method(s)**
+
 **Example**
 ```Java
 @Java2TS(declare = {
@@ -138,5 +146,5 @@ The easier way to start your **Typescript on JVM** project is using the provided
 >mvn archetype:generate \
 >-DarchetypeGroupId=org.bsc.processor \
 >-DarchetypeArtifactId=java2ts-processor-archetype \
->-DarchetypeVersion=1.0-beta2
+>-DarchetypeVersion=1.0-rc1
 >```
