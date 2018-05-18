@@ -765,8 +765,17 @@ public class TypescriptConverter {
             Context processEnumDecl() {
                 if (type.getValue().isEnum()) {
                     type.setExport(true); // force export
-                    Arrays.stream(type.getValue().getEnumConstants()).forEach((c) -> sb.append('\t').append("// ")
-                            .append(c.toString()).append(':').append(type.getSimpleTypeName()).append(';').append('\n'));
+                    // fix #4
+                    //Arrays.stream(type.getValue().getEnumConstants())
+                    Arrays.stream(type.getValue().getFields())  
+                        .filter( f -> f.isEnumConstant() )                  
+                        .forEach((c) -> sb.append('\t')
+                                                .append("// ")
+                                                .append(c.getName())
+                                                .append(':')
+                                                .append(type.getSimpleTypeName())
+                                                .append(';')
+                                                .append('\n'));
                     sb.append('\n');
                 }
     
@@ -811,8 +820,16 @@ public class TypescriptConverter {
             private Context processEnumType() {
     
                 if (type.getValue().isEnum()) {
-                    Arrays.stream(type.getValue().getEnumConstants()).forEach((c) -> sb.append('\t').append(c.toString())
-                            .append(':').append(type.getTypeName()).append(';').append('\n'));
+                    // fix #4
+                    //Arrays.stream(type.getValue().getEnumConstants())
+                    Arrays.stream(type.getValue().getFields())  
+                    .filter( f -> f.isEnumConstant() )                  
+                    .forEach((c) -> sb.append('\t')
+                                    .append(c.getName())
+                                    .append(':')
+                                    .append(type.getTypeName())
+                                    .append(';')
+                                    .append('\n'));
                     sb.append('\n');
                 }
     

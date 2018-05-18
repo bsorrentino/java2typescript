@@ -2,7 +2,13 @@
 import * as colors from "colors/safe";
 import mustache = require("mustache");
 
-import {Stream, URI, Arrays, Optional} from "ts/jdk8-types";
+import {
+  Stream, 
+  URI, 
+  Arrays, 
+  Optional,
+  MemoryType,
+} from "ts/jdk8-types";
 
 let b = "hello jjs";
 
@@ -48,3 +54,11 @@ print( uri.resolve( u3 ).toString() );
 
 print( Optional.empty().map( e => "element: " + e).orElse("nil") );
 print( Optional.of("HELLO").map( e => "element: " + e).orElse("nil") );
+
+
+// TEST ENUM
+
+print(MemoryType.HEAP);
+print(MemoryType.HEAP.name());
+print(MemoryType.HEAP.ordinal());
+
