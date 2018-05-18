@@ -18,7 +18,7 @@
 		@Type(value=java.net.URI.class, export=true),
 		@Type(java.net.URL.class),
 
-		@Type(value=java.util.concurrent.Callable.class, alias="Callable"),
+		@Type(value=java.util.concurrent.Callable.class, export=true),
 		@Type(value=java.util.concurrent.ConcurrentHashMap.class, export=true),
 		@Type(value=java.lang.management.MemoryType.class, export=true),
 
@@ -27,7 +27,7 @@
 		//@Type(value= javax.swing.text.AbstractDocument.class),
 		//@Type(value= javax.swing.text.AbstractDocument.AttributeContext.class),
 
-
+		@Type(value=java.util.function.Consumer.class, alias="Consumer", export=true),
 
 })
 package org.bsc.java2ts.jdk8;
