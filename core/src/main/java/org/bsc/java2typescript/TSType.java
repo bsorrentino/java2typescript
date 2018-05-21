@@ -9,6 +9,8 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import static java.lang.String.format;
+import java.util.Arrays;
+
 /**
  * 
  * @author softphone
@@ -27,25 +29,6 @@ public class TSType extends HashMap<String, Object> {
         super(3);
     }
 
-    public static TSType from(Class<?> cl, boolean exports) {
-        return new TSType() {
-            {
-                put(VALUE, cl);
-                put(EXPORT, exports);
-            }
-        };
-    }
-
-    public static TSType from(Class<?> cl, String alias, boolean exports) {
-        return new TSType() {
-            {
-                put(VALUE, cl);
-                put(EXPORT, exports);
-                put(ALIAS, alias);
-            }
-        };
-    }
-
     public static TSType from(Class<?> cl) {
         return new TSType() {
             {
@@ -53,7 +36,6 @@ public class TSType extends HashMap<String, Object> {
             }
         };
     }
-
 
     /**
      * 
@@ -97,6 +79,15 @@ public class TSType extends HashMap<String, Object> {
         return (String) super.get(ALIAS);
     }
 
+       /**
+     * 
+     * @return
+     */
+    public TSType setAlias( String value ) {
+        super.put(ALIAS,value);
+        return this;
+    }
+
     /**
      * 
      * @return
@@ -107,11 +98,10 @@ public class TSType extends HashMap<String, Object> {
         if( !getValue().isInterface()) return false;
         if( getValue().isAnnotationPresent(FunctionalInterface.class)) return true;
         
-        //return Arrays.stream(c.getDeclaredMethods())
-        //            .filter( m -> Modifier.isAbstract(m.getModifiers()) )
-        //            .count() == 1;
-
-        return (Boolean)super.getOrDefault( FUNCTIONAL, false);
+        return (Boolean)super.getOrDefault( FUNCTIONAL, false) && 
+                Arrays.stream(getValue().getDeclaredMethods())
+                    .filter( m -> Modifier.isAbstract(m.getModifiers()) )
+                    .count() == 1;
     }
 
     /**
