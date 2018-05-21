@@ -91,7 +91,7 @@ public class ConverterTest extends AbstractConverterTest {
             TSType t = TSType.from(Action2.class);
             Assert.assertThat(t.isFunctionalInterface() , equalTo(false));
             t.setFunctionalInterface(true);
-            Assert.assertThat(t.isFunctionalInterface() , equalTo(true));
+            Assert.assertThat(t.isFunctionalInterface() , equalTo(false));
         }
 
     }
