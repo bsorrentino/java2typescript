@@ -21,6 +21,7 @@ public class TSType extends HashMap<String, Object> {
     private static final String VALUE = "value";
     private static final String EXPORT = "export";
     private static final String NAMESPACE = "namespace";
+    private static final String FUNCTIONAL = "functional";
 
     protected TSType() {
         super(3);
@@ -53,6 +54,7 @@ public class TSType extends HashMap<String, Object> {
         };
     }
 
+
     /**
      * 
      * @return
@@ -73,8 +75,8 @@ public class TSType extends HashMap<String, Object> {
      * 
      * @return
      */
-    public TSType setExport(boolean exports) {
-        super.put(EXPORT, exports);
+    public TSType setExport(boolean value) {
+        super.put(EXPORT, value);
         return this;
     }
 
@@ -95,6 +97,34 @@ public class TSType extends HashMap<String, Object> {
         return (String) super.get(ALIAS);
     }
 
+    /**
+     * 
+     * @return
+     */
+    public boolean isFunctionalInterface() {
+
+        
+        if( !getValue().isInterface()) return false;
+        if( getValue().isAnnotationPresent(FunctionalInterface.class)) return true;
+        
+        //return Arrays.stream(c.getDeclaredMethods())
+        //            .filter( m -> Modifier.isAbstract(m.getModifiers()) )
+        //            .count() == 1;
+
+        return (Boolean)super.getOrDefault( FUNCTIONAL, false);
+    }
+
+    /**
+     * 
+     */
+    public TSType setFunctionalInterface( boolean value ) {
+
+        super.put(FUNCTIONAL, value);
+        return this;
+
+    }
+
+    
     private String getMemberSimpleTypeName() {
 
         return format( "%s$%s", getValue().getDeclaringClass().getSimpleName(), getValue().getSimpleName());
@@ -134,13 +164,6 @@ public class TSType extends HashMap<String, Object> {
         return (String) super.getOrDefault(NAMESPACE, getValue().getPackage().getName());
     }
     
-    /**
-     * 
-     * @return
-     */
-    public boolean isFunctionalInterface() {
-        return TypescriptConverter.isFunctionalInterface( getValue() );
-    }
     /**
      *
      * @param type

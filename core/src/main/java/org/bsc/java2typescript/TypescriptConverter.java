@@ -72,18 +72,6 @@ public class TypescriptConverter {
             System.out.println( format( fmt, args));
         }
 
-        
-        /**
-         * 
-         * @param type
-         * @return
-         */
-        public static final String processFunctionalInterface( TSType type  ) {
-            Objects.requireNonNull(type, "argument 'type' is not defined!");
-
-            return null;
-        }
-
         /**
          *
          * @param p
@@ -122,17 +110,6 @@ public class TypescriptConverter {
 
                 return (isStatic(m) &&
                         m.getReturnType().equals(m.getDeclaringClass()));
-        }
-
-        /**
-         * 
-         * @return
-         */
-        public static boolean isFunctionalInterface( final Class<?> c ) {
-            if( !c.isInterface()) return false;
-            if( c.isAnnotationPresent(FunctionalInterface.class)) return true;
-            
-            return Arrays.stream(c.getDeclaredMethods()).filter( m -> Modifier.isAbstract(m.getModifiers()) ).count() == 1;
         }
         
         /**
@@ -205,6 +182,7 @@ public class TypescriptConverter {
             Objects.requireNonNull(declaringType, "declaringType argument is null!");
             Objects.requireNonNull(declaredTypeMap, "declaredTypeMap argument is null!");
 
+            log( "PROCESSING MEMEBER: [%s]", declaringMember.getName());
             /**
              * 
              */
@@ -247,6 +225,7 @@ public class TypescriptConverter {
                 final Type[] typeArgs = pType.getActualTypeArguments();
 
                 for( Type t : typeArgs ) {
+                    log( "TypeArgs [%s]", t.getTypeName());
 
                     if( t instanceof ParameterizedType ) {
 
@@ -256,8 +235,8 @@ public class TypescriptConverter {
                                                                 declaredTypeMap,
                                                                 packageResolution,
                                                                 onTypeMismatch);
-                        log( "Parameterized Type %s - %s",  t.getTypeName(), typeName );
                         result = result.replace( t.getTypeName(), typeName);
+                        log( "Parameterized Type\n\t%s\n\t%s\n\t%s",  t.getTypeName(), typeName, result );
 
                     }
                     else if(  t instanceof TypeVariable ) {
@@ -281,7 +260,6 @@ public class TypescriptConverter {
                         continue;
                     }
                     else if( t instanceof Class ) {
-                        log( "class: %s",  t.getTypeName() );
 
                         final String name = convertJavaToTS( (Class<?>)t, declaringType, declaredTypeMap, packageResolution, onTypeMismatch);
 
@@ -290,14 +268,16 @@ public class TypescriptConverter {
                                                     .replace(t.getTypeName(), name)
                                                     .replace( "/*@*/", commented )
                                                     ;
-                    }
+                        log( "Class Type\n\t%s\n\t%s",  t.getTypeName(),  result );
+                                                }
                     else if( t instanceof WildcardType ) {
+                        
                         final WildcardType wt = (WildcardType) t;
 
                         final Type[] lb = wt.getLowerBounds();
                         final Type[] ub = wt.getUpperBounds();
-                        
-                        log( "Wildcard Type : %s lb:%d up:%d",  wt.getTypeName(), lb.length, ub.length );
+
+                        log( "Wildcard Type: \n\t%s\n\tlb:%d\n\tup:%d",  wt.getTypeName(), lb.length, ub.length );
 
                         if( lb.length <= 1 && ub.length==1) {
                             final Type tt  = (lb.length==1) ? lb[0] : ub[0];
@@ -312,6 +292,7 @@ public class TypescriptConverter {
                             result = result.replace( wt.getTypeName(), s);
 
                             if( tt instanceof ParameterizedType ) {
+                                
                                 // FIX ISSUE #7
                                 result = result.replace( "? extends ", "" );
                                 
@@ -321,13 +302,20 @@ public class TypescriptConverter {
                                 {
                                     final Class<?> clazz = (Class<?>) (((ParameterizedType)tt).getRawType());
 
-                                    final String typeName = wt.getTypeName().replace( clazz.getName(), clazz.getSimpleName());
+                                    final String typeName = wt.getTypeName()
+                                            //.replace( clazz.getName(), clazz.getSimpleName())
+                                            .replace( "? extends ", "" )
+                                            ;
                                     result = result.replace( typeName, s);
+
                                 }
+
                             }
+                            log( "Wildcard Type(1):\n\t%s\n\t%s\n\t%s",  t.getTypeName(), s, result );
                         }
                         else {
                             result = result.replace(wt.getTypeName(), format( "any/*%s*/", wt));
+                            log( "Wildcard Type(2)\n\t%s\n\t%s",  t.getTypeName(), result );
                         }
                     }
                     else if( t instanceof GenericArrayType ) {
@@ -358,8 +346,10 @@ public class TypescriptConverter {
                 return type.getTypeName();
             }
             else if( type instanceof Class ) {
-                log( "class: %s",  type.getTypeName() );
-                return convertJavaToTS( (Class<?>)type, declaringType, declaredTypeMap, packageResolution, onTypeMismatch);
+                final String result =  convertJavaToTS( (Class<?>)type, declaringType, declaredTypeMap, packageResolution, onTypeMismatch);
+                log( "class:\n\t%s\n\t%s",  type.getTypeName(), result );
+                return result;
+
             }
             else if( type instanceof WildcardType ) {
                 throw new IllegalArgumentException( "type 'WildcardType' is a  not supported yet!");
@@ -516,7 +506,7 @@ public class TypescriptConverter {
             //Append class property
             ctx.append("\treadonly class:any;\n");
 
-            if( isFunctionalInterface( type.getValue() ) ) {
+            if( type.isFunctionalInterface() ) {
                 
                 final java.util.Set<String> TypeVarSet = new java.util.HashSet<>(5);
                 final String tstype = convertJavaToTS(  type.getValue(), 
