@@ -89,10 +89,11 @@ public class TSType extends HashMap<String, Object> {
     }
 
     /**
+     * Test is functional interface
      * 
      * @return
      */
-    public boolean isFunctionalInterface() {
+    public boolean isFunctional() {
 
         
         if( !getValue().isInterface()) return false;
@@ -107,7 +108,7 @@ public class TSType extends HashMap<String, Object> {
     /**
      * 
      */
-    public TSType setFunctionalInterface( boolean value ) {
+    public TSType setFunctional( boolean value ) {
 
         super.put(FUNCTIONAL, value);
         return this;

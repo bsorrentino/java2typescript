@@ -78,20 +78,20 @@ public class ConverterTest extends AbstractConverterTest {
     public void functionalInterfaceTest() {
         
         
-        Assert.assertThat(TSType.from(java.lang.Runnable.class).isFunctionalInterface() , equalTo(true));
+        Assert.assertThat(TSType.from(java.lang.Runnable.class).isFunctional() , equalTo(true));
         {
             TSType t = TSType.from(Consumer.class);
-            Assert.assertThat(t.isFunctionalInterface() , equalTo(true));
-            t.setFunctionalInterface(false);
-            Assert.assertThat(t.isFunctionalInterface() , equalTo(true));
+            Assert.assertThat(t.isFunctional() , equalTo(true));
+            t.setFunctional(false);
+            Assert.assertThat(t.isFunctional() , equalTo(true));
 
         }
-        Assert.assertThat(TSType.from(Action.class).isFunctionalInterface() , equalTo(true));
+        Assert.assertThat(TSType.from(Action.class).isFunctional() , equalTo(true));
         {
             TSType t = TSType.from(Action2.class);
-            Assert.assertThat(t.isFunctionalInterface() , equalTo(false));
-            t.setFunctionalInterface(true);
-            Assert.assertThat(t.isFunctionalInterface() , equalTo(false));
+            Assert.assertThat(t.isFunctional() , equalTo(false));
+            t.setFunctional(true);
+            Assert.assertThat(t.isFunctional() , equalTo(false));
         }
 
     }

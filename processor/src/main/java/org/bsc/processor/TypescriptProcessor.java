@@ -40,16 +40,19 @@ public class TypescriptProcessor extends AbstractProcessorEx {
     static final List<TSType> REQUIRED_TYPES = Arrays.asList(
     		TSType.from(java.lang.String.class).setExport(true),
     		TSType.from(java.lang.Iterable.class).setExport(true),
-//    		TSType.from(java.util.Collection.class),
-    		TSType.from(java.util.Collections.class).setExport(true),
+    		TSType.from(java.util.Iterator.class),
+    		TSType.from(java.util.Collection.class),
     		TSType.from(java.util.List.class),
     		TSType.from(java.util.Set.class),
     		TSType.from(java.util.Map.class),
-    		TSType.from(java.util.stream.Stream.class).setExport(true),
-    		TSType.from(java.util.stream.Collectors.class).setExport(true),
     		TSType.from(java.util.Optional.class).setExport(true),
-    		
-            TSType.from(java.lang.Comparable.class),
+    		TSType.from(java.util.stream.Stream.class).setExport(true),
+
+            // Utility class(s)
+            TSType.from(java.util.stream.Collectors.class).setExport(true),
+    		TSType.from(java.util.Collections.class).setExport(true),
+
+            // Native functional interface(s)
             TSType.from(java.util.function.Function.class).setAlias("Func"),
             TSType.from(java.util.function.BiFunction.class).setAlias("BiFunction"),
             TSType.from(java.util.function.Consumer.class).setAlias( "Consumer"),
@@ -59,8 +62,10 @@ public class TypescriptProcessor extends AbstractProcessorEx {
             TSType.from(java.util.function.Supplier.class).setAlias("Supplier"),
             TSType.from(java.util.function.Predicate.class).setAlias("Predicate"),
             TSType.from(java.util.function.BiPredicate.class).setAlias("BiPredicate"),
-            TSType.from(java.lang.Runnable.class).setAlias("Runnable")
+            TSType.from(java.lang.Runnable.class),
+            TSType.from(java.lang.Comparable.class)
             
+            // Declare Functional Interface(s)
     	);
     
     /**

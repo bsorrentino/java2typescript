@@ -506,7 +506,7 @@ public class TypescriptConverter {
             //Append class property
             ctx.append("\treadonly class:any;\n");
 
-            if( type.isFunctionalInterface() ) {
+            if( type.isFunctional() ) {
                 
                 final java.util.Set<String> TypeVarSet = new java.util.HashSet<>(5);
                 final String tstype = convertJavaToTS(  type.getValue(), 
@@ -918,7 +918,7 @@ public class TypescriptConverter {
 
            ctx.getClassDecl().append("\n\n");
 
-           if( tstype.isFunctionalInterface() ) {
+           if( tstype.isFunctional() ) {
                
                tstype.getMethods().stream()
                .filter( m -> Modifier.isAbstract(m.getModifiers()) )
