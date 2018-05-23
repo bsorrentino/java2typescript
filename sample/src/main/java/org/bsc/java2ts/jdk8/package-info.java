@@ -6,6 +6,7 @@
 @Java2TS(declare = {
 		@Type(java.lang.System.class),
 
+		@Type(value=java.util.Collection.class),
 		@Type(value=java.util.List.class),
 		@Type(value=java.util.Arrays.class, export=true),
 
@@ -13,7 +14,7 @@
 		@Type(java.nio.file.Path.class),
 		@Type(java.nio.file.Paths.class),
 		@Type(java.nio.file.AccessMode.class),
-
+		@Type(java.util.stream.Collector.class),
 
 		@Type(value=java.net.URI.class, export=true),
 		@Type(java.net.URL.class),
