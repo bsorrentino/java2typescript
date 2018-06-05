@@ -9,6 +9,8 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import static java.lang.String.format;
+import java.util.Arrays;
+
 /**
  * 
  * @author softphone
@@ -21,28 +23,10 @@ public class TSType extends HashMap<String, Object> {
     private static final String VALUE = "value";
     private static final String EXPORT = "export";
     private static final String NAMESPACE = "namespace";
+    private static final String FUNCTIONAL = "functional";
 
     protected TSType() {
         super(3);
-    }
-
-    public static TSType from(Class<?> cl, boolean exports) {
-        return new TSType() {
-            {
-                put(VALUE, cl);
-                put(EXPORT, exports);
-            }
-        };
-    }
-
-    public static TSType from(Class<?> cl, String alias, boolean exports) {
-        return new TSType() {
-            {
-                put(VALUE, cl);
-                put(EXPORT, exports);
-                put(ALIAS, alias);
-            }
-        };
     }
 
     public static TSType from(Class<?> cl) {
@@ -73,8 +57,8 @@ public class TSType extends HashMap<String, Object> {
      * 
      * @return
      */
-    public TSType setExport(boolean exports) {
-        super.put(EXPORT, exports);
+    public TSType setExport(boolean value) {
+        super.put(EXPORT, value);
         return this;
     }
 
@@ -95,6 +79,43 @@ public class TSType extends HashMap<String, Object> {
         return (String) super.get(ALIAS);
     }
 
+       /**
+     * 
+     * @return
+     */
+    public TSType setAlias( String value ) {
+        super.put(ALIAS,value);
+        return this;
+    }
+
+    /**
+     * Test is functional interface
+     * 
+     * @return
+     */
+    public boolean isFunctional() {
+
+        
+        if( !getValue().isInterface()) return false;
+        if( getValue().isAnnotationPresent(FunctionalInterface.class)) return true;
+        
+        return (Boolean)super.getOrDefault( FUNCTIONAL, false) && 
+                Arrays.stream(getValue().getDeclaredMethods())
+                    .filter( m -> Modifier.isAbstract(m.getModifiers()) )
+                    .count() == 1;
+    }
+
+    /**
+     * 
+     */
+    public TSType setFunctional( boolean value ) {
+
+        super.put(FUNCTIONAL, value);
+        return this;
+
+    }
+
+    
     private String getMemberSimpleTypeName() {
 
         return format( "%s$%s", getValue().getDeclaringClass().getSimpleName(), getValue().getSimpleName());
@@ -134,13 +155,6 @@ public class TSType extends HashMap<String, Object> {
         return (String) super.getOrDefault(NAMESPACE, getValue().getPackage().getName());
     }
     
-    /**
-     * 
-     * @return
-     */
-    public boolean isFunctionalInterface() {
-        return TypescriptConverter.isFunctionalInterface( getValue() );
-    }
     /**
      *
      * @param type

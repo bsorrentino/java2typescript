@@ -9,6 +9,7 @@ import java.lang.annotation.Target;
 @Target( {ElementType.ANNOTATION_TYPE} )
 public @interface Type {
 	Class<?> value();
-	boolean export() default false ;
-	String alias() default "";
+	boolean export()		default false ;
+	String alias()			default "";
+	boolean functional()	default false;
 }
