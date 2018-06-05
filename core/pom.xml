@@ -3,7 +3,7 @@
   <parent>
     <groupId>org.bsc.processor</groupId>
     <artifactId>java2ts-processor-parent</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.0.0</version>
   </parent>
   <artifactId>java2ts-processor-core</artifactId>
   <name>java2ts-processor::core - ${project.version}</name>
