@@ -1,45 +1,14 @@
 
-import * as colors from "colors/safe";
-import mustache = require("mustache");
+import {test as validator_test} from "./validator.test";
+import {test as stream_test} from "./stream.test";
+import {test as mustache_test} from "./mustache.test";
+import {test as color_test} from "./color.test";
 
 import {
-  Stream, 
   URI, 
-  Arrays, 
   Optional,
   MemoryType,
 } from "ts/jdk8-types";
-
-let b = "hello jjs";
-
-
-let a = Arrays.asList( "item1", "item2", "item3", "item4.1" );
-
-print( colors.red(b) );
-
-a.stream().forEach( e => {
-  print( colors.green(e) );
-});
-
-Stream.of<string>( "<item2>" ).forEach( e => {
-  print( colors.green(e) );
-});
-
-let template =
-`Email addresses of: {{contact.name}}:
-{{#contact.emails}}
-- {{.}}
-{{/contact.emails}}
-`;
-
-let result = mustache.render( template,
-  { contact: { name:"bsorrentino",
-               emails:[
-                 "bartolomeo.sorrentino@gmail.com",
-                 "bartolomeo.sorrentino@yahoo.com"
-               ]}}
-);
-print(result);
 
 
 const u1 = "http://localhost:8000/site/";
@@ -62,3 +31,7 @@ print(MemoryType.HEAP);
 print(MemoryType.HEAP.name());
 print(MemoryType.HEAP.ordinal());
 
+color_test();
+mustache_test();
+validator_test();
+stream_test();

@@ -4,8 +4,10 @@
   "description": "",
   "main": "main.js",
   "dependencies": {
+    "@types/validator": "^9.4.1",
     "colors": "^1.1.2",
-    "mustache": "^2.3.0"
+    "mustache": "^2.3.0",
+    "validator": "^10.3.0"
   },
   "devDependencies": {
     "@types/colors": "^1.1.3",
