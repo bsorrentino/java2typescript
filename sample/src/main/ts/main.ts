@@ -3,6 +3,7 @@ import {test as validator_test} from "./validator.test";
 import {test as stream_test} from "./stream.test";
 import {test as mustache_test} from "./mustache.test";
 import {test as color_test} from "./color.test";
+import {test as future_test} from "./future.test";
 
 import {
   URI, 
@@ -31,7 +32,10 @@ print(MemoryType.HEAP);
 print(MemoryType.HEAP.name());
 print(MemoryType.HEAP.ordinal());
 
+/*
 color_test();
 mustache_test();
 validator_test();
 stream_test();
+*/
+future_test();

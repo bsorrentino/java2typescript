@@ -10,7 +10,7 @@ require.paths = [
   "target/ts/target"
 ];
 
-java.lang.System.setProperty( "jvm-npm.debug", "false");
+java.lang.System.setProperty( "jvm-npm.debug", "true");
 
 
 // PLOYFILL
@@ -21,4 +21,4 @@ print( "args", $ARG.length );
 var process = { argv:$ARG, env:{TERM:'color'} } ;
 
 var exports = {};
-load('target/ts/src/main/ts/stream.js');
+load('target/ts/src/main/ts/main.js');

@@ -4,6 +4,8 @@
  * and open the template in the editor.
  */
 @Java2TS(declare = {
+		@Type(value=java.lang.Throwable.class),
+		@Type(value=java.lang.RuntimeException.class, export=true),
 		@Type(java.lang.System.class),
 
 		@Type(value=java.util.Collection.class),
@@ -23,6 +25,9 @@
 		@Type(value=java.util.concurrent.ConcurrentHashMap.class, export=true),
 		@Type(value=java.lang.management.MemoryType.class, export=true),
 
+		@Type(value=java.util.concurrent.CompletableFuture.class, export=true),
+		@Type(value=java.util.concurrent.Executor.class, functional=true, export=true),
+		
 		// Member Classes
 		@Type(value=java.util.Map.Entry.class),
 		//@Type(value= javax.swing.text.AbstractDocument.class),
