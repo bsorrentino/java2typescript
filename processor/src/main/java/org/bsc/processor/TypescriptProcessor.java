@@ -31,7 +31,7 @@ import org.bsc.java2typescript.TypescriptConverter;;
  */
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
 @SupportedAnnotationTypes("org.bsc.processor.*")
-@SupportedOptions({ "ts.outfile" })
+@SupportedOptions({ "ts.outfile", "compatibility" })
 @org.kohsuke.MetaInfServices(javax.annotation.processing.Processor.class)
 public class TypescriptProcessor extends AbstractProcessorEx {
 
@@ -133,7 +133,14 @@ public class TypescriptProcessor extends AbstractProcessorEx {
 		    			types.stream()
 		    			.collect( Collectors.toMap( tt -> tt.getValue().getName() , tt -> tt  ));
 	
-		    final TypescriptConverter converter = new TypescriptConverter();
+		    final String compatibilityOption = 
+		            processingContext.getOptionMap()
+		                .getOrDefault("compatibility", "NASHORN")
+		                .toUpperCase();
+		    info("COMPATIBILITY WITH [%s]", compatibilityOption );
+		    
+		    final TypescriptConverter converter = 
+		        new TypescriptConverter( TypescriptConverter.Compatibility.valueOf(compatibilityOption));
 		    
 			types.stream()
 				.filter( tt -> !PREDEFINED_TYPES.contains(tt) )
