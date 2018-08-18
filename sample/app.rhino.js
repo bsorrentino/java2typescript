@@ -21,4 +21,4 @@ print( "args", $ARG.length );
 var process = { argv:$ARG, env:{TERM:'color'} } ;
 
 var exports = {};
-load('target/ts/src/main/ts/main.js');
+load('target/ts/src/main/ts/main.rhino.js');

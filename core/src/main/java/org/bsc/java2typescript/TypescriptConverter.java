@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -29,7 +30,7 @@ public class TypescriptConverter extends TypescriptConverterStatic {
         public String javaType(String fqn) {
             switch (this.ordinal()) {
             case 1:
-                return format("eval(\"%s\")", fqn );
+                return format("Packages.%s", fqn );
             default:
                 return format("Java.type(\"%s\")", fqn );
             }
@@ -43,6 +44,14 @@ public class TypescriptConverter extends TypescriptConverterStatic {
         this.compatibility = compatibility;
     }
 
+    /**
+     * 
+     * @return
+     */
+    public final boolean isRhino() {
+        return compatibility == Compatibility.RHINO;
+    }
+    
     /**
      * 
      * @param declaredClass
@@ -400,25 +409,40 @@ public class TypescriptConverter extends TypescriptConverterStatic {
 
         final Context ctx = contextOf(tstype, declaredTypeMap, compatibility);
 
+        final java.util.Set<Method> methods = tstype.getMethods();
+        
         if (tstype.supportNamespace())
             ctx.append("declare namespace ").append(tstype.getNamespace()).append(" {\n\n");
 
         ctx.getClassDecl().append("\n\n");
 
         if (tstype.isFunctional()) {
+            final Function<Method,String> genAbstractMethod =  
+                    m  -> isRhino() ? 
+                            getMethodDecl(ctx, m, false /* non optional */) : 
+                            getMethodParametersAndReturnDecl(ctx, m, false);
+        
+            methods.stream()
+                .filter(m -> Modifier.isAbstract(m.getModifiers()))
+                .findFirst()
+                .ifPresent(
+                    m -> ctx.append('\t')
+                            .append( genAbstractMethod.apply(m) )
+                            .append(ENDL));
 
-            tstype.getMethods().stream().filter(m -> Modifier.isAbstract(m.getModifiers())).findFirst().ifPresent(
-                    m -> ctx.append('\t').append(getMethodParametersAndReturnDecl(ctx, m, false)).append(ENDL));
-
-            tstype.getMethods().stream().filter(m -> !Modifier.isAbstract(m.getModifiers()))
-                    .map(m -> getMethodDecl(ctx, m, true /* optional */)).sorted()
-                    .forEach(decl -> ctx.append('\t').append(decl).append(ENDL));
+            methods.stream()
+                .filter(m -> !Modifier.isAbstract(m.getModifiers()))
+                    .map(m -> getMethodDecl(ctx, m, true /* optional */))
+                    .sorted()
+                    .forEach(decl -> ctx.append('\t')
+                                        .append(decl)
+                                        .append(ENDL));
 
         } else {
 
             ctx.processEnumDecl();
 
-            final java.util.Set<Method> methodSet = tstype.getMethods().stream()
+            final java.util.Set<Method> methodSet = methods.stream()
                     .filter(md -> (tstype.isExport() && isStatic(md)) == false).filter((md) -> {
                         final String name = md.getName();
                         return !(name.contains("$") || // remove unnamed

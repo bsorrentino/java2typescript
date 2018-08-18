@@ -71,7 +71,7 @@
          <executions>
          <execution>
          	<id>tsc</id>
-          	<phase>process-sources</phase>
+          	<!--phase>process-sources</phase-->
           	<goals>
           		<goal>exec</goal>
           	</goals>
@@ -220,7 +220,7 @@
                                     <classpath />
                                     <!--argument>org.mozilla.javascript.tools.shell.Main</argument-->
                                     <argument>org.bsc.java2ts.JSRun$Rhino</argument>
-                                    <argument>app.js</argument>
+                                    <argument>app.rhino.js</argument>
                                     
                                 </arguments>
                             </configuration>

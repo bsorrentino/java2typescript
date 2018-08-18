@@ -37,6 +37,11 @@ declare namespace java.io {
 	interface Serializable {}
 }
 
+//
+// Rhino
+//
+
+declare const Packages:any;
 
 //
 // Nashorn
