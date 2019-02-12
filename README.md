@@ -11,7 +11,7 @@ Java Processor to **generate [Typescript](https://www.typescriptlang.org/)  Defi
 
 ## What is it for ?
 
-This is to help developing on **JVM javascript engine** (ie [Nashorn](http://www.oracle.com/technetwork/articles/java/jf14-nashorn-2126515.html)) using [Typescript](https://www.typescriptlang.org/)
+This is to help developing on **JVM javascript engine**, either [Nashorn](http://www.oracle.com/technetwork/articles/java/jf14-nashorn-2126515.html) or [Rhino](https://github.com/mozilla/rhino) using [Typescript](https://www.typescriptlang.org/)
 
 The main goal is having the definitions available in the modern IDE like [Visual Studio Code](https://code.visualstudio.com/) and [Atom](https://atom.io/) and then use the **intellisense** feature available for java classes within typescript
 
@@ -40,7 +40,7 @@ To give an idea about **how to work** there is a demo available online [here](ht
 
 ## Description
 
-Basic idea is to develop a Project by mixing Java & Javascript code or even all in Javascript relying on the  [Nashorn Javascript engine](http://www.oracle.com/technetwork/articles/java/jf14-nashorn-2126515.html) embedded in JDK from Java8. This powerful engine enable Javascript language in JVM and allows to access to every java class either from JDK and external JAR(s) in a pretty straightforward way.
+Basic idea is to develop a Project by mixing Java & Javascript code (or completely in Javascript) relying on the [Nashorn Javascript engine](http://www.oracle.com/technetwork/articles/java/jf14-nashorn-2126515.html) or [Rhino javascript engine](https://github.com/mozilla/rhino). This powerful engines enable Javascript language in JVM and they allow to access to every java class present in classpath in a pretty straightforward way.
 That's cool, the Javascript is very easy to learn, but the question are :
  1. _Is it possible develop a complete and well structured Javascript application ?_
  1. _Developing in Javascript on JVM is as productive as programming in Java ?_
@@ -115,6 +115,8 @@ package org.mypackage;
 ```
 ### Add the Annotation Processor Plugin
 
+**Standard [Nashorn](http://www.oracle.com/technetwork/articles/java/jf14-nashorn-2126515.html) compatibility**
+
 ```xml
 <plugin>
   <groupId>org.bsc.maven</groupId>
@@ -139,6 +141,33 @@ package org.mypackage;
 
 ```
 
+**Enforce [Rhino](https://github.com/mozilla/rhino) compatibility**
+
+```xml
+<plugin>
+  <groupId>org.bsc.maven</groupId>
+  <artifactId>maven-processor-plugin</artifactId>
+  <version>3.3.3</version>
+  <executions>
+    <execution>
+      <id>process</id>
+      <goals>
+        <goal>process</goal>
+      </goals>
+      <phase>generate-sources</phase>
+      <configuration>
+          <outputDirectory>${project.build.directory}</outputDirectory>
+       <options>
+            <ts.outfile>name</ts.outfile><!-- name of generated file -->
+            <compatibility>rhino</compatibility>
+       </options>
+      </configuration>
+    </execution>
+  </executions>
+</plugin>
+```
+
+
 ### Use Maven Archetype
 
 The easier way to start your **Typescript on JVM** project is using the provided maven archetype
@@ -149,5 +178,5 @@ The easier way to start your **Typescript on JVM** project is using the provided
 >mvn archetype:generate \
 >-DarchetypeGroupId=org.bsc.processor \
 >-DarchetypeArtifactId=java2ts-processor-archetype \
->-DarchetypeVersion=1.0.0
+>-DarchetypeVersion=1.1.0
 >```
