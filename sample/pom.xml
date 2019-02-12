@@ -8,28 +8,28 @@
   <parent>
     <groupId>org.bsc.processor</groupId>
     <artifactId>java2ts-processor-parent</artifactId>
-    <version>1.1.0-SNAPSHOT</version>
+    <version>1.1.0</version>
   </parent>
 
   <build>
     <pluginManagement>
-    
+
         <plugins>
 	      <plugin>
 	        <groupId>org.bsc.maven</groupId>
 	        <artifactId>maven-processor-plugin</artifactId>
 	        <version>3.3.3</version>
-	      </plugin>   
-	      
-	      
+	      </plugin>
+
+
 	     <plugin>
 	         <groupId>org.codehaus.mojo</groupId>
 	         <artifactId>exec-maven-plugin</artifactId>
 	         <version>1.6.0</version>
          </plugin>
-	           
+
         </plugins>
-    
+
     </pluginManagement>
 
     <finalName>sample</finalName>
@@ -107,17 +107,17 @@
 
 
   </dependencies>
-  
+
   <profiles>
     <profile>
         <id>nashorn</id>
         <activation>
             <activeByDefault>true</activeByDefault>
         </activation>
-        
-        <dependencies>        
+
+        <dependencies>
 	    </dependencies>
-	
+
 		<build>
 			<plugins>
 				<plugin>
@@ -161,28 +161,28 @@
 			</plugins>
 		</build>
     </profile>
-  
+
     <profile>
         <id>rhino</id>
-        
+
         <dependencies>
-        
+
             <dependency>
                 <groupId>org.mozilla</groupId>
                 <artifactId>rhino</artifactId>
                 <version>1.7.10</version>
             </dependency>
-            
+
 		    <dependency>
 		      <groupId>org.bsc</groupId>
 		      <artifactId>jvm-npm-rhino</artifactId>
 		      <version>1.1.0</version>
 		  </dependency>
-		            
+
         </dependencies>
-        
+
         <build>
-        
+
             <plugins>
 				<plugin>
 					<groupId>org.bsc.maven</groupId>
@@ -204,7 +204,7 @@
 						</execution>
 					</executions>
 				</plugin>
-                <plugin>        
+                <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>exec-maven-plugin</artifactId>
                     <executions>
@@ -212,7 +212,7 @@
                             <id>jjs</id>
                             <configuration>
                                 <executable>java</executable>
-                                <!-- 
+                                <!--
                                 <mainClass>org.bsc.java2ts.JSRun</mainClass>
                                  -->
                                 <arguments>
@@ -221,16 +221,16 @@
                                     <!--argument>org.mozilla.javascript.tools.shell.Main</argument-->
                                     <argument>org.bsc.java2ts.JSRun$Rhino</argument>
                                     <argument>app.rhino.js</argument>
-                                    
+
                                 </arguments>
                             </configuration>
                         </execution>
                     </executions>
-                </plugin>             
-            
+                </plugin>
+
             </plugins>
         </build>
     </profile>
-  
+
   </profiles>
 </project>
