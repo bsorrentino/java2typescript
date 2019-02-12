@@ -6,6 +6,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.Optional;
 
+import org.bsc.java2typescript.TypescriptConverter.Compatibility;
 import org.hamcrest.core.IsNull;
 import org.junit.Assert;
 import org.junit.Test;
@@ -28,7 +29,8 @@ public class MemeberClassTest extends AbstractConverterTest {
     @Test
     public void testMemberClass() throws Exception {
         
-        TypescriptConverter.Context ctx = converter.contextOf(TSType.from( java.util.Map.Entry.class ), declaredTypeMap());
+        TypescriptConverter.Context ctx = 
+                converter.contextOf(TSType.from( java.util.Map.Entry.class ), declaredTypeMap(), Compatibility.NASHORN);
         
         Assert.assertThat(ctx, IsNull.notNullValue());
         

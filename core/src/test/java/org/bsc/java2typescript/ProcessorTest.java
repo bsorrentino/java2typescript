@@ -5,14 +5,13 @@ import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Map;
 import java.util.Optional;
 import java.util.function.BiConsumer;
-import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
+import org.bsc.java2typescript.TypescriptConverter.Compatibility;
 import org.hamcrest.core.Is;
 import org.hamcrest.core.IsEqual;
 import org.hamcrest.core.IsNull;
@@ -100,7 +99,7 @@ public class ProcessorTest extends AbstractConverterTest {
 	@Test
 	public void testClassDecl() throws Exception {
 		
-        TypescriptConverter.Context ctx = converter.contextOf(TSType.from(ArrayList.class), Collections.emptyMap());
+        TypescriptConverter.Context ctx = converter.contextOf(TSType.from(ArrayList.class), Collections.emptyMap(), Compatibility.NASHORN);
 		{
 			final String result  = ctx.getClassDecl().toString();
 		

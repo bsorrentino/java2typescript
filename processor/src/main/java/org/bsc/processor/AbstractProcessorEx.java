@@ -49,9 +49,8 @@ public abstract class AbstractProcessorEx extends AbstractProcessor {
             this.annotations = annotations;
             this.roundEnv = roundEnv;
             
-            java.util.Map<String, String> om = processingEnv.getOptions();
-            
-            this.optionMap = (om!=null) ? om : Collections.emptyMap();
+            this.optionMap =  Optional.ofNullable(processingEnv.getOptions())
+                                    .orElse( Collections.emptyMap() );
         }
 
         /**

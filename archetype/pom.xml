@@ -5,7 +5,7 @@
   <parent>
       <groupId>org.bsc.processor</groupId>
     <artifactId>java2ts-processor-parent</artifactId>
-    <version>1.0.0</version>
+    <version>1.1.0</version>
   </parent>
   <artifactId>java2ts-processor-archetype</artifactId>
   <name>java2ts-processor::archetype - ${project.version}</name>

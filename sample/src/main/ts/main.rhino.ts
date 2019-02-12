@@ -1,9 +1,5 @@
 
-import {test as validator_test} from "./validator.test";
-import {test as stream_test} from "./stream.test";
-import {test as mustache_test} from "./mustache.test";
-import {test as color_test} from "./color.test";
-import {test as future_test} from "./future.test";
+import {test as future_test} from "./future.test.rhino";
 
 import {
   URI, 
@@ -22,8 +18,8 @@ print( uri.resolve( u2 ).toString() );
 print( URI.create( u1 + u2 ).normalize().toString() );
 print( uri.resolve( u3 ).toString() );
 
-print( Optional.empty().map( e => "element: " + e).orElse("nil") );
-print( Optional.of("HELLO").map( e => "element: " + e).orElse("nil") );
+print( Optional.empty().map( { apply:e => "element: " + e } ).orElse("nil") );
+print( Optional.of("HELLO").map( { apply:e => "element: " + e } ).orElse("nil") );
 
 
 // TEST ENUM

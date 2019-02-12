@@ -13,7 +13,7 @@
 		@Type(value=java.util.Map.Entry.class),
 
 		// Native functional Interface(s)
-		@Type(value=java.lang.Callable.class),
+		@Type(value=java.util.concurrent.Callable.class),
 
 		// Declare as Functional Interface
 

@@ -47,7 +47,7 @@ public class ConverterTest extends AbstractConverterTest {
 				converter.getMethodParametersAndReturnDecl( m, 
 									TSType.from(type), 
 									declaredTypeMap( TSType.from(Map.Entry.class), TSType.from(java.util.List.class)),
-									true) ;
+									true ) ;
 			
 			Assert.assertThat( result, IsNull.notNullValue());
 			Assert.assertThat( result, IsEqual.equalTo("( p1:java.util.Map$Entry<any /*java.lang.Object*/, java.util.List<any /*java.lang.Object*/>> ):void"));
