@@ -67,7 +67,7 @@
     <modules>
         <module>processor</module>
         <module>archetype</module>
-        <module>sample</module>
+        <module>samples</module>
         <module>core</module>
     </modules>
     <dependencyManagement>
