@@ -6,8 +6,12 @@
 package org.bsc.processor;
 
 /**
+ * 
+ * @author bsorrentino
  *
- * @author softphone
+ * @param <T0>
+ * @param <T1>
+ * @param <T2>
  */
 public class Tuple3<T0,T1,T2> extends Tuple2<T0,T1> {
     final T2 $2;

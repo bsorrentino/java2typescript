@@ -29,6 +29,11 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+/**
+ * 
+ * @author bsorrentino
+ *
+ */
 public abstract class TypescriptConverterStatic {
     
     static final String ENDL = ";\n";

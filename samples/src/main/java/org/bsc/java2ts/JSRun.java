@@ -11,6 +11,8 @@ public class JSRun {
 
             final ScriptEngine service = manager.getEngineByName("nashorn");
             
+            service.put( "$ARG", args );
+
             if( args.length == 0 ) {
                 System.out.printf( "usage:\tJSRun.Nashorn <file>.js\n");
             }

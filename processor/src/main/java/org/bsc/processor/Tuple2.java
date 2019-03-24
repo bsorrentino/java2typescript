@@ -6,8 +6,11 @@
 package org.bsc.processor;
 
 /**
+ * 
+ * @author bsorrentino
  *
- * @author softphone
+ * @param <T0>
+ * @param <T1>
  */
 public class Tuple2<T0,T1> {
     final T0 $0;
