@@ -3,7 +3,7 @@ import * as colors from "colors/safe";
 import {
     Stream, 
     Arrays, 
-  } from "ts/jdk8-types";
+  } from "./ts/jdk8-types";
   
   
 export function test() {

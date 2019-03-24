@@ -3,7 +3,7 @@ import {
     Executor,
     Optional,
     RuntimeException
-} from "ts/jdk8-types";
+} from './ts/jdk8-types';
 
 function doSometing() {
     return CompletableFuture.completedFuture("DONE!");

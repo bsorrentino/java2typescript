@@ -1,6 +1,8 @@
 
-import { MemoryType, Optional, URI } from "ts/jdk8-types";
-import { test as future_test } from "./future.test";
+import { MemoryType, Optional, URI } from './ts/jdk8-types';
+
+import { test as future_test } from './future.test';
+import { test as marked_test } from './marked.test';
 
 
 
@@ -31,3 +33,5 @@ validator_test();
 stream_test();
 */
 future_test();
+
+marked_test();

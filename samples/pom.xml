@@ -8,7 +8,7 @@
   <parent>
     <groupId>org.bsc.processor</groupId>
     <artifactId>java2ts-processor-parent</artifactId>
-    <version>1.1.0</version>
+    <version>1.2.0-SNAPSHOT</version>
   </parent>
 
   <build>
@@ -131,7 +131,7 @@
 							</goals>
 							<phase>generate-sources</phase>
 							<configuration>
-								<outputDirectory>${project.build.directory}</outputDirectory>
+ 								<outputDirectory>src/main/ts</outputDirectory>
 								<options>
 									<ts.outfile>jdk8</ts.outfile>
 								</options>
@@ -151,7 +151,7 @@
 												<argument>-classpath</argument>
 												<classpath />
 												<argument>org.bsc.java2ts.JSRun$Nashorn</argument>
-												<argument>app.js</argument>
+												<argument>${project.build.directory}/js/main.js</argument>
 										</arguments>
 								</configuration>
 						</execution>

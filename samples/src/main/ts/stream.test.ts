@@ -4,7 +4,7 @@ import {
     Stream,
     Collectors
 
-} from "ts/jdk8-types";
+} from "./ts/jdk8-types";
 
 
 export function test() {
