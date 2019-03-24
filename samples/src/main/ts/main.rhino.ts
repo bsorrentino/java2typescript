@@ -5,7 +5,7 @@ import {
   URI, 
   Optional,
   MemoryType,
-} from "ts/jdk8-types";
+} from "./ts/jdk8-types";
 
 
 const u1 = "http://localhost:8000/site/";

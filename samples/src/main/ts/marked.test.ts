@@ -97,7 +97,9 @@ export function markdown2wiki(md:string) {
 }
 
 
-let res = markdown2wiki( '# TEST' );
+export function test() {
+    let res = markdown2wiki( '# TEST' );
 
-print( res );
+    print( res );    
+}
 

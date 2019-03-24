@@ -23,6 +23,5 @@ var process = { argv:$ARG, env:{TERM:'color'} } ;
 var exports = {};
 
 var FILE2RUN='main.js'
-FILE2RUN='marked.test.js'
 
 load('target/ts/src/main/ts/' + FILE2RUN);
