@@ -40,5 +40,25 @@ public class JSRun {
         }
         
     }
+
+    public static class Graaljs {
+        public static void main(String[] args) throws Exception  {
+            final ScriptEngineManager manager = new ScriptEngineManager();
+
+            final ScriptEngine service = manager.getEngineByName("graal.js");
+            
+            service.put( "$ARG", args );
+
+            if( args.length == 0 ) {
+                System.out.printf( "usage:\tJSRun.Graaljs <file>.js\n");
+            }
+            try( java.io.Reader app = new java.io.FileReader(args[0])) {
+                    service.eval( app );
+            }
+        }
+        
+    }
+    
+    
     
 }
