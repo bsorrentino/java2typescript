@@ -1,6 +1,6 @@
-import { 
+import {
     CompletableFuture,
-    Executor,
+    JSExecutor,
     Optional,
     RuntimeException
 } from './ts/jdk8-types';
@@ -21,17 +21,17 @@ CompletableFuture TEST
 
 ========================================
 `);
+    
+    const currentThreadExecutor = new JSExecutor();
 
-    const currentThreadExecutor = new Executor( runnable => runnable() );
-    
     let future = CompletableFuture.supplyAsync( () => {
-    
+
         //throw "ERROR0"
         return "complete";
 
     }, currentThreadExecutor);
 
-    
+
     future
         //.thenApply( result => {throw "ERROR1"} )
         .thenAccept( result => print(result) )
@@ -46,14 +46,14 @@ CompletableFuture TEST
 
     }, currentThreadExecutor);
 
-    
+
     future1
         .thenApply( result => error("ERROR1") )
         .exceptionally( err => print( "ERROR 1:", err ) )
         .thenAccept( result => error("ERROR2") )
         .exceptionally( (err) => print( "ERROR 2:", err ) )
         ;
-    
+
     let future2 = doSometing().thenAccept( result => print(result) );
 
 }

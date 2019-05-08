@@ -108,23 +108,14 @@ interface Stream<T>/* extends BaseStream<T, any>*/ {
 } // end Stream
 
 } // end namespace java.util.stream
-declare namespace java.lang.management {
+interface BinaryOperator<T>/*java.util.function.BinaryOperator extends BiFunction<T, any, any>*/ {
 
-/* enum */class MemoryType/* extends java.lang.Enum<any>*/ {
+	<R,U>( arg0:T, arg1:U ):R;
+	// static maxBy<T>( arg0:any /*java.util.Comparator*/ ):BinaryOperator<T>;
+	// static minBy<T>( arg0:any /*java.util.Comparator*/ ):BinaryOperator<T>;
+	andThen?<R,U,V>( arg0:Func<R, V> ):BiFunction<T, U, V>;
 
-	// HEAP:MemoryType;
-	// NON_HEAP:MemoryType;
-
-	compareTo<E>( arg0:E ):int;
-	equals( arg0:any /*java.lang.Object*/ ):boolean;
-	getDeclaringClass<E>(  ):java.lang.Class<E>;
-	name(  ):string;
-	ordinal(  ):int;
-	toString(  ):string;
-
-} // end MemoryType
-
-} // end namespace java.lang.management
+} // end BinaryOperator
 declare namespace java.lang {
 
 class String/* extends Object implements java.io.Serializable, Comparable<any>, CharSequence*/ {
@@ -192,12 +183,17 @@ class String/* extends Object implements java.io.Serializable, Comparable<any>, 
 } // end String
 
 } // end namespace java.lang
-interface BiConsumer<T, U>/*java.util.function.BiConsumer*/ {
+declare namespace org.bsc.java2ts {
 
-	( arg0:T, arg1:U ):void;
-	andThen?( arg0:BiConsumer<T, U> ):BiConsumer<T, U>;
+class JSExecutor/* extends java.lang.Object implements java.util.concurrent.Executor*/ {
 
-} // end BiConsumer
+	equals( arg0:any /*java.lang.Object*/ ):boolean;
+	execute( command:java.lang.Runnable ):void;
+	toString(  ):string;
+
+} // end JSExecutor
+
+} // end namespace org.bsc.java2ts
 interface Supplier<T>/*java.util.function.Supplier*/ {
 
 	(  ):T;
@@ -215,16 +211,6 @@ interface Iterator<E> {
 } // end Iterator
 
 } // end namespace java.util
-declare namespace java.util.stream {
-
-class Collectors/* extends java.lang.Object*/ {
-
-	equals( arg0:any /*java.lang.Object*/ ):boolean;
-	toString(  ):string;
-
-} // end Collectors
-
-} // end namespace java.util.stream
 declare namespace java.nio.file {
 
 class Paths/* extends java.lang.Object*/ {
@@ -375,22 +361,6 @@ interface UnaryOperator<T>/*java.util.function.UnaryOperator extends Function<T,
 	compose?<R,V>( arg0:Func<V, T> ):Func<V, R>;
 
 } // end UnaryOperator
-interface BinaryOperator<T>/*java.util.function.BinaryOperator extends BiFunction<T, any, any>*/ {
-
-	<R,U>( arg0:T, arg1:U ):R;
-	// static maxBy<T>( arg0:any /*java.util.Comparator*/ ):BinaryOperator<T>;
-	// static minBy<T>( arg0:any /*java.util.Comparator*/ ):BinaryOperator<T>;
-	andThen?<R,U,V>( arg0:Func<R, V> ):BiFunction<T, U, V>;
-
-} // end BinaryOperator
-interface BiPredicate<T, U>/*java.util.function.BiPredicate*/ {
-
-	( arg0:T, arg1:U ):boolean;
-	and?( arg0:BiPredicate<T, U> ):BiPredicate<T, U>;
-	negate?(  ):BiPredicate<T, U>;
-	or?( arg0:BiPredicate<T, U> ):BiPredicate<T, U>;
-
-} // end BiPredicate
 declare namespace java.lang {
 
 class Throwable/* extends Object implements java.io.Serializable*/ {
@@ -497,6 +467,21 @@ interface Consumer<T>/*java.util.function.Consumer*/ {
 	andThen?( arg0:Consumer<T> ):Consumer<T>;
 
 } // end Consumer
+declare namespace java.util.stream {
+
+interface Collector<T, A, R> {
+
+	// static of<A,R,T>( arg0:Supplier<A>, arg1:BiConsumer<A, T>, arg2:BinaryOperator<A>, arg3:Func<A, R>, ...arg4:any /*java.util.stream.Collector$Characteristics*/[] ):Collector<T, A, R>;
+	// static of<R,T>( arg0:Supplier<R>, arg1:BiConsumer<R, T>, arg2:BinaryOperator<R>, ...arg3:any /*java.util.stream.Collector$Characteristics*/[] ):Collector<T, R, R>;
+	accumulator(  ):BiConsumer<A, T>;
+	characteristics(  ):java.util.Set<any /*java.util.stream.Collector$Characteristics*/>;
+	combiner(  ):BinaryOperator<A>;
+	finisher(  ):Func<A, R>;
+	supplier(  ):Supplier<A>;
+
+} // end Collector
+
+} // end namespace java.util.stream
 declare namespace java.lang {
 
 interface Comparable<T> {
@@ -559,24 +544,6 @@ interface List<E>/* extends Collection<E>*/ {
 } // end List
 
 } // end namespace java.util
-declare namespace java.nio.file {
-
-/* enum */class AccessMode/* extends java.lang.Enum<any>*/ {
-
-	// READ:AccessMode;
-	// WRITE:AccessMode;
-	// EXECUTE:AccessMode;
-
-	compareTo<E>( arg0:E ):int;
-	equals( arg0:any /*java.lang.Object*/ ):boolean;
-	getDeclaringClass<E>(  ):java.lang.Class<E>;
-	name(  ):string;
-	ordinal(  ):int;
-	toString(  ):string;
-
-} // end AccessMode
-
-} // end namespace java.nio.file
 interface Predicate<T>/*java.util.function.Predicate*/ {
 
 	( arg0:T ):boolean;
@@ -615,21 +582,20 @@ interface Collection<E>/* extends java.lang.Iterable<E>*/ {
 } // end Collection
 
 } // end namespace java.util
-declare namespace java.util.stream {
+interface BiConsumer<T, U>/*java.util.function.BiConsumer*/ {
 
-interface Collector<T, A, R> {
+	( arg0:T, arg1:U ):void;
+	andThen?( arg0:BiConsumer<T, U> ):BiConsumer<T, U>;
 
-	// static of<A,R,T>( arg0:Supplier<A>, arg1:BiConsumer<A, T>, arg2:BinaryOperator<A>, arg3:Func<A, R>, ...arg4:any /*java.util.stream.Collector$Characteristics*/[] ):Collector<T, A, R>;
-	// static of<R,T>( arg0:Supplier<R>, arg1:BiConsumer<R, T>, arg2:BinaryOperator<R>, ...arg3:any /*java.util.stream.Collector$Characteristics*/[] ):Collector<T, R, R>;
-	accumulator(  ):BiConsumer<A, T>;
-	characteristics(  ):java.util.Set<any /*java.util.stream.Collector$Characteristics*/>;
-	combiner(  ):BinaryOperator<A>;
-	finisher(  ):Func<A, R>;
-	supplier(  ):Supplier<A>;
+} // end BiConsumer
+interface BiPredicate<T, U>/*java.util.function.BiPredicate*/ {
 
-} // end Collector
+	( arg0:T, arg1:U ):boolean;
+	and?( arg0:BiPredicate<T, U> ):BiPredicate<T, U>;
+	negate?(  ):BiPredicate<T, U>;
+	or?( arg0:BiPredicate<T, U> ):BiPredicate<T, U>;
 
-} // end namespace java.util.stream
+} // end BiPredicate
 declare namespace java.util {
 
 class Arrays/* extends java.lang.Object*/ {
@@ -640,6 +606,16 @@ class Arrays/* extends java.lang.Object*/ {
 } // end Arrays
 
 } // end namespace java.util
+declare namespace java.util.stream {
+
+class Collectors/* extends java.lang.Object*/ {
+
+	equals( arg0:any /*java.lang.Object*/ ):boolean;
+	toString(  ):string;
+
+} // end Collectors
+
+} // end namespace java.util.stream
 declare namespace java.util.concurrent {
 
 class ConcurrentHashMap<K, V>/* extends java.util.AbstractMap<K, V> implements ConcurrentMap<K, V>, java.io.Serializable*/ {
@@ -726,6 +702,93 @@ interface Runnable {
 } // end Runnable
 
 } // end namespace java.lang
+declare namespace java.nio.file {
+
+/* enum */class AccessMode/* extends java.lang.Enum<any>*/ {
+
+	// READ:AccessMode;
+	// WRITE:AccessMode;
+	// EXECUTE:AccessMode;
+
+	compareTo<E>( arg0:E ):int;
+	equals( arg0:any /*java.lang.Object*/ ):boolean;
+	getDeclaringClass<E>(  ):java.lang.Class<E>;
+	name(  ):string;
+	ordinal(  ):int;
+	toString(  ):string;
+
+} // end AccessMode
+
+} // end namespace java.nio.file
+declare namespace java.util.concurrent {
+
+class CompletableFuture<T>/* extends java.lang.Object implements Future<T>, CompletionStage<T>*/ {
+
+	acceptEither( arg0:any /*java.util.concurrent.CompletionStage*/, arg1:Consumer<T> ):CompletableFuture<void>;
+	acceptEitherAsync( arg0:any /*java.util.concurrent.CompletionStage*/, arg1:Consumer<T> ):CompletableFuture<void>;
+	acceptEitherAsync( arg0:any /*java.util.concurrent.CompletionStage*/, arg1:Consumer<T>, arg2:Executor ):CompletableFuture<void>;
+	applyToEither<U>( arg0:any /*java.util.concurrent.CompletionStage*/, arg1:Func<T, U> ):CompletableFuture<U>;
+	applyToEitherAsync<U>( arg0:any /*java.util.concurrent.CompletionStage*/, arg1:Func<T, U> ):CompletableFuture<U>;
+	applyToEitherAsync<U>( arg0:any /*java.util.concurrent.CompletionStage*/, arg1:Func<T, U>, arg2:Executor ):CompletableFuture<U>;
+	cancel( arg0:boolean ):boolean;
+	complete( arg0:T ):boolean;
+	completeAsync( arg0:Supplier<T> ):CompletableFuture<T>;
+	completeAsync( arg0:Supplier<T>, arg1:Executor ):CompletableFuture<T>;
+	completeExceptionally( arg0:java.lang.Throwable ):boolean;
+	completeOnTimeout( arg0:T, arg1:long, arg2:any /*java.util.concurrent.TimeUnit*/ ):CompletableFuture<T>;
+	copy(  ):CompletableFuture<T>;
+	defaultExecutor(  ):Executor;
+	equals( arg0:any /*java.lang.Object*/ ):boolean;
+	exceptionally( arg0:Func<java.lang.Throwable, T> ):CompletableFuture<T>;
+	get(  ):T;
+	get( arg0:long, arg1:any /*java.util.concurrent.TimeUnit*/ ):T;
+	getNow( arg0:T ):T;
+	getNumberOfDependents(  ):int;
+	handle<U>( arg0:BiFunction<T, java.lang.Throwable, U> ):CompletableFuture<U>;
+	handleAsync<U>( arg0:BiFunction<T, java.lang.Throwable, U> ):CompletableFuture<U>;
+	handleAsync<U>( arg0:BiFunction<T, java.lang.Throwable, U>, arg1:Executor ):CompletableFuture<U>;
+	isCancelled(  ):boolean;
+	isCompletedExceptionally(  ):boolean;
+	isDone(  ):boolean;
+	join(  ):T;
+	minimalCompletionStage(  ):any /*java.util.concurrent.CompletionStage*/;
+	newIncompleteFuture<U>(  ):CompletableFuture<U>;
+	obtrudeException( arg0:java.lang.Throwable ):void;
+	obtrudeValue( arg0:T ):void;
+	orTimeout( arg0:long, arg1:any /*java.util.concurrent.TimeUnit*/ ):CompletableFuture<T>;
+	runAfterBoth( arg0:any /*java.util.concurrent.CompletionStage*/, arg1:java.lang.Runnable ):CompletableFuture<void>;
+	runAfterBothAsync( arg0:any /*java.util.concurrent.CompletionStage*/, arg1:java.lang.Runnable ):CompletableFuture<void>;
+	runAfterBothAsync( arg0:any /*java.util.concurrent.CompletionStage*/, arg1:java.lang.Runnable, arg2:Executor ):CompletableFuture<void>;
+	runAfterEither( arg0:any /*java.util.concurrent.CompletionStage*/, arg1:java.lang.Runnable ):CompletableFuture<void>;
+	runAfterEitherAsync( arg0:any /*java.util.concurrent.CompletionStage*/, arg1:java.lang.Runnable ):CompletableFuture<void>;
+	runAfterEitherAsync( arg0:any /*java.util.concurrent.CompletionStage*/, arg1:java.lang.Runnable, arg2:Executor ):CompletableFuture<void>;
+	thenAccept( arg0:Consumer<T> ):CompletableFuture<void>;
+	thenAcceptAsync( arg0:Consumer<T> ):CompletableFuture<void>;
+	thenAcceptAsync( arg0:Consumer<T>, arg1:Executor ):CompletableFuture<void>;
+	thenAcceptBoth<U>( arg0:any /*java.util.concurrent.CompletionStage*/, arg1:BiConsumer<T, U> ):CompletableFuture<void>;
+	thenAcceptBothAsync<U>( arg0:any /*java.util.concurrent.CompletionStage*/, arg1:BiConsumer<T, U> ):CompletableFuture<void>;
+	thenAcceptBothAsync<U>( arg0:any /*java.util.concurrent.CompletionStage*/, arg1:BiConsumer<T, U>, arg2:Executor ):CompletableFuture<void>;
+	thenApply<U>( arg0:Func<T, U> ):CompletableFuture<U>;
+	thenApplyAsync<U>( arg0:Func<T, U> ):CompletableFuture<U>;
+	thenApplyAsync<U>( arg0:Func<T, U>, arg1:Executor ):CompletableFuture<U>;
+	thenCombine<U,V>( arg0:any /*java.util.concurrent.CompletionStage*/, arg1:BiFunction<T, U, V> ):CompletableFuture<V>;
+	thenCombineAsync<U,V>( arg0:any /*java.util.concurrent.CompletionStage*/, arg1:BiFunction<T, U, V> ):CompletableFuture<V>;
+	thenCombineAsync<U,V>( arg0:any /*java.util.concurrent.CompletionStage*/, arg1:BiFunction<T, U, V>, arg2:Executor ):CompletableFuture<V>;
+	thenCompose<U>( arg0:Func<T, any /*java.util.concurrent.CompletionStage*/> ):CompletableFuture<U>;
+	thenComposeAsync<U>( arg0:Func<T, any /*java.util.concurrent.CompletionStage*/> ):CompletableFuture<U>;
+	thenComposeAsync<U>( arg0:Func<T, any /*java.util.concurrent.CompletionStage*/>, arg1:Executor ):CompletableFuture<U>;
+	thenRun( arg0:java.lang.Runnable ):CompletableFuture<void>;
+	thenRunAsync( arg0:java.lang.Runnable ):CompletableFuture<void>;
+	thenRunAsync( arg0:java.lang.Runnable, arg1:Executor ):CompletableFuture<void>;
+	toCompletableFuture(  ):CompletableFuture<T>;
+	toString(  ):string;
+	whenComplete( arg0:BiConsumer<T, java.lang.Throwable> ):CompletableFuture<T>;
+	whenCompleteAsync( arg0:BiConsumer<T, java.lang.Throwable> ):CompletableFuture<T>;
+	whenCompleteAsync( arg0:BiConsumer<T, java.lang.Throwable>, arg1:Executor ):CompletableFuture<T>;
+
+} // end CompletableFuture
+
+} // end namespace java.util.concurrent
 declare namespace java.util {
 
 interface Set<E>/* extends Collection<E>*/ {
@@ -875,7 +938,7 @@ declare namespace java.util.concurrent {
 
 interface Executor {
 
-	( arg0:java.lang.Runnable ):void;
+	execute( arg0:java.lang.Runnable ):void;
 
 } // end Executor
 
@@ -933,72 +996,20 @@ class URL/* extends java.lang.Object implements java.io.Serializable*/ {
 } // end URL
 
 } // end namespace java.net
-declare namespace java.util.concurrent {
+declare namespace java.lang.management {
 
-class CompletableFuture<T>/* extends java.lang.Object implements Future<T>, CompletionStage<T>*/ {
+/* enum */class MemoryType/* extends java.lang.Enum<any>*/ {
 
-	acceptEither( arg0:any /*java.util.concurrent.CompletionStage*/, arg1:Consumer<T> ):CompletableFuture<void>;
-	acceptEitherAsync( arg0:any /*java.util.concurrent.CompletionStage*/, arg1:Consumer<T> ):CompletableFuture<void>;
-	acceptEitherAsync( arg0:any /*java.util.concurrent.CompletionStage*/, arg1:Consumer<T>, arg2:Executor ):CompletableFuture<void>;
-	applyToEither<U>( arg0:any /*java.util.concurrent.CompletionStage*/, arg1:Func<T, U> ):CompletableFuture<U>;
-	applyToEitherAsync<U>( arg0:any /*java.util.concurrent.CompletionStage*/, arg1:Func<T, U> ):CompletableFuture<U>;
-	applyToEitherAsync<U>( arg0:any /*java.util.concurrent.CompletionStage*/, arg1:Func<T, U>, arg2:Executor ):CompletableFuture<U>;
-	cancel( arg0:boolean ):boolean;
-	complete( arg0:T ):boolean;
-	completeAsync( arg0:Supplier<T> ):CompletableFuture<T>;
-	completeAsync( arg0:Supplier<T>, arg1:Executor ):CompletableFuture<T>;
-	completeExceptionally( arg0:java.lang.Throwable ):boolean;
-	completeOnTimeout( arg0:T, arg1:long, arg2:any /*java.util.concurrent.TimeUnit*/ ):CompletableFuture<T>;
-	copy(  ):CompletableFuture<T>;
-	defaultExecutor(  ):Executor;
+	// HEAP:MemoryType;
+	// NON_HEAP:MemoryType;
+
+	compareTo<E>( arg0:E ):int;
 	equals( arg0:any /*java.lang.Object*/ ):boolean;
-	exceptionally( arg0:Func<java.lang.Throwable, T> ):CompletableFuture<T>;
-	get(  ):T;
-	get( arg0:long, arg1:any /*java.util.concurrent.TimeUnit*/ ):T;
-	getNow( arg0:T ):T;
-	getNumberOfDependents(  ):int;
-	handle<U>( arg0:BiFunction<T, java.lang.Throwable, U> ):CompletableFuture<U>;
-	handleAsync<U>( arg0:BiFunction<T, java.lang.Throwable, U> ):CompletableFuture<U>;
-	handleAsync<U>( arg0:BiFunction<T, java.lang.Throwable, U>, arg1:Executor ):CompletableFuture<U>;
-	isCancelled(  ):boolean;
-	isCompletedExceptionally(  ):boolean;
-	isDone(  ):boolean;
-	join(  ):T;
-	minimalCompletionStage(  ):any /*java.util.concurrent.CompletionStage*/;
-	newIncompleteFuture<U>(  ):CompletableFuture<U>;
-	obtrudeException( arg0:java.lang.Throwable ):void;
-	obtrudeValue( arg0:T ):void;
-	orTimeout( arg0:long, arg1:any /*java.util.concurrent.TimeUnit*/ ):CompletableFuture<T>;
-	runAfterBoth( arg0:any /*java.util.concurrent.CompletionStage*/, arg1:java.lang.Runnable ):CompletableFuture<void>;
-	runAfterBothAsync( arg0:any /*java.util.concurrent.CompletionStage*/, arg1:java.lang.Runnable ):CompletableFuture<void>;
-	runAfterBothAsync( arg0:any /*java.util.concurrent.CompletionStage*/, arg1:java.lang.Runnable, arg2:Executor ):CompletableFuture<void>;
-	runAfterEither( arg0:any /*java.util.concurrent.CompletionStage*/, arg1:java.lang.Runnable ):CompletableFuture<void>;
-	runAfterEitherAsync( arg0:any /*java.util.concurrent.CompletionStage*/, arg1:java.lang.Runnable ):CompletableFuture<void>;
-	runAfterEitherAsync( arg0:any /*java.util.concurrent.CompletionStage*/, arg1:java.lang.Runnable, arg2:Executor ):CompletableFuture<void>;
-	thenAccept( arg0:Consumer<T> ):CompletableFuture<void>;
-	thenAcceptAsync( arg0:Consumer<T> ):CompletableFuture<void>;
-	thenAcceptAsync( arg0:Consumer<T>, arg1:Executor ):CompletableFuture<void>;
-	thenAcceptBoth<U>( arg0:any /*java.util.concurrent.CompletionStage*/, arg1:BiConsumer<T, U> ):CompletableFuture<void>;
-	thenAcceptBothAsync<U>( arg0:any /*java.util.concurrent.CompletionStage*/, arg1:BiConsumer<T, U> ):CompletableFuture<void>;
-	thenAcceptBothAsync<U>( arg0:any /*java.util.concurrent.CompletionStage*/, arg1:BiConsumer<T, U>, arg2:Executor ):CompletableFuture<void>;
-	thenApply<U>( arg0:Func<T, U> ):CompletableFuture<U>;
-	thenApplyAsync<U>( arg0:Func<T, U> ):CompletableFuture<U>;
-	thenApplyAsync<U>( arg0:Func<T, U>, arg1:Executor ):CompletableFuture<U>;
-	thenCombine<U,V>( arg0:any /*java.util.concurrent.CompletionStage*/, arg1:BiFunction<T, U, V> ):CompletableFuture<V>;
-	thenCombineAsync<U,V>( arg0:any /*java.util.concurrent.CompletionStage*/, arg1:BiFunction<T, U, V> ):CompletableFuture<V>;
-	thenCombineAsync<U,V>( arg0:any /*java.util.concurrent.CompletionStage*/, arg1:BiFunction<T, U, V>, arg2:Executor ):CompletableFuture<V>;
-	thenCompose<U>( arg0:Func<T, any /*java.util.concurrent.CompletionStage*/> ):CompletableFuture<U>;
-	thenComposeAsync<U>( arg0:Func<T, any /*java.util.concurrent.CompletionStage*/> ):CompletableFuture<U>;
-	thenComposeAsync<U>( arg0:Func<T, any /*java.util.concurrent.CompletionStage*/>, arg1:Executor ):CompletableFuture<U>;
-	thenRun( arg0:java.lang.Runnable ):CompletableFuture<void>;
-	thenRunAsync( arg0:java.lang.Runnable ):CompletableFuture<void>;
-	thenRunAsync( arg0:java.lang.Runnable, arg1:Executor ):CompletableFuture<void>;
-	toCompletableFuture(  ):CompletableFuture<T>;
+	getDeclaringClass<E>(  ):java.lang.Class<E>;
+	name(  ):string;
+	ordinal(  ):int;
 	toString(  ):string;
-	whenComplete( arg0:BiConsumer<T, java.lang.Throwable> ):CompletableFuture<T>;
-	whenCompleteAsync( arg0:BiConsumer<T, java.lang.Throwable> ):CompletableFuture<T>;
-	whenCompleteAsync( arg0:BiConsumer<T, java.lang.Throwable>, arg1:Executor ):CompletableFuture<T>;
 
-} // end CompletableFuture
+} // end MemoryType
 
-} // end namespace java.util.concurrent
+} // end namespace java.lang.management

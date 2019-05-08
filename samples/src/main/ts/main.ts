@@ -32,6 +32,8 @@ mustache_test();
 validator_test();
 stream_test();
 */
+
+// This doesn't work on GraalJS
 future_test();
 
 marked_test();
