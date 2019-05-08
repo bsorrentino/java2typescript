@@ -1,5 +1,9 @@
 package org.bsc.java2ts;
 
+import java.util.function.Predicate;
+
+import javax.script.Bindings;
+import javax.script.ScriptContext;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 
@@ -46,6 +50,10 @@ public class JSRun {
             final ScriptEngineManager manager = new ScriptEngineManager();
 
             final ScriptEngine service = manager.getEngineByName("graal.js");
+            final Bindings bindings = service.getBindings(ScriptContext.ENGINE_SCOPE);
+            // @see https://github.com/graalvm/graaljs/blob/master/docs/user/ScriptEngine.md
+            bindings.put("polyglot.js.allowHostAccess", true);
+            bindings.put("polyglot.js.allowHostClassLookup", (Predicate<String>) s -> true);
             
             service.put( "$ARG", args );
 
