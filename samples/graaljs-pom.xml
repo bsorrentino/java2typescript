@@ -9,9 +9,8 @@
     </parent>
 
     <artifactId>graaljs-sample</artifactId>
-    <name>java2ts-processor::graaljs::sample - ${project.version}</name>
+    <name>java2ts-processor::graaljs::sample</name>
     <description>graaljs sample</description>
-    <packaging>pom</packaging>
 
     <properties>
         <graalvm.version>1.0.0-rc16</graalvm.version>
@@ -58,7 +57,6 @@
                 <plugins>
                     <plugin>
                         <artifactId>maven-surefire-plugin</artifactId>
-                        <version>2.22.1</version>
                         <configuration>
                             <argLine>-XX:+UnlockExperimentalVMOptions -XX:+EnableJVMCI --module-path=${compiler.dir} --upgrade-module-path=${compiler.dir}/compiler.jar</argLine>
                         </configuration>
@@ -228,60 +226,69 @@
             </build>
         </profile>
     </profiles>
+
     <build>
+      <finalName>sample</finalName>
         <plugins>
+
             <plugin>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.8.0</version>
-                <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
-                </configuration>
+              <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-compiler-plugin</artifactId>
+              <configuration>
+                  <proc>none</proc>
+              </configuration>
             </plugin>
-            <plugin>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.22.1</version>
-            </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>exec-maven-plugin</artifactId>
-                <version>1.6.0</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>exec</goal>
-                        </goals>
-                        <configuration>
-                            <arguments>
-                                <argument>--module-path</argument>
-                                <!-- automatically creates the modulepath using all project dependencies, also adding the project build directory -->
-                                <modulepath/>
-                                <argument>-classpath</argument>
-                                <!-- automatically creates the classpath using all project dependencies, also adding the project build directory -->
-                                <classpath/>
-                            </arguments>
-                        </configuration>
-                    </execution>
-                </executions>
-                <configuration>
-                    <executable>${JAVA_HOME}/bin/java</executable>
-                    <arguments>
-                        <argument>-classpath</argument>
-                        <!-- automatically creates the classpath using all project dependencies, also adding the project build directory -->
-                        <classpath/>
-                        <argument>org.bsc.java2ts.JSRun$Graaljs</argument>
-                        <argument>${project.build.directory}/js/main.js</argument>
-                    </arguments>
-                </configuration>
-            </plugin>
+      		<plugin>
+      		   <groupId>org.apache.maven.plugins</groupId>
+      		   <artifactId>maven-deploy-plugin</artifactId>
+      			<configuration>
+      				<skip>true</skip>
+      			</configuration>
+      		 </plugin>
+
+      		<plugin>
+      		    <groupId>org.apache.maven.plugins</groupId>
+      		    <artifactId>maven-source-plugin</artifactId>
+      		    <configuration>
+      		    		<skipSource>true</skipSource>
+      		    </configuration>
+      		</plugin>
+
+          <plugin>
+  					<groupId>org.bsc.maven</groupId>
+  					<artifactId>maven-processor-plugin</artifactId>
+  					<executions>
+  						<execution>
+  							<id>process</id>
+  							<goals>
+  								<goal>process-test</goal>
+  							</goals>
+  							<phase>package</phase>
+  							<configuration>
+   								<outputDirectory>src/main/ts</outputDirectory>
+  								<options>
+  									<ts.outfile>jdk8</ts.outfile>
+  								</options>
+  							</configuration>
+  						</execution>
+  					</executions>
+  				</plugin>
+
         </plugins>
     </build>
     <dependencies>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.12</version>
-            <scope>test</scope>
-        </dependency>
+      <!--
+      <dependency>
+        <groupId>org.bsc</groupId>
+        <artifactId>jvm-npm-core</artifactId>
+      </dependency>
+      -->
+
+    <dependency>
+      <groupId>org.bsc.processor</groupId>
+      <artifactId>java2ts-processor</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
     </dependencies>
 </project>

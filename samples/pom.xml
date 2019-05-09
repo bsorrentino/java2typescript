@@ -12,25 +12,6 @@
   </parent>
 
   <build>
-    <pluginManagement>
-
-        <plugins>
-	      <plugin>
-	        <groupId>org.bsc.maven</groupId>
-	        <artifactId>maven-processor-plugin</artifactId>
-	        <version>3.3.3</version>
-	      </plugin>
-
-
-	     <plugin>
-	         <groupId>org.codehaus.mojo</groupId>
-	         <artifactId>exec-maven-plugin</artifactId>
-	         <version>1.6.0</version>
-         </plugin>
-
-        </plugins>
-
-    </pluginManagement>
 
     <finalName>sample</finalName>
 
@@ -59,19 +40,16 @@
 		</plugin>
 
 
+<!--
       <plugin>
 
          <groupId>org.codehaus.mojo</groupId>
          <artifactId>exec-maven-plugin</artifactId>
         <configuration>
-            <!--
-               <workingDirectory>${basedir}/src/main/ts</workingDirectory>
-            -->
     	</configuration>
          <executions>
          <execution>
          	<id>tsc</id>
-          	<!--phase>process-sources</phase-->
           	<goals>
           		<goal>exec</goal>
           	</goals>
@@ -83,21 +61,19 @@
          </execution>
          </executions>
        </plugin>
-
+-->
     </plugins>
   </build>
   <properties>
-    <maven.compiler.source>1.8</maven.compiler.source>
-    <maven.compiler.target>1.8</maven.compiler.target>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 
   <dependencies>
+    <!--
     <dependency>
       <groupId>org.bsc</groupId>
       <artifactId>jvm-npm-core</artifactId>
-      <version>1.1.0</version>
-  </dependency>
+    </dependency>
+    -->
 
   <dependency>
     <groupId>org.bsc.processor</groupId>
@@ -129,7 +105,7 @@
 							<goals>
 								<goal>process-test</goal>
 							</goals>
-							<phase>generate-sources</phase>
+							<phase>package</phase>
 							<configuration>
  								<outputDirectory>src/main/ts</outputDirectory>
 								<options>
@@ -185,12 +161,13 @@
                 <version>1.7.10</version>
             </dependency>
 
+        <!--
 		    <dependency>
 		      <groupId>org.bsc</groupId>
 		      <artifactId>jvm-npm-rhino</artifactId>
 		      <version>1.1.0</version>
-		  </dependency>
-
+		    </dependency>
+        -->
         </dependencies>
 
         <build>
@@ -203,9 +180,9 @@
 						<execution>
 							<id>process</id>
 							<goals>
-								<goal>process</goal>
+								<goal>process-test</goal>
 							</goals>
-							<phase>generate-sources</phase>
+							<phase>package</phase>
 							<configuration>
 								<outputDirectory>${project.build.directory}</outputDirectory>
 								<options>
