@@ -1,9 +1,9 @@
 import {
     CompletableFuture,
-    Executor,
+    JSExecutor,
     Optional,
     RuntimeException
-} from "./j2ts/jdk8-types";
+} from './j2ts/jdk8-types';
 
 function doSometing() {
     return CompletableFuture.completedFuture("DONE!");
@@ -22,8 +22,8 @@ CompletableFuture TEST
 ========================================
 `);
 
-    const currentThreadExecutor = new Executor( { execute: runnable => runnable.run() } );
-
+    const currentThreadExecutor = new JSExecutor();
+    
     let future = CompletableFuture.supplyAsync( { get:  () => {
 
         //throw "ERROR0"

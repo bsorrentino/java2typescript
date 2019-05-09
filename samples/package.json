@@ -18,7 +18,7 @@
     "typescript": "^3.3.4000"
   },
   "scripts": {
-    "build:main": "parcel build main.ts --target=node --bundle-node-modules --no-source-maps -d ../target/js",
+    "build:main": "parcel build ts/main.ts --target=node --bundle-node-modules --no-source-maps -d ./target/js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
