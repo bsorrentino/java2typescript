@@ -107,7 +107,7 @@
 							</goals>
 							<phase>package</phase>
 							<configuration>
- 								<outputDirectory>src/main/ts</outputDirectory>
+ 								<outputDirectory>ts</outputDirectory>
 								<options>
 									<ts.outfile>jdk8</ts.outfile>
 								</options>
@@ -184,7 +184,7 @@
 							</goals>
 							<phase>package</phase>
 							<configuration>
-								<outputDirectory>${project.build.directory}</outputDirectory>
+								<outputDirectory>ts</outputDirectory>
 								<options>
 									<ts.outfile>jdk8</ts.outfile>
 									<compatibility>rhino</compatibility>
