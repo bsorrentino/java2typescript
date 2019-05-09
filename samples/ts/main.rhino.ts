@@ -2,10 +2,10 @@
 import {test as future_test} from "./future.test.rhino";
 
 import {
-  URI, 
+  URI,
   Optional,
   MemoryType,
-} from "./ts/jdk8-types";
+} from "./j2ts/jdk8-types";
 
 
 const u1 = "http://localhost:8000/site/";

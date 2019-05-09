@@ -26,14 +26,16 @@
 		@Type(value=java.lang.management.MemoryType.class, export=true),
 
 		@Type(value=java.util.concurrent.CompletableFuture.class, export=true),
-		@Type(value=java.util.concurrent.Executor.class, functional=true, export=true),
-		
+		@Type(value=java.util.concurrent.Executor.class),
+        
 		// Member Classes
 		@Type(value=java.util.Map.Entry.class),
 		//@Type(value= javax.swing.text.AbstractDocument.class),
 		//@Type(value= javax.swing.text.AbstractDocument.AttributeContext.class),
 
 		@Type(value=java.util.function.Consumer.class, alias="Consumer", export=true),
+		
+		@Type( value=org.bsc.java2ts.JSExecutor.class, export=true)
 
 })
 package org.bsc.java2ts.jdk8;

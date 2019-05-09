@@ -1,5 +1,5 @@
 
-import { MemoryType, Optional, URI } from './ts/jdk8-types';
+import { MemoryType, Optional, URI } from './j2ts/jdk8-types';
 
 import { test as future_test } from './future.test';
 import { test as marked_test } from './marked.test';
@@ -32,6 +32,8 @@ mustache_test();
 validator_test();
 stream_test();
 */
+
+// This doesn't work on GraalJS
 future_test();
 
 marked_test();

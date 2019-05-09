@@ -11,7 +11,7 @@ Java Processor to **generate [Typescript](https://www.typescriptlang.org/)  Defi
 
 ## What is it for ?
 
-This is to help developing on **JVM javascript engine**, either [Nashorn](http://www.oracle.com/technetwork/articles/java/jf14-nashorn-2126515.html) or [Rhino](https://github.com/mozilla/rhino) using [Typescript](https://www.typescriptlang.org/)
+This is to help developing on **JVM javascript engine**, either [GraalJs](https://github.com/graalvm/graaljs), [Nashorn](http://www.oracle.com/technetwork/articles/java/jf14-nashorn-2126515.html) or [Rhino](https://github.com/mozilla/rhino) using [Typescript](https://www.typescriptlang.org/)
 
 The main goal is having the definitions available in the modern IDE like [Visual Studio Code](https://code.visualstudio.com/) and [Atom](https://atom.io/) and then use the **intellisense** feature available for java classes within typescript
 
