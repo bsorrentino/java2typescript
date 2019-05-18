@@ -3,6 +3,7 @@ import { MemoryType, Optional, URI } from './j2ts/jdk8-types';
 
 import { test as future_test } from './future.test';
 import { test as marked_test } from './marked.test';
+import { test as promise_test } from './promise.test';
 
 
 
@@ -22,18 +23,27 @@ print( Optional.of("HELLO").map( e => "element: " + e).orElse("nil") );
 
 // TEST ENUM
 
-print(MemoryType.HEAP);
-print(MemoryType.HEAP.name());
-print(MemoryType.HEAP.ordinal());
+print( 
+`
+MemoryType.HEAP         = ${MemoryType.HEAP}
+MemoryType.HEAP.name    = ${MemoryType.HEAP.name()}
+MemoryType.HEAP.ordinal = ${MemoryType.HEAP.ordinal()}
+`    
+)
 
-/*
-color_test();
-mustache_test();
-validator_test();
-stream_test();
-*/
+let async_start = async () => {
 
-// This doesn't work on GraalJS
-future_test();
+    /*
+    color_test();
+    mustache_test();
+    validator_test();
+    stream_test();
+    */
 
-marked_test();
+    future_test();
+    marked_test();
+    print( await promise_test() );
+}
+
+
+async_start();
