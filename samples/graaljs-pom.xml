@@ -15,6 +15,12 @@
     <properties>
         <graalvm.version>1.0.0-rc16</graalvm.version>
         <compiler.dir>${project.build.directory}/compiler</compiler.dir>
+        <!--
+        <main.app>${project.build.directory}/js/main.js</main.app>
+        -->
+        <main.app>app.js</main.app>
+
+        <app></app>
     </properties>
 
     <profiles>
@@ -126,7 +132,7 @@
                                         <argument>-XX:+EnableJVMCI</argument>
                                         <argument>--upgrade-module-path=${compiler.dir}/compiler.jar</argument>
 				                        <argument>org.bsc.java2ts.JSRun$Graaljs</argument>
-				                        <argument>${project.build.directory}/js/main.js</argument>
+				                        <argument>${main.app}</argument>
                                     </arguments>
                                 </configuration>
                             </execution>
@@ -144,7 +150,7 @@
                                         <!-- automatically creates the classpath using all project dependencies, also adding the project build directory -->
                                         <classpath/>
 				                        <argument>org.bsc.java2ts.JSRun$Graaljs</argument>
-				                        <argument>${project.build.directory}/js/main.js</argument>
+				                        <argument>${main.app}</argument>
                                     </arguments>
                                 </configuration>
                             </execution>
@@ -213,7 +219,10 @@
                                         <argument>-classpath</argument>
                                         <classpath/>
 				                        <argument>org.bsc.java2ts.JSRun$Graaljs</argument>
+                                        <!--
 				                        <argument>${project.build.directory}/js/main.js</argument>
+                                        -->
+ 				                        <argument>app.js</argument>
                                     </arguments>
                                 </configuration>
                             </execution>
