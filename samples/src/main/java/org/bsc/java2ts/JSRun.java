@@ -54,6 +54,7 @@ public class JSRun {
             // @see https://github.com/graalvm/graaljs/blob/master/docs/user/ScriptEngine.md
             bindings.put("polyglot.js.allowHostAccess", true);
             bindings.put("polyglot.js.allowHostClassLookup", (Predicate<String>) s -> true);
+            bindings.put("polyglot.js.allowIO", true);
             
             service.put( "$ARG", args );
 
