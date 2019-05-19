@@ -4,12 +4,15 @@
   "description": "",
   "main": "main.js",
   "dependencies": {
+    "chalk": "^2.4.2",
     "colors": "^1.1.2",
     "marked": "^0.6.2",
     "mustache": "^2.3.0",
+    "os": "file:node/os",
     "validator": "^10.3.0"
   },
   "devDependencies": {
+    "@types/chalk": "^2.2.0",
     "@types/colors": "^1.1.3",
     "@types/marked": "^0.6.3",
     "@types/mustache": "^0.8.30",
@@ -19,8 +22,9 @@
     "typescript": "^3.3.4000"
   },
   "scripts": {
-    "build:main": "parcel build ts/main.ts --target=node --bundle-node-modules --no-source-maps -d ./target/js",
-    "start:graaljs":"mvn -f graaljs-pom.xml exec:exec",
+    "build:main": "parcel build ts/main.ts --target=node --bundle-node-modules --no-source-maps --no-minify -d ./target/js",
+    "build:main2": "parcel build ts/main.ts  --no-source-maps --no-minify -d ./target/js",
+    "start:graaljs": "mvn -f graaljs-pom.xml exec:exec",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
