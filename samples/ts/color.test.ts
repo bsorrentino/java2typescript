@@ -21,4 +21,5 @@ export function test() {
     Stream.of<string>( "<item2>" ).forEach( e => {
       print( colors.green(e) );
     });
+
 }

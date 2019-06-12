@@ -1,7 +1,7 @@
 
-import { MemoryType, Optional, URI } from './j2ts/jdk8-types';
 
 import { test as future_test } from './future.test';
+import { MemoryType, Optional, URI } from './j2ts/jdk8-types';
 import { test as marked_test } from './marked.test';
 import { test as promise_test } from './promise.test';
 
@@ -31,18 +31,21 @@ MemoryType.HEAP.ordinal = ${MemoryType.HEAP.ordinal()}
 `    
 )
 
+
 let async_start = async () => {
 
     /*
-    color_test();
+    
     mustache_test();
     validator_test();
     stream_test();
     */
+    //color_test();
 
     future_test();
     marked_test();
     print( await promise_test() );
+
 }
 
 
