@@ -1,5 +1,5 @@
 
-import chalk from 'chalk';
+
 import { test as future_test } from './future.test';
 import { MemoryType, Optional, URI } from './j2ts/jdk8-types';
 import { test as marked_test } from './marked.test';
@@ -46,7 +46,6 @@ let async_start = async () => {
     marked_test();
     print( await promise_test() );
 
-    //print( chalk.blue( "HELLO WORLD!") );
 }
 
 
