@@ -8,7 +8,6 @@
     "colors": "^1.1.2",
     "marked": "^0.6.2",
     "mustache": "^2.3.0",
-    "os": "file:node/os",
     "validator": "^10.3.0"
   },
   "devDependencies": {
