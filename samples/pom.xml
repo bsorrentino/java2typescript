@@ -16,12 +16,7 @@
         <graalvm.version.1>1.0.0-rc16</graalvm.version.1>
         <graalvm.version>19.0.0</graalvm.version>
         <compiler.dir>${project.build.directory}/compiler</compiler.dir>
-        <!--
-        <main.app>${project.build.directory}/js/main.js</main.app>
-        -->
         <main.app>app.js</main.app>
-
-        <app></app>
     </properties>
 
     <profiles>
@@ -290,24 +285,24 @@
          </executions>
        </plugin>
           <plugin>
-  					<groupId>org.bsc.maven</groupId>
-  					<artifactId>maven-processor-plugin</artifactId>
-  					<executions>
-  						<execution>
-  							<id>process</id>
-  							<goals>
-  								<goal>process-test</goal>
-  							</goals>
-  							<phase>package</phase>
-  							<configuration>
-   								<outputDirectory>ts</outputDirectory>
-  								<options>
-  									<ts.outfile>jdk8</ts.outfile>
-  								</options>
-  							</configuration>
-  						</execution>
-  					</executions>
-  				</plugin>
+			<groupId>org.bsc.maven</groupId>
+			<artifactId>maven-processor-plugin</artifactId>
+			<executions>
+				<execution>
+					<id>process</id>
+					<goals>
+						<goal>process-test</goal>
+					</goals>
+					<phase>package</phase>
+					<configuration>
+						<outputDirectory>ts</outputDirectory>
+						<options>
+							<ts.outfile>jdk8</ts.outfile>
+						</options>
+					</configuration>
+				</execution>
+			</executions>
+		</plugin>
 
         </plugins>
     </build>
