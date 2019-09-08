@@ -118,7 +118,7 @@ package org.mypackage;
 ```
 ### Add the Annotation Processor Plugin
 
-**Graajs compatibility**
+**Graajs compatibility [see samples](./samples)**
 
 ```xml
 <plugin>
@@ -144,7 +144,7 @@ package org.mypackage;
 
 ```
 
-**Enforce [Rhino](https://github.com/mozilla/rhino) compatibility**
+**Enforce [Rhino](https://github.com/mozilla/rhino) compatibility [see samples](./samples.rhino)**
 
 ```xml
 <plugin>
@@ -169,6 +169,7 @@ package org.mypackage;
   </executions>
 </plugin>
 ```
+
 
 ### Use Maven Archetype
 
