@@ -3,6 +3,8 @@
 
 # java2typescript
 
+[![Join the chat at https://gitter.im/bsorrentino/java2typescript](https://badges.gitter.im/bsorrentino/java2typescript.svg)](https://gitter.im/bsorrentino/java2typescript?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 Java Processor to **generate [Typescript](https://www.typescriptlang.org/)  Definition file (.d.ts)** from whatever Java classes.
 
 ## Diagram of solution
