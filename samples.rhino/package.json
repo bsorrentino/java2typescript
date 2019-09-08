@@ -6,7 +6,7 @@
   "dependencies": {
     "chalk": "^2.4.2",
     "colors": "^1.1.2",
-    "marked": "^0.6.2",
+    "marked": "^0.7.0",
     "mustache": "^2.3.0",
     "validator": "^10.3.0"
   },
@@ -24,7 +24,7 @@
     "build:chalk": "parcel build ts/main.chalk.ts --target=node --bundle-node-modules --no-source-maps --no-minify -d ./target/js -o main.js",
     "build:main": "parcel build ts/main.ts --target=node --bundle-node-modules --no-source-maps --no-minify -d ./target/js",
     "build:main2": "parcel build ts/main.ts  --no-source-maps --no-minify -d ./target/js",
-    "start:graaljs": "mvn -f graaljs-pom.xml exec:exec",
+    "start:rhino": "mvn exec:exec",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

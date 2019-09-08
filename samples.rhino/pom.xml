@@ -61,6 +61,17 @@
       </activation>
 
       <dependencies>
+        <dependency>
+          <groupId>org.bsc</groupId>
+          <artifactId>jvm-npm-rhino</artifactId>
+          <version>1.1.0</version>
+          <exclusions>
+            <exclusion>
+              <groupId>org.mozilla</groupId>
+              <artifactId>rhino</artifactId>
+            </exclusion>
+          </exclusions>
+        </dependency>
 
         <dependency>
           <groupId>org.mozilla</groupId>
@@ -73,6 +84,32 @@
       <build>
 
         <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-dependency-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>unpack</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>unpack</goal>
+                </goals>
+                <configuration>
+                  <artifactItems>
+                    <artifactItem>
+                      <groupId>org.bsc</groupId>
+                      <artifactId>jvm-npm-core</artifactId>
+                      <type>jar</type>
+                      <overWrite>false</overWrite>
+                      <outputDirectory>${project.build.directory}/js</outputDirectory>
+                      <includes>**/*.js</includes>
+                    </artifactItem>
+                  </artifactItems>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+
           <plugin>
             <groupId>org.bsc.maven</groupId>
             <artifactId>maven-processor-plugin</artifactId>
@@ -96,20 +133,15 @@
           <plugin>
             <groupId>org.codehaus.mojo</groupId>
             <artifactId>exec-maven-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>jjs</id>
-                <configuration>
-                  <executable>java</executable>
-                  <arguments>
-                    <argument>-classpath</argument>
-                    <classpath/>
-                    <argument>org.bsc.java2ts.JSRun$Rhino</argument>
-                    <argument>app.rhino.js</argument>
-                  </arguments>
-                </configuration>
-              </execution>
-            </executions>
+            <configuration>
+              <executable>java</executable>
+              <arguments>
+                <argument>-classpath</argument>
+                <classpath/>
+                <argument>org.bsc.java2ts.JSRun$Rhino</argument>
+                <argument>app.js</argument>
+              </arguments>
+            </configuration>
           </plugin>
 
         </plugins>
@@ -154,7 +186,7 @@
                     <argument>-classpath</argument>
                     <classpath/>
                     <argument>org.bsc.java2ts.JSRun$Nashorn</argument>
-                    <argument>${project.build.directory}/js/main.js</argument>
+                    <argument>app.js</argument>
                   </arguments>
                 </configuration>
               </execution>

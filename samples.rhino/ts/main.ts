@@ -1,10 +1,11 @@
 
+import {test as future_test} from "./future.test";
 
-import { test as future_test } from './future.test';
-import { MemoryType, Optional, URI } from './j2ts/jdk8-types';
-import { test as marked_test } from './marked.test';
-import { test as promise_test } from './promise.test';
-
+import {
+  URI,
+  Optional,
+  MemoryType,
+} from "./j2ts/jdk8-types";
 
 
 const u1 = "http://localhost:8000/site/";
@@ -17,36 +18,20 @@ print( uri.resolve( u2 ).toString() );
 print( URI.create( u1 + u2 ).normalize().toString() );
 print( uri.resolve( u3 ).toString() );
 
-print( Optional.empty().map( e => "element: " + e).orElse("nil") );
-print( Optional.of("HELLO").map( e => "element: " + e).orElse("nil") );
+print( Optional.empty().map( { apply:e => "element: " + e } ).orElse("nil") );
+print( Optional.of("HELLO").map( { apply:e => "element: " + e } ).orElse("nil") );
 
 
 // TEST ENUM
 
-print( 
-`
-MemoryType.HEAP         = ${MemoryType.HEAP}
-MemoryType.HEAP.name    = ${MemoryType.HEAP.name()}
-MemoryType.HEAP.ordinal = ${MemoryType.HEAP.ordinal()}
-`    
-)
+print(MemoryType.HEAP);
+print(MemoryType.HEAP.name());
+print(MemoryType.HEAP.ordinal());
 
-
-let async_start = async () => {
-
-    /*
-    
-    mustache_test();
-    validator_test();
-    stream_test();
-    */
-    //color_test();
-
-    future_test();
-    marked_test();
-    print( await promise_test() );
-
-}
-
-
-async_start();
+/*
+color_test();
+mustache_test();
+validator_test();
+stream_test();
+*/
+future_test();
