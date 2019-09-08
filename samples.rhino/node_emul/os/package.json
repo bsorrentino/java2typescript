@@ -1,0 +1,10 @@
+{
+  "name": "os",
+  "version": "1.0.0",
+  "description": "nodejs os module emulation",
+  "main": "index.js",
+  "scripts": {},
+  "keywords": ["nodejs", "os"],
+  "author": "bsorrentino <bartolomeo.sorrentino@gmail.com> (http://soulsoftware-bsc.blogspot.it/)",
+  "license": "MIT"
+}

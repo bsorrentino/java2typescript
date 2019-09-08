@@ -13,42 +13,6 @@ import org.graalvm.polyglot.Source;
 
 public class JSRun {
 
-    public static class Nashorn {
-        public static void main(String[] args) throws Exception  {
-            final ScriptEngineManager manager = new ScriptEngineManager();
-
-            final ScriptEngine service = manager.getEngineByName("nashorn");
-            
-            service.put( "$ARG", args );
-
-            if( args.length == 0 ) {
-                System.out.printf( "usage:\tJSRun.Nashorn <file>.js\n");
-            }
-            try( java.io.Reader app = new java.io.FileReader(args[0])) {
-                    service.eval( app );
-            }
-        }
-        
-    }
-    
-    public static class Rhino {
-        
-        public static void main(String[] args) throws Exception  {
-            final ScriptEngineManager manager = new ScriptEngineManager();
-
-            final ScriptEngine service = manager.getEngineByName("rhino-npm");
-            
-            if( args.length == 0 ) {
-                System.out.printf( "usage:\tJSRun.Rhino <file>.js\n");
-            }
-            try( java.io.Reader app = new java.io.FileReader(args[0])) {
-                    service.put( "$ARG", args);
-                    service.eval( app );
-            }
-        }
-        
-    }
-
     public static class Graaljs {
 
         public static void mainjSR223(String[] args) throws Exception  {
@@ -74,11 +38,11 @@ public class JSRun {
         public static void main(String[] args) throws Exception  {
 
             final Context context = Context.newBuilder("js")
-                                        //.allowAllAccess(true) 
+                                        //.allowAllAccess(true)
                                         .allowHostAccess(HostAccess.ALL)
                                         //.allowCreateThread(true)
                                         .allowHostClassLookup( s -> true )
-                                        .allowIO(true)   
+                                        .allowIO(true)
                                         //.allowExperimentalOptions(true)
                                         //.option("js.experimental-foreign-object-prototype", "true")
                                         .build();
@@ -92,9 +56,9 @@ public class JSRun {
                     context.eval( source );
             }
         }
-        
+
     }
-    
-    
-    
+
+
+
 }
