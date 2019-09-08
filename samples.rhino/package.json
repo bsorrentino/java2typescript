@@ -1,0 +1,33 @@
+{
+  "name": "ts",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "dependencies": {
+    "chalk": "^2.4.2",
+    "colors": "^1.1.2",
+    "marked": "^0.7.0",
+    "mustache": "^2.3.0",
+    "validator": "^10.3.0"
+  },
+  "devDependencies": {
+    "@types/chalk": "^2.2.0",
+    "@types/colors": "^1.1.3",
+    "@types/marked": "^0.6.3",
+    "@types/mustache": "^0.8.30",
+    "@types/node": "^12.0.2",
+    "@types/validator": "^9.4.1",
+    "parcel-bundler": "^1.12.3",
+    "typescript": "^3.3.4000"
+  },
+  "scripts": {
+    "build:chalk": "parcel build ts/main.chalk.ts --target=node --bundle-node-modules --no-source-maps --no-minify -d ./target/js -o main.js",
+    "build:main": "parcel build ts/main.ts --target=node --bundle-node-modules --no-source-maps --no-minify -d ./target/js",
+    "build:main2": "parcel build ts/main.ts  --no-source-maps --no-minify -d ./target/js",
+    "start:rhino": "mvn exec:exec",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "bsorrentino <bartolomeo.sorrentino@gmail.com> (http://soulsoftware-bsc.blogspot.it/)",
+  "license": "ISC"
+}

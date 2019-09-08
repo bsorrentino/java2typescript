@@ -9,6 +9,11 @@ import java.util.stream.Stream;
 
 import org.bsc.java2typescript.TypescriptConverter.Compatibility;
 
+/**
+ * 
+ * @author bsorrentino
+ *
+ */
 public abstract class AbstractConverterTest {
     
     final TypescriptConverter converter = new TypescriptConverter(Compatibility.NASHORN);

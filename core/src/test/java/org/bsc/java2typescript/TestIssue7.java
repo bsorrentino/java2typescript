@@ -10,6 +10,11 @@ import org.hamcrest.core.IsNull;
 import org.junit.Assert;
 import org.junit.Test;
 
+/**
+ * 
+ * @author bsorrentino
+ *
+ */
 public class TestIssue7 extends AbstractConverterTest {
 
     interface TestBean<K,V> {

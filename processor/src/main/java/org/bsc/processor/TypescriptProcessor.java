@@ -77,7 +77,7 @@ public class TypescriptProcessor extends AbstractProcessorEx {
      */
     private java.io.Writer openFile( Path file, String header ) throws IOException {
     	
-        final FileObject out = super.getSourceOutputFile( Paths.get("ts"), file );
+        final FileObject out = super.getSourceOutputFile( Paths.get("j2ts"), file );
         
         info( "output file [%s]", out.getName() );
 

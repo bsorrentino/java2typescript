@@ -20,7 +20,7 @@ import java.util.stream.Stream;
 
 /**
  * 
- * @author softphone
+ * @author bsorrentino
  *
  */
 public class TypescriptConverter extends TypescriptConverterStatic {

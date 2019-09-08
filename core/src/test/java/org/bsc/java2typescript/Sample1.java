@@ -1,5 +1,8 @@
 package org.bsc.java2typescript;
 
+/**
+ * 
+ */
 import java.util.concurrent.Future;
 import java.util.function.BiConsumer;
 import java.util.function.BiPredicate;

@@ -11,6 +11,11 @@ import org.hamcrest.core.IsNull;
 import org.junit.Assert;
 import org.junit.Test;
 
+/**
+ * 
+ * @author bsorrentino
+ *
+ */
 public class MemeberClassTest extends AbstractConverterTest {
 
     

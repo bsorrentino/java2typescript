@@ -13,7 +13,7 @@ import java.util.Arrays;
 
 /**
  * 
- * @author softphone
+ * @author bsorrentino
  *
  */
 @SuppressWarnings("serial")
