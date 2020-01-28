@@ -100,11 +100,20 @@ public class TypescriptProcessor extends AbstractProcessorEx {
         final String targetDefinitionFile		= processingContext.getOptionMap().getOrDefault("ts.outfile", "out");
         //final String compatibility 		= processingContext.getOptionMap().getOrDefault("compatibility", "nashorn");
        
-        final String definitionsFile	= targetDefinitionFile.concat(".d.ts");
+        final String definitionsFile= targetDefinitionFile.concat(".d.ts");
         final String typesFile		= targetDefinitionFile.concat("-types.ts");
-        
-        try( 
-        		final java.io.Writer wD = openFile( Paths.get(definitionsFile), "headerD.ts" ); 
+
+		final String compatibilityOption =
+				processingContext.getOptionMap()
+						.getOrDefault("compatibility", "NASHORN")
+						.toUpperCase();
+		info("COMPATIBILITY WITH [%s]", compatibilityOption );
+
+		final TypescriptConverter converter =
+				new TypescriptConverter( TypescriptConverter.Compatibility.valueOf(compatibilityOption));
+
+		try(
+        		final java.io.Writer wD = openFile( Paths.get(definitionsFile), converter.isRhino() ? "headerD-rhino.ts" : "headerD.ts" );
         		final java.io.Writer wT = openFile( Paths.get(typesFile), "headerT.ts" );  
         	) {
         	    
@@ -132,16 +141,7 @@ public class TypescriptProcessor extends AbstractProcessorEx {
 		    final java.util.Map<String, TSType> declaredTypes = 
 		    			types.stream()
 		    			.collect( Collectors.toMap( tt -> tt.getValue().getName() , tt -> tt  ));
-	
-		    final String compatibilityOption = 
-		            processingContext.getOptionMap()
-		                .getOrDefault("compatibility", "NASHORN")
-		                .toUpperCase();
-		    info("COMPATIBILITY WITH [%s]", compatibilityOption );
-		    
-		    final TypescriptConverter converter = 
-		        new TypescriptConverter( TypescriptConverter.Compatibility.valueOf(compatibilityOption));
-		    
+
 			types.stream()
 				.filter( tt -> !PREDEFINED_TYPES.contains(tt) )
 				.map( tt -> converter.processClass( 0, tt, declaredTypes))
