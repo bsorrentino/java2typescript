@@ -3,10 +3,10 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.bsc.processor</groupId>
     <artifactId>java2ts-processor-parent</artifactId>
-    <version>1.2.0</version>
+    <version>1.3.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
-    <name>java2ts-processor::parent - ${project.version}</name>
+    <name>java2ts-processor::parent</name>
     <description>
     Java Processor to generate Typescript Definition from Java classes - This is to help developing on JVM javascript engine (ie Nashorn/Rhino) using Typescript
     </description>
@@ -68,6 +68,7 @@
         <module>processor</module>
         <module>archetype</module>
         <module>samples</module>
+        <module>samples.rhino</module>
         <module>core</module>
     </modules>
     <dependencyManagement>
