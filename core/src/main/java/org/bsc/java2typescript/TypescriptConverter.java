@@ -51,10 +51,11 @@ public class TypescriptConverter extends TypescriptConverterStatic {
     public final boolean isRhino() {
         return compatibility == Compatibility.RHINO;
     }
-    
+
     /**
-     * 
-     * @param declaredClass
+     *
+     * @param type
+     * @param declaredTypeMap
      * @return
      */
     public String processStatic(TSType type, java.util.Map<String, TSType> declaredTypeMap) {
@@ -326,9 +327,8 @@ public class TypescriptConverter extends TypescriptConverterStatic {
 
         /**
          *
-         * @param sb
-         * @param type
-         * @param declaredTypeMap
+         * @param level
+         * @return
          */
         Context processMemberClasses(int level) {
 
@@ -401,7 +401,8 @@ public class TypescriptConverter extends TypescriptConverterStatic {
 
     /**
      *
-     * @param bi
+     * @param level
+     * @param tstype
      * @param declaredTypeMap
      * @return
      */
@@ -417,17 +418,16 @@ public class TypescriptConverter extends TypescriptConverterStatic {
         ctx.getClassDecl().append("\n\n");
 
         if (tstype.isFunctional()) {
-            final Function<Method,String> genAbstractMethod =  
-                    m  -> isRhino() ? 
-                            getMethodDecl(ctx, m, false /* non optional */) : 
-                            getMethodParametersAndReturnDecl(ctx, m, false);
-        
+
             methods.stream()
                 .filter(m -> Modifier.isAbstract(m.getModifiers()))
                 .findFirst()
                 .ifPresent(
                     m -> ctx.append('\t')
-                            .append( genAbstractMethod.apply(m) )
+                            .append(getMethodParametersAndReturnDecl(ctx, m, false))
+                            // Rhino compatibility ???
+                            //.append("\n\t")
+                            //.append(getMethodDecl(ctx, m, false /* non optional */))
                             .append(ENDL));
 
             methods.stream()
