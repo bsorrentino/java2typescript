@@ -5,10 +5,10 @@
   <parent>
       <groupId>org.bsc.processor</groupId>
     <artifactId>java2ts-processor-parent</artifactId>
-    <version>1.2.0</version>
+    <version>1.3.0-SNAPSHOT</version>
   </parent>
   <artifactId>java2ts-processor-archetype</artifactId>
-  <name>java2ts-processor::archetype - ${project.version}</name>
+  <name>java2ts-processor::archetype</name>
   <packaging>maven-archetype</packaging>
 
   <build>

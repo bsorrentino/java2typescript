@@ -265,18 +265,19 @@ public abstract class TypescriptConverterStatic {
       return format("any /*%s*/",type.getName());
 
   }
-   
-   /**
-   *
-   * @param type
-   * @param declaringMember
-   * @param declaredTypeMap
-   * @param packageResolution
-   * @param typeMatch
-   * @param onTypeMismatch
-   * @return
-   */
-  public static <M extends Member> String convertJavaToTS( 
+
+    /**
+     *
+     * @param type
+     * @param declaringMember
+     * @param declaringType
+     * @param declaredTypeMap
+     * @param packageResolution
+     * @param onTypeMismatch
+     * @param <M>
+     * @return
+     */
+  public static <M extends Member> String convertJavaToTS(
                                           Type type,
                                           M declaringMember,
                                           TSType declaringType,
@@ -290,6 +291,7 @@ public abstract class TypescriptConverterStatic {
       Objects.requireNonNull(declaredTypeMap, "declaredTypeMap argument is null!");
 
       log( "PROCESSING MEMEBER: [%s]", declaringMember.getName());
+
       /**
        * 
        */
