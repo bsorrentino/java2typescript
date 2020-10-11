@@ -69,14 +69,26 @@ public abstract class AbstractProcessorEx extends AbstractProcessor {
             return processingEnv.getOptions();
         }
 
+
+        /**
+         *
+         * @return
+         */
+        public java.util.List<? extends Element> elementFromAnnotations( ) {
+
+            return annotations.stream()
+                    .flatMap((e) -> roundEnv.getElementsAnnotatedWith(e).stream())
+                    .collect(Collectors.toList());
+        }
+
         /**
          * 
          * @return
          */
-        public java.util.List<? extends Element> elementFromAnnotations( Optional<Predicate<? super TypeElement>> filter) {
+        public java.util.List<? extends Element> elementFromAnnotationsWithFilter( Predicate<? super TypeElement> filter ) {
         	
         		return annotations.stream()
-        				.filter( filter.orElse((e) -> true) )
+        				.filter( filter )
         				.flatMap((e) -> roundEnv.getElementsAnnotatedWith(e).stream() )
         				.collect( Collectors.toList());
         }

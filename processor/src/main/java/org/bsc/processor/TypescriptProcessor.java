@@ -1,16 +1,9 @@
 package org.bsc.processor;
 
-import static org.bsc.java2typescript.TypescriptConverter.PREDEFINED_TYPES;
-
-import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
+import org.bsc.java2typescript.TSNamespace;
+import org.bsc.java2typescript.TSType;
+import org.bsc.java2typescript.TypescriptConverter;
+import org.bsc.processor.annotation.Java2TS;
 
 import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.annotation.processing.SupportedOptions;
@@ -19,11 +12,20 @@ import javax.lang.model.SourceVersion;
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.ElementKind;
-import javax.lang.model.element.ExecutableElement;
 import javax.tools.FileObject;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
-import org.bsc.java2typescript.TSType;
-import org.bsc.java2typescript.TypescriptConverter;;
+import static org.bsc.java2typescript.TypescriptConverter.PREDEFINED_TYPES;
+
+;
 
 /**
  *
@@ -38,32 +40,32 @@ public class TypescriptProcessor extends AbstractProcessorEx {
     final static String ENDL = ";\n";
 
     static final List<TSType> REQUIRED_TYPES = Arrays.asList(
-    		TSType.from(java.lang.String.class).setExport(true),
-    		TSType.from(java.lang.Iterable.class).setExport(true).setFunctional(true),
-    		TSType.from(java.util.Iterator.class),
-    		TSType.from(java.util.Collection.class),
-    		TSType.from(java.util.List.class),
-    		TSType.from(java.util.Set.class),
-    		TSType.from(java.util.Map.class),
-    		TSType.from(java.util.Optional.class).setExport(true),
-    		TSType.from(java.util.stream.Stream.class).setExport(true),
+    		TSType.of(java.lang.String.class).setExport(true),
+    		TSType.of(java.lang.Iterable.class).setExport(true).setFunctional(true),
+    		TSType.of(java.util.Iterator.class),
+    		TSType.of(java.util.Collection.class),
+    		TSType.of(java.util.List.class),
+    		TSType.of(java.util.Set.class),
+    		TSType.of(java.util.Map.class),
+    		TSType.of(java.util.Optional.class).setExport(true),
+    		TSType.of(java.util.stream.Stream.class).setExport(true),
 
             // Utility class(s)
-            TSType.from(java.util.stream.Collectors.class).setExport(true),
-    		TSType.from(java.util.Collections.class).setExport(true),
+            TSType.of(java.util.stream.Collectors.class).setExport(true),
+    		TSType.of(java.util.Collections.class).setExport(true),
 
             // Native functional interface(s)
-            TSType.from(java.util.function.Function.class).setAlias("Func"),
-            TSType.from(java.util.function.BiFunction.class).setAlias("BiFunction"),
-            TSType.from(java.util.function.Consumer.class).setAlias( "Consumer"),
-            TSType.from(java.util.function.BiConsumer.class).setAlias("BiConsumer"),
-            TSType.from(java.util.function.UnaryOperator.class).setAlias("UnaryOperator"),
-            TSType.from(java.util.function.BinaryOperator.class).setAlias("BinaryOperator"),
-            TSType.from(java.util.function.Supplier.class).setAlias("Supplier"),
-            TSType.from(java.util.function.Predicate.class).setAlias("Predicate"),
-            TSType.from(java.util.function.BiPredicate.class).setAlias("BiPredicate"),
-            TSType.from(java.lang.Runnable.class),
-            TSType.from(java.lang.Comparable.class)
+            TSType.of(java.util.function.Function.class).setAlias("Func"),
+            TSType.of(java.util.function.BiFunction.class).setAlias("BiFunction"),
+            TSType.of(java.util.function.Consumer.class).setAlias( "Consumer"),
+            TSType.of(java.util.function.BiConsumer.class).setAlias("BiConsumer"),
+            TSType.of(java.util.function.UnaryOperator.class).setAlias("UnaryOperator"),
+            TSType.of(java.util.function.BinaryOperator.class).setAlias("BinaryOperator"),
+            TSType.of(java.util.function.Supplier.class).setAlias("Supplier"),
+            TSType.of(java.util.function.Predicate.class).setAlias("Predicate"),
+            TSType.of(java.util.function.BiPredicate.class).setAlias("BiPredicate"),
+            TSType.of(java.lang.Runnable.class),
+            TSType.of(java.lang.Comparable.class)
             
             // Declare Functional Interface(s)
     	);
@@ -97,7 +99,7 @@ public class TypescriptProcessor extends AbstractProcessorEx {
     @Override
     public boolean process( Context processingContext ) throws Exception {
 
-        final String targetDefinitionFile		= processingContext.getOptionMap().getOrDefault("ts.outfile", "out");
+        final String targetDefinitionFile	= processingContext.getOptionMap().getOrDefault("ts.outfile", "out");
         //final String compatibility 		= processingContext.getOptionMap().getOrDefault("compatibility", "nashorn");
        
         final String definitionsFile= targetDefinitionFile.concat(".d.ts");
@@ -132,70 +134,84 @@ public class TypescriptProcessor extends AbstractProcessorEx {
 					}        			
         		};
         		
-	        final Set<TSType> types = enumerateDeclaredPackageAndClass( processingContext );
+	        final List<TSNamespace> namespaces = enumerateDeclaredPackageAndClass( processingContext );
 
-	        types.addAll(REQUIRED_TYPES);
-	        
-	        types.addAll(PREDEFINED_TYPES);     
-	        	
-		    final java.util.Map<String, TSType> declaredTypes = 
-		    			types.stream()
-		    			.collect( Collectors.toMap( tt -> tt.getValue().getName() , tt -> tt  ));
+			final Set<TSType> types = new HashSet<>();
+			types.addAll(REQUIRED_TYPES);
+			types.addAll(PREDEFINED_TYPES);
+
+	        namespaces.forEach( ns -> types.addAll( ns.getTypes() ) );
+
+
+			final java.util.Map<String, TSType> declaredTypes =
+					types.stream()
+							.collect( Collectors.toMap( tt -> tt.getValue().getName() , tt -> tt  ));
 
 			types.stream()
-				.filter( tt -> !PREDEFINED_TYPES.contains(tt) )
-				.map( tt -> converter.processClass( 0, tt, declaredTypes))
-				.forEach( wD_append );
+					.filter( tt -> !PREDEFINED_TYPES.contains(tt) )
+					.map( tt -> converter.processClass( 0, tt, declaredTypes))
+					.forEach( wD_append );
 
-			wT.append( "/// <reference path=\"").append(definitionsFile).append("\"/>" ).append( "\n\n");
+			wT_append.accept( String.format( "/// <reference path=\"%s\"/>\n\n", definitionsFile ) );
+
 			types.stream()
-				.filter( t -> t.isExport() )
-				.map( t -> converter.processStatic( t, declaredTypes))
-				.forEach( wT_append );
+					.filter( t -> t.isExport() )
+					.map( t -> converter.processStatic( t, declaredTypes))
+					.forEach( wT_append );
 
         } // end try-with-resources
 
         return true;
     }
         
-   /**
-     *
-     * @param entry
-     * @return
-     */
-    @SuppressWarnings("unchecked")
-	private List<? extends AnnotationValue> getAnnotationValueValue(
-    		java.util.Map.Entry<? extends ExecutableElement, ? extends AnnotationValue> entry )
-    {
+    private boolean isJava2TS( AnnotationMirror am ) {
 
-        final AnnotationValue av =  entry.getValue();
-        return (List<? extends AnnotationValue>)av.getValue();
+    	info( "'%s'='%s'", am.getAnnotationType().toString(), Java2TS.class.getName());
+    	return am.getAnnotationType().toString().equals( Java2TS.class.getName() );
 
-    }
-    	
+	}
+
+	private TSNamespace toNamespace( AnnotationMirror am ) {
+
+    	final AnnotationValue nameValue = am.getElementValues().get( "name" );
+
+    	final AnnotationValue typesValue = am.getElementValues().get( "declare" );
+
+		final String name = (nameValue!=null) ? String.valueOf(nameValue.getValue()) : "";
+
+		final Object typesValueValues = (typesValue!=null ) ? typesValue.getValue() : null;
+
+		if( typesValueValues instanceof List ) {
+			final Set<TSType> types = ((List<? extends AnnotationValue>)typesValueValues)
+					.stream()
+					.map( av -> av.getValue() )
+					.filter( v -> v instanceof AnnotationMirror)
+					.map( v -> toMapObject(( AnnotationMirror)v, TSType::of )  )
+					.collect( Collectors.toSet() );
+
+			return TSNamespace.of( name, types);
+
+		}
+		return TSNamespace.of( name, new HashSet<TSType>() );
+
+	}
+
+
     /**
      *
      * @param processingContext
      * @return
      */
-    private java.util.Set<TSType> enumerateDeclaredPackageAndClass( final Context processingContext ) {
+    private List<TSNamespace> enumerateDeclaredPackageAndClass( final Context processingContext ) {
     		
     		return
-			processingContext.elementFromAnnotations( Optional.empty() ).stream()
-	            .peek( e -> info( "Anotation [%s]", e.getKind().name()) )
-	            .filter( e -> ElementKind.PACKAGE==e.getKind() || ElementKind.CLASS==e.getKind() )
-	            .flatMap( e -> e.getAnnotationMirrors().stream() )
-	            .peek( m -> info( "Mirror [%s]", m.toString() ))
-	            .flatMap( am -> am.getElementValues()
-	            						.entrySet()
-	            						.stream()
-	            						.filter( entry -> "declare".equals(String.valueOf(entry.getKey().getSimpleName())) ))
-	            .flatMap( entry -> this.getAnnotationValueValue(entry).stream() )
-	            .map( av -> av.getValue() )
-	            .filter( v -> v instanceof AnnotationMirror).map( v -> ((AnnotationMirror)v) )
-	            .map( am -> toMapObject(am, () -> TSType.from( Void.class) ) )				
-    				.collect( Collectors.toSet() )
-            ;
+				processingContext.elementFromAnnotations().stream()
+					.peek( e -> info( "Annotation [%s]", e.getKind().name()) )
+					.filter( e -> ElementKind.PACKAGE==e.getKind() || ElementKind.CLASS==e.getKind() )
+					.flatMap( e -> e.getAnnotationMirrors().stream().filter( this::isJava2TS ) )
+					.map( this::toNamespace )
+					.collect( Collectors.toList() )
+            		;
     }
 
 }

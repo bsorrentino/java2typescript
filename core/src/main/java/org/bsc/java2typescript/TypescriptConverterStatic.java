@@ -39,12 +39,12 @@ public abstract class TypescriptConverterStatic {
     static final String ENDL = ";\n";
 
     public static final List<TSType> PREDEFINED_TYPES = Arrays.asList(
-            TSType.from(Class.class),
-            TSType.from(Serializable.class),
-            TSType.from(Closeable.class),
-            TSType.from(AutoCloseable.class),
-            TSType.from(Cloneable.class),
-            TSType.from(RandomAccess.class)
+            TSType.of(Class.class),
+            TSType.of(Serializable.class),
+            TSType.of(Closeable.class),
+            TSType.of(AutoCloseable.class),
+            TSType.of(Cloneable.class),
+            TSType.of(RandomAccess.class)
          );
 
 

@@ -264,7 +264,7 @@ public class TypescriptConverter extends TypescriptConverterStatic {
 
                 sb.append("class ");
 
-                final TSType superclass = TSType.from(type.getValue().getSuperclass());
+                final TSType superclass = TSType.of(type.getValue().getSuperclass());
 
                 if (superclass != null) {
                     inherited.append(" extends ").append(getTypeName(superclass, type, true));
@@ -275,7 +275,7 @@ public class TypescriptConverter extends TypescriptConverterStatic {
 
             if (interfaces.length > 0) {
 
-                final String ifc = Arrays.stream(interfaces).map(c -> TSType.from(c))
+                final String ifc = Arrays.stream(interfaces).map(c -> TSType.of(c))
                         .map(t -> getTypeName(t, type, true)).collect(Collectors.joining(", "));
                 inherited.append((type.getValue().isInterface()) ? " extends " : " implements ").append(ifc);
 
@@ -344,7 +344,7 @@ public class TypescriptConverter extends TypescriptConverterStatic {
 
             Stream.of(memberClasses).peek(c -> debug("nested class name[%s]", c.getName()))
                     // .filter(distinctByKey( c -> c.getSimpleName() ))
-                    .filter(distinctByKey(c -> c.getName())).map(cl -> TSType.from(cl))
+                    .filter(distinctByKey(c -> c.getName())).map(cl -> TSType.of(cl))
                     .peek(t -> debug("nested type name[%s]", t.getTypeName()))
                     .map(t -> processClass(level + 1, t, declaredTypeMap))
                     .forEach(decl -> sb.append(decl));
