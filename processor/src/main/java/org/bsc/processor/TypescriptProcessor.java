@@ -16,13 +16,12 @@ import javax.tools.FileObject;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static java.util.Optional.*;
 import static org.bsc.java2typescript.TypescriptConverter.PREDEFINED_TYPES;
 
 ;
@@ -136,12 +135,10 @@ public class TypescriptProcessor extends AbstractProcessorEx {
         		
 	        final List<TSNamespace> namespaces = enumerateDeclaredPackageAndClass( processingContext );
 
-			final Set<TSType> types = new HashSet<>();
+			final Set<TSType> types = new HashSet<>(PREDEFINED_TYPES);
 			types.addAll(REQUIRED_TYPES);
-			types.addAll(PREDEFINED_TYPES);
 
 	        namespaces.forEach( ns -> types.addAll( ns.getTypes() ) );
-
 
 			final java.util.Map<String, TSType> declaredTypes =
 					types.stream()
@@ -173,26 +170,24 @@ public class TypescriptProcessor extends AbstractProcessorEx {
 
 	private TSNamespace toNamespace( AnnotationMirror am ) {
 
-    	final AnnotationValue nameValue = am.getElementValues().get( "name" );
-
-    	final AnnotationValue typesValue = am.getElementValues().get( "declare" );
-
-		final String name = (nameValue!=null) ? String.valueOf(nameValue.getValue()) : "";
-
-		final Object typesValueValues = (typesValue!=null ) ? typesValue.getValue() : null;
-
-		if( typesValueValues instanceof List ) {
-			final Set<TSType> types = ((List<? extends AnnotationValue>)typesValueValues)
+    	final Function<AnnotationValue, Set<TSType>> mapTypes = ( value ) ->
+			 ((List<? extends AnnotationValue>)value.getValue())
 					.stream()
 					.map( av -> av.getValue() )
 					.filter( v -> v instanceof AnnotationMirror)
 					.map( v -> toMapObject(( AnnotationMirror)v, TSType::of )  )
 					.collect( Collectors.toSet() );
 
-			return TSNamespace.of( name, types);
 
-		}
-		return TSNamespace.of( name, new HashSet<TSType>() );
+		final String name = ofNullable( am.getElementValues().get( "name" ) )
+											.map( v -> String.valueOf(v.getValue()) )
+											.orElse("");
+
+		final Set<TSType> types = ofNullable(am.getElementValues().get( "declare" ))
+											.map( mapTypes )
+											.orElse( Collections.emptySet() );
+
+		return TSNamespace.of( name, types );
 
 	}
 
