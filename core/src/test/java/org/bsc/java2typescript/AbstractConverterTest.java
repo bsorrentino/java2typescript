@@ -20,7 +20,7 @@ public abstract class AbstractConverterTest {
     
     protected java.util.Map<String,TSType> declaredClassMap( Class<?> ... classes) {
         return Stream.of( classes )
-            .collect( Collectors.toMap( c -> c.getName(), c -> TSType.from(c) ))
+            .collect( Collectors.toMap( c -> c.getName(), c -> TSType.of(c) ))
             ;       
     }
     protected java.util.Map<String,TSType> declaredTypeMap( TSType ... types) {
@@ -43,7 +43,7 @@ public abstract class AbstractConverterTest {
     {
         final Type rType = m.getGenericReturnType();
         final String result = TypescriptConverter.convertJavaToTS(rType, m, 
-                TSType.from(type),
+                TSType.of(type),
                 declaredClassMap, 
                 true, 
                 Optional.empty());

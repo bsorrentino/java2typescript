@@ -27,12 +27,12 @@ public class ProcessorTest extends AbstractConverterTest {
 
 	@Test
 	public void testWildcardType() throws Exception {
-		final TSType type = TSType.from(Sample1.class);
+		final TSType type = TSType.of(Sample1.class);
 		{
 			final Method m = type.getValue().getMethod("merge", Sample2.class );	
 			final String result = converter.getMethodParametersAndReturnDecl( m, 
 					type, 
-					declaredTypeMap( TSType.from(String.class), TSType.from(Sample2.class)), 
+					declaredTypeMap( TSType.of(String.class), TSType.of(Sample2.class)), 
 					true) ;
 			
 			Assert.assertThat( result, IsNull.notNullValue());		
@@ -42,7 +42,7 @@ public class ProcessorTest extends AbstractConverterTest {
 			final Method m = type.getValue().getMethod("merge", BiConsumer.class );	
 			final String result = converter.getMethodParametersAndReturnDecl( m, 
 					type, 
-					declaredTypeMap( TSType.from(String.class), TSType.from(Sample2.class), TSType.from(BiConsumer.class).setExport(false).setAlias("BiConsumer")), 
+					declaredTypeMap( TSType.of(String.class), TSType.of(Sample2.class), TSType.of(BiConsumer.class).setExport(false).setAlias("BiConsumer")), 
 					true) ;
 			
 			Assert.assertThat( result, IsNull.notNullValue());		
@@ -52,7 +52,7 @@ public class ProcessorTest extends AbstractConverterTest {
 			final Method m = type.getValue().getMethod("concatMap", Function.class );	
 			final String result = converter.getMethodParametersAndReturnDecl( m, 
 					type, 
-					declaredTypeMap( TSType.from(String.class), TSType.from(Sample2.class), TSType.from(Function.class).setExport(false).setAlias("Func")), 
+					declaredTypeMap( TSType.of(String.class), TSType.of(Sample2.class), TSType.of(Function.class).setExport(false).setAlias("Func")), 
 					true) ;
 			
 			Assert.assertThat( result, IsNull.notNullValue());		
@@ -64,13 +64,13 @@ public class ProcessorTest extends AbstractConverterTest {
 	
 	@Test
 	public void testFunctionalInterface() throws Exception {
-		final TSType type = TSType.from(Sample1.class);
+		final TSType type = TSType.of(Sample1.class);
 		{
 			final Method m = type.getValue().getMethod("transform", java.util.function.Function.class );	
 			final Type pType = m.getGenericParameterTypes()[0];
 			final String result = TypescriptConverter.convertJavaToTS(pType, m, 
 					type,
-					declaredTypeMap( TSType.from(String.class), TSType.from(java.util.function.Function.class).setAlias("Func").setExport(false)), 
+					declaredTypeMap( TSType.of(String.class), TSType.of(java.util.function.Function.class).setAlias("Func").setExport(false)), 
 					true, 
 					Optional.empty());
 			Assert.assertThat( result, IsNull.notNullValue());		
@@ -82,7 +82,7 @@ public class ProcessorTest extends AbstractConverterTest {
 			final Method m = type.getValue().getMethod("transform", java.util.function.Function.class );	
 			final String result = converter.getMethodParametersAndReturnDecl( m, 
 					type, 
-					declaredTypeMap( TSType.from(String.class), TSType.from(java.util.function.Function.class).setAlias("Func").setExport(false)), 
+					declaredTypeMap( TSType.of(String.class), TSType.of(java.util.function.Function.class).setAlias("Func").setExport(false)), 
 					true) ;
 			
 			Assert.assertThat( result, IsNull.notNullValue());		
@@ -92,7 +92,7 @@ public class ProcessorTest extends AbstractConverterTest {
 			final Method m = type.getValue().getMethod("creator", java.util.concurrent.Callable.class );	
 			final String result = converter.getMethodParametersAndReturnDecl( m, 
 					type, 
-					declaredTypeMap( TSType.from(String.class), TSType.from(java.util.concurrent.Callable.class).setExport(false).setAlias("Supplier")), 
+					declaredTypeMap( TSType.of(String.class), TSType.of(java.util.concurrent.Callable.class).setExport(false).setAlias("Supplier")), 
 					true) ;
 			
 			Assert.assertThat( result, IsNull.notNullValue());		
@@ -104,7 +104,7 @@ public class ProcessorTest extends AbstractConverterTest {
 	@Test
 	public void testClassDecl() throws Exception {
 		
-        TypescriptConverter.Context ctx = converter.contextOf(TSType.from(ArrayList.class), Collections.emptyMap(), Compatibility.NASHORN);
+        TypescriptConverter.Context ctx = converter.contextOf(TSType.of(ArrayList.class), Collections.emptyMap(), Compatibility.NASHORN);
 		{
 			final String result  = ctx.getClassDecl().toString();
 		
@@ -123,8 +123,8 @@ public class ProcessorTest extends AbstractConverterTest {
 			final Method m = type.getMethod("getAttributeList");			
 			final Type rType = m.getGenericReturnType();
 			final String result = TypescriptConverter.convertJavaToTS(rType, m, 
-					TSType.from(type),
-					declaredTypeMap( TSType.from(String.class), TSType.from(java.util.List.class).setExport(false).setAlias("List") ), 
+					TSType.of(type),
+					declaredTypeMap( TSType.of(String.class), TSType.of(java.util.List.class).setExport(false).setAlias("List") ), 
 					true, 
 					Optional.empty());
 			Assert.assertThat( result, IsNull.notNullValue());	
@@ -134,8 +134,8 @@ public class ProcessorTest extends AbstractConverterTest {
 			final Method m = type.getMethod("getAttributeList", java.util.List.class);			
 			
 			final String result = converter.getMethodParametersAndReturnDecl( m, 
-					TSType.from(type), 
-					declaredTypeMap( TSType.from(String.class), TSType.from(java.util.List.class).setExport(false).setAlias("List") ),  
+					TSType.of(type), 
+					declaredTypeMap( TSType.of(String.class), TSType.of(java.util.List.class).setExport(false).setAlias("List") ),  
 					true) ;			
 			
 			Assert.assertThat( result, IsNull.notNullValue());	
@@ -159,7 +159,7 @@ public class ProcessorTest extends AbstractConverterTest {
 		final Method m = type.getMethod("method4");			
 		final Type rType = m.getGenericReturnType();
 		final String result = TypescriptConverter.convertJavaToTS(rType, m, 
-				TSType.from(type),
+				TSType.of(type),
 				Collections.emptyMap(), 
 				true, 
 				Optional.empty());
@@ -170,7 +170,7 @@ public class ProcessorTest extends AbstractConverterTest {
 		final Method m = type.getMethod("method5");			
 		final Type rType = m.getGenericReturnType();
 		final String result = TypescriptConverter.convertJavaToTS(rType, m, 
-				TSType.from(type),
+				TSType.of(type),
 				Collections.emptyMap(), 
 				true, 
 				Optional.empty());
@@ -181,7 +181,7 @@ public class ProcessorTest extends AbstractConverterTest {
 		final Method m = type.getMethod("method1_1");			
 		final Type rType = m.getGenericReturnType();
 		final String result = TypescriptConverter.convertJavaToTS(rType, m, 
-				TSType.from(type),
+				TSType.of(type),
 				declaredClassMap(Sample2.class),
 				true,
 				Optional.empty());
@@ -192,7 +192,7 @@ public class ProcessorTest extends AbstractConverterTest {
 		final Method m = type.getMethod("method1_2");			
 		final Type rType = m.getGenericReturnType();
 		final String result = TypescriptConverter.convertJavaToTS(rType, m, 
-				TSType.from(type),
+				TSType.of(type),
 				declaredClassMap(Sample2.class,java.lang.Comparable.class),
 				true,
 				Optional.empty());
@@ -204,8 +204,8 @@ public class ProcessorTest extends AbstractConverterTest {
 		final Method m = type.getMethod("method1_3");			
 		final Type rType = m.getGenericReturnType();
 		final String result = TypescriptConverter.convertJavaToTS(rType, m, 
-				TSType.from(type), 
-				declaredTypeMap( TSType.from(java.util.function.BiPredicate.class).setExport(false).setAlias("BiPredicate") ),
+				TSType.of(type), 
+				declaredTypeMap( TSType.of(java.util.function.BiPredicate.class).setExport(false).setAlias("BiPredicate") ),
 				true,
 				Optional.of(addTypeVar));
 		Assert.assertThat( result, IsNull.notNullValue());		
@@ -218,7 +218,7 @@ public class ProcessorTest extends AbstractConverterTest {
 		final Method m = type.getMethod("method1_3");			
 		final Type rType = m.getGenericReturnType();
 		final String result = TypescriptConverter.convertJavaToTS(rType, m, 
-				TSType.from(type),
+				TSType.of(type),
 				Collections.emptyMap(),
 				true,
 				Optional.empty());
@@ -229,7 +229,7 @@ public class ProcessorTest extends AbstractConverterTest {
 		final Method m = type.getMethod("method1");			
 		final Type rType = m.getGenericReturnType();
 		final String result = TypescriptConverter.convertJavaToTS(rType, m, 
-				TSType.from(type),
+				TSType.of(type),
 				declaredClassMap(java.util.Map.class),
 				true,
 				Optional.empty());
@@ -241,7 +241,7 @@ public class ProcessorTest extends AbstractConverterTest {
 		final Method m = type.getMethod("method2", Sample2.class);			
 		final Type rType = m.getGenericReturnType();
 		final String result = TypescriptConverter.convertJavaToTS(rType, m, 
-				TSType.from(type),
+				TSType.of(type),
 				Collections.emptyMap(),
 				true,
 				Optional.empty());
@@ -250,7 +250,7 @@ public class ProcessorTest extends AbstractConverterTest {
 		
 		final Type pType = m.getParameters()[0].getParameterizedType();
 		final String rresult = TypescriptConverter.convertJavaToTS(pType, m, 
-				TSType.from(type),
+				TSType.of(type),
 				declaredClassMap(Sample2.class),
 				true,
 				Optional.empty());
@@ -262,7 +262,7 @@ public class ProcessorTest extends AbstractConverterTest {
 		final Method m = type.getMethod("method2_1", Sample2.class);			
 		final Type rType = m.getGenericReturnType();
 		final String result = TypescriptConverter.convertJavaToTS(rType, m, 
-				TSType.from(type),
+				TSType.of(type),
 				declaredClassMap(Sample2.class, CharSequence.class),
 				true,
 				Optional.empty());
@@ -271,7 +271,7 @@ public class ProcessorTest extends AbstractConverterTest {
 		
 		final Type pType = m.getParameters()[0].getParameterizedType();
 		final String rresult = TypescriptConverter.convertJavaToTS(pType, m, 
-				TSType.from(type),
+				TSType.of(type),
 				declaredClassMap(Sample2.class),
 				true,
 				Optional.empty());
@@ -291,8 +291,8 @@ public class ProcessorTest extends AbstractConverterTest {
 		
 			final Type pType = m.getParameters()[0].getParameterizedType();
 			final String rresult = TypescriptConverter.convertJavaToTS(pType, m, 
-					TSType.from(type),
-					declaredTypeMap( TSType.from(Sample2.class), TSType.from(Consumer.class).setExport(false).setAlias("Consumer")),
+					TSType.of(type),
+					declaredTypeMap( TSType.of(Sample2.class), TSType.of(Consumer.class).setExport(false).setAlias("Consumer")),
 					true,
 					Optional.empty());
 			Assert.assertThat( rresult, IsNull.notNullValue());		
@@ -313,7 +313,7 @@ public class ProcessorTest extends AbstractConverterTest {
 		final String[] arr = {};
 		final Method m = type.getMethod("method6", arr.getClass());	
 		
-		final String result = converter.getMethodParametersAndReturnDecl( m, TSType.from(type), Collections.emptyMap(), true) ;
+		final String result = converter.getMethodParametersAndReturnDecl( m, TSType.of(type), Collections.emptyMap(), true) ;
 		
 		Assert.assertThat( result, IsNull.notNullValue());		
 		Assert.assertThat( result, IsEqual.equalTo("( ...args:string[] ):void"));
@@ -339,8 +339,8 @@ public class ProcessorTest extends AbstractConverterTest {
 		final Method m = type.getMethod("genericArrayType", arr.getClass());
 		final String result = 
 			converter.getMethodParametersAndReturnDecl( m, 
-								TSType.from(type), 
-								declaredTypeMap( TSType.from(java.util.List.class)),
+								TSType.of(type), 
+								declaredTypeMap( TSType.of(java.util.List.class)),
 								true) ;
 		
 		Assert.assertThat( result, IsNull.notNullValue());		

@@ -13,6 +13,6 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.SOURCE)
 @Target( {ElementType.TYPE, ElementType.PACKAGE} )
 public @interface Java2TS {
-    
+    String name() default "";
     Type[] declare() default {};
 }
