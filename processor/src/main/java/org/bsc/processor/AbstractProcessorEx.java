@@ -141,11 +141,11 @@ public abstract class AbstractProcessorEx extends AbstractProcessor {
 
     @Override
     public final boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
-        info("PROCESSOR START");
-
-        if (roundEnv.processingOver()) {
+        if (roundEnv.processingOver() || annotations.isEmpty() ) {
             return false;
         }
+
+        info("PROCESSOR [%s] START", getClass().getName());
 
         final Context processinContext = new Context(annotations, roundEnv);
 
