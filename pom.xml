@@ -56,13 +56,6 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-
-        <!-- SONATYPE REPO -->
-        <snapshot.repo.id>sonatype-repo</snapshot.repo.id>
-        <snapshot.repo.url>https://oss.sonatype.org/content/repositories/snapshots</snapshot.repo.url>
-        <release.repo.id>sonatype-repo</release.repo.id>
-        <release.repo.url>https://oss.sonatype.org/service/local/staging/deploy/maven2</release.repo.url>
-
     </properties>
     <modules>
         <module>processor</module>
