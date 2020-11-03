@@ -27,9 +27,8 @@
                 <activeByDefault>true</activeByDefault>
             </activation>
             <properties>
-                <snapshot.repo.id>sonatype-server</snapshot.repo.id>
+                <repo.id>sonatype-server</repo.id>
                 <snapshot.repo.url>http://oss.sonatype.org/content/repositories/snapshots</snapshot.repo.url>
-                <release.repo.id>sonatype-server</release.repo.id>
                 <release.repo.url>http://oss.sonatype.org/service/local/staging/deploy/maven2/</release.repo.url>
                 <!--release.repo.url>http://oss.sonatype.org/content/repositories/releases</release.repo.url-->
                 <group.repo.url>http://oss.sonatype.org/content/groups/public/</group.repo.url>
@@ -40,10 +39,13 @@
                 <repository>
                     <id>${repo.id}</id>
                     <name>bitbucket snapshots</name>
-                    <url>${snapshot.repo.url}</url>
+                    <url>${group.repo.url}</url>
                     <snapshots>
                         <enabled>true</enabled>
                     </snapshots>
+                    <releases>
+                        <enabled>true</enabled>
+                    </releases>
                 </repository>
 
             </repositories>
@@ -53,7 +55,7 @@
                 <pluginRepository>
                     <id>${repo.id}</id>
                     <name>bitbucket snapshots</name>
-                    <url>${snapshot.repo.url}</url>
+                    <url>${group.repo.url}</url>
 
                     <snapshots>
                         <updatePolicy>always</updatePolicy>
