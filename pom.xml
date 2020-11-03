@@ -15,18 +15,22 @@
     <url>https://github.com/bsorrentino/java2typescript</url>
     <distributionManagement>
         <repository>
+            <name>central</name>
             <id>${release.repo.id}</id>
             <url>${release.repo.url}</url>
         </repository>
         <snapshotRepository>
+            <name>snapshot</name>
             <id>${snapshot.repo.id}</id>
             <url>${snapshot.repo.url}</url>
-            <uniqueVersion>false</uniqueVersion>
+            <!--uniqueVersion>false</uniqueVersion-->
         </snapshotRepository>
+        <!--
         <site>
             <id>${release.site.id}</id>
             <url>${release.site.url}</url>
         </site>
+        -->
     </distributionManagement>
     <scm>
         <connection>scm:git:https://github.com/bsorrentino/java2typescript.git</connection>
