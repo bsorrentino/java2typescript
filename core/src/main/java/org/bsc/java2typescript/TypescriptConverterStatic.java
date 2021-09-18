@@ -58,20 +58,18 @@ public abstract class TypescriptConverterStatic {
      *
      */
     static BiPredicate<Class<?>,Type> typeParameterMatch = (declaringClass, type) ->
-        ( type instanceof TypeVariable ) ?
-                Arrays.stream(declaringClass.getTypeParameters())
-                    .map( (tp) -> tp.getName())
-                    .anyMatch( name -> name.equals(((TypeVariable<?>)type).getName())) :
-                false
+        type instanceof TypeVariable && Arrays.stream(declaringClass.getTypeParameters())
+            .map(tp -> tp.getName())
+            .anyMatch(name -> name.equals(((TypeVariable<?>) type).getName()))
                     ;
 
     static void log( String fmt, Object ...args ) {
-        if( Boolean.getBoolean("debug") ) System.out.println( format( fmt, args));
+        if( Boolean.getBoolean("debug") ) System.out.printf( fmt, args);
     }
     
     static void debug( String fmt, Object ...args ) {
         System.out.print( "DEBUG: ");       
-        System.out.println( format( fmt, args));
+        System.out.printf( fmt, args );
     }
     /**
     *
