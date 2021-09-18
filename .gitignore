@@ -6,3 +6,5 @@ bin/
 .project
 .vscode/
 .factorypath
+.idea/
+*.iml

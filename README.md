@@ -183,3 +183,4 @@ The easier way to start your **Typescript on JVM** project is using the provided
 >-DarchetypeArtifactId=java2ts-processor-archetype \
 >-DarchetypeVersion=1.1.0
 >```
+

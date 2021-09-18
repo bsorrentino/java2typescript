@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <artifactId>sample</artifactId>
-  <name>java2ts-processor::sample - ${project.version}</name>
-  <packaging>jar</packaging>
+  <artifactId>rhino-sample</artifactId>
+  <name>java2ts-processor::rhino::sample</name>
+  <description>rhino sample</description>
 
   <parent>
     <groupId>org.bsc.processor</groupId>
     <artifactId>java2ts-processor-parent</artifactId>
-    <version>1.2.0-SNAPSHOT</version>
+    <version>1.3.0-SNAPSHOT</version>
   </parent>
 
   <build>
@@ -76,7 +76,7 @@
         <dependency>
           <groupId>org.mozilla</groupId>
           <artifactId>rhino</artifactId>
-          <version>1.7.11</version>
+          <version>1.7.12</version>
         </dependency>
 
       </dependencies>

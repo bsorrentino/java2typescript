@@ -51,10 +51,11 @@ public class TypescriptConverter extends TypescriptConverterStatic {
     public final boolean isRhino() {
         return compatibility == Compatibility.RHINO;
     }
-    
+
     /**
-     * 
-     * @param declaredClass
+     *
+     * @param type
+     * @param declaredTypeMap
      * @return
      */
     public String processStatic(TSType type, java.util.Map<String, TSType> declaredTypeMap) {
@@ -263,7 +264,7 @@ public class TypescriptConverter extends TypescriptConverterStatic {
 
                 sb.append("class ");
 
-                final TSType superclass = TSType.from(type.getValue().getSuperclass());
+                final TSType superclass = TSType.of(type.getValue().getSuperclass());
 
                 if (superclass != null) {
                     inherited.append(" extends ").append(getTypeName(superclass, type, true));
@@ -274,7 +275,7 @@ public class TypescriptConverter extends TypescriptConverterStatic {
 
             if (interfaces.length > 0) {
 
-                final String ifc = Arrays.stream(interfaces).map(c -> TSType.from(c))
+                final String ifc = Arrays.stream(interfaces).map(c -> TSType.of(c))
                         .map(t -> getTypeName(t, type, true)).collect(Collectors.joining(", "));
                 inherited.append((type.getValue().isInterface()) ? " extends " : " implements ").append(ifc);
 
@@ -326,9 +327,8 @@ public class TypescriptConverter extends TypescriptConverterStatic {
 
         /**
          *
-         * @param sb
-         * @param type
-         * @param declaredTypeMap
+         * @param level
+         * @return
          */
         Context processMemberClasses(int level) {
 
@@ -344,7 +344,7 @@ public class TypescriptConverter extends TypescriptConverterStatic {
 
             Stream.of(memberClasses).peek(c -> debug("nested class name[%s]", c.getName()))
                     // .filter(distinctByKey( c -> c.getSimpleName() ))
-                    .filter(distinctByKey(c -> c.getName())).map(cl -> TSType.from(cl))
+                    .filter(distinctByKey(c -> c.getName())).map(cl -> TSType.of(cl))
                     .peek(t -> debug("nested type name[%s]", t.getTypeName()))
                     .map(t -> processClass(level + 1, t, declaredTypeMap))
                     .forEach(decl -> sb.append(decl));
@@ -401,7 +401,8 @@ public class TypescriptConverter extends TypescriptConverterStatic {
 
     /**
      *
-     * @param bi
+     * @param level
+     * @param tstype
      * @param declaredTypeMap
      * @return
      */
@@ -417,17 +418,16 @@ public class TypescriptConverter extends TypescriptConverterStatic {
         ctx.getClassDecl().append("\n\n");
 
         if (tstype.isFunctional()) {
-            final Function<Method,String> genAbstractMethod =  
-                    m  -> isRhino() ? 
-                            getMethodDecl(ctx, m, false /* non optional */) : 
-                            getMethodParametersAndReturnDecl(ctx, m, false);
-        
+
             methods.stream()
                 .filter(m -> Modifier.isAbstract(m.getModifiers()))
                 .findFirst()
                 .ifPresent(
                     m -> ctx.append('\t')
-                            .append( genAbstractMethod.apply(m) )
+                            .append(getMethodParametersAndReturnDecl(ctx, m, false))
+                            // Rhino compatibility ???
+                            //.append("\n\t")
+                            //.append(getMethodDecl(ctx, m, false /* non optional */))
                             .append(ENDL));
 
             methods.stream()

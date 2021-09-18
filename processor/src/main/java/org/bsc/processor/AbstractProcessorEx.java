@@ -69,14 +69,26 @@ public abstract class AbstractProcessorEx extends AbstractProcessor {
             return processingEnv.getOptions();
         }
 
+
+        /**
+         *
+         * @return
+         */
+        public java.util.List<? extends Element> elementFromAnnotations( ) {
+
+            return annotations.stream()
+                    .flatMap((e) -> roundEnv.getElementsAnnotatedWith(e).stream())
+                    .collect(Collectors.toList());
+        }
+
         /**
          * 
          * @return
          */
-        public java.util.List<? extends Element> elementFromAnnotations( Optional<Predicate<? super TypeElement>> filter) {
+        public java.util.List<? extends Element> elementFromAnnotationsWithFilter( Predicate<? super TypeElement> filter ) {
         	
         		return annotations.stream()
-        				.filter( filter.orElse((e) -> true) )
+        				.filter( filter )
         				.flatMap((e) -> roundEnv.getElementsAnnotatedWith(e).stream() )
         				.collect( Collectors.toList());
         }
@@ -129,11 +141,11 @@ public abstract class AbstractProcessorEx extends AbstractProcessor {
 
     @Override
     public final boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
-        info("PROCESSOR START");
-
-        if (roundEnv.processingOver()) {
+        if (roundEnv.processingOver() || annotations.isEmpty() ) {
             return false;
         }
+
+        info("PROCESSOR [%s] START", getClass().getName());
 
         final Context processinContext = new Context(annotations, roundEnv);
 
