@@ -185,7 +185,7 @@ public class TypescriptProcessor extends AbstractProcessorEx {
     final java.util.Map<? extends ExecutableElement, ? extends AnnotationValue> elementsValues = am.getElementValues();
 
     // elementsValues.entrySet().forEach( e -> System.out.printf( "===> elementValues.get('%s')=%s\n", e.getKey().getClass(), e.getValue()));
-    
+
     final Set<TSType> types =
         elementsValues.entrySet().stream()
         .filter( e -> String.valueOf(e.getKey()).startsWith("declare"))
