@@ -2,6 +2,9 @@ package org.bsc.java2typescript;
 
 import java.util.Collections;
 import java.util.Set;
+import java.util.stream.Collectors;
+
+import static java.lang.String.format;
 
 public class TSNamespace {
 
@@ -24,5 +27,12 @@ public class TSNamespace {
 
     public static TSNamespace of( String name, Set<TSType> types ) {
         return new TSNamespace( name, types );
+    }
+
+    @Override
+    public String toString() {
+        return format( "TSNamespace: { name: '%s', types: [%s]  }",
+            name, getTypes().stream()
+                    .map( TSType::toString ).collect(Collectors.joining(",\n")) );
     }
 }

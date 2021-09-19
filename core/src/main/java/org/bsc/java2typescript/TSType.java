@@ -247,4 +247,8 @@ public class TSType extends HashMap<String, Object> {
         return getValue().hashCode();
     }
 
+    @Override
+    public String toString() {
+        return format("TSType{ value: %s }", getValue().getName());
+    }
 }
