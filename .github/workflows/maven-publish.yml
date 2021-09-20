@@ -23,4 +23,4 @@ jobs:
     - name: Build with Maven
       env:
         SONATYPE_PASSWORD: ${{ secrets.SonatypePassword }}
-      run: mvn -B deploy --file pom.xml -s settings-template.xml
+      run: mvn -B -Prelease source:jar javadoc:jar deploy --file pom.xml -s settings-template.xml
