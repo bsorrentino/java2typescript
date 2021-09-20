@@ -44,8 +44,8 @@ public class TestIssue7 extends AbstractConverterTest {
 			final Method m = type.getMethod("method1", Map.Entry.class);
 			final String result = 
 				converter.getMethodParametersAndReturnDecl( m, 
-									TSType.from(type), 
-									declaredTypeMap( TSType.from(BiFunction.class), TSType.from(Map.Entry.class)),
+									TSType.of(type),
+									declaredTypeMap( TSType.of(BiFunction.class), TSType.of(Map.Entry.class)),
 									true) ;
 			
 			Assert.assertThat( result, IsNull.notNullValue());
@@ -62,8 +62,8 @@ public class TestIssue7 extends AbstractConverterTest {
 			final Method m = type.getMethod("method2", java.util.List.class);
 			final String result = 
 				converter.getMethodParametersAndReturnDecl( m, 
-									TSType.from(type), 
-									declaredTypeMap( TSType.from(java.util.List.class), TSType.from(Map.Entry.class)),
+									TSType.of(type),
+									declaredTypeMap( TSType.of(java.util.List.class), TSType.of(Map.Entry.class)),
 									true) ;
 			
 			Assert.assertThat( result, IsNull.notNullValue());
@@ -82,8 +82,8 @@ public class TestIssue7 extends AbstractConverterTest {
 			final Method m = type.getMethod("method3");
 			final String result = 
 				converter.getMethodParametersAndReturnDecl( m, 
-									TSType.from(type), 
-									declaredTypeMap( TSType.from(Map.Entry.class)),
+									TSType.of(type),
+									declaredTypeMap( TSType.of(Map.Entry.class)),
 									true) ;
 			
 			Assert.assertThat( result, IsNull.notNullValue());
@@ -102,8 +102,8 @@ public class TestIssue7 extends AbstractConverterTest {
 			final Constructor<?> m = type.getConstructor();
 			final String result = 
 				converter.getMethodParametersAndReturnDecl( m, 
-									TSType.from(type), 
-									declaredTypeMap( TSType.from(Map.Entry.class), TSType.from(type) ),
+									TSType.of(type),
+									declaredTypeMap( TSType.of(Map.Entry.class), TSType.of(type) ),
 									true) ;
 			
 			Assert.assertThat( result, IsNull.notNullValue());
@@ -120,8 +120,8 @@ public class TestIssue7 extends AbstractConverterTest {
 		final Method m = type.getMethod("reduceEntries", Long.TYPE, BiFunction.class);
 		final String result = 
 			converter.getMethodParametersAndReturnDecl( m, 
-								TSType.from(type), 
-								declaredTypeMap( TSType.from(BiFunction.class), TSType.from(Map.Entry.class)),
+								TSType.of(type),
+								declaredTypeMap( TSType.of(BiFunction.class), TSType.of(Map.Entry.class)),
 								true) ;
 		
 		Assert.assertThat( result, IsNull.notNullValue());

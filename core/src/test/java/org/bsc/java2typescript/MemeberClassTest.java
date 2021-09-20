@@ -22,7 +22,7 @@ public class MemeberClassTest extends AbstractConverterTest {
     @Test
     public void testMemberClassInfos() {
         
-        final TSType type = TSType.from( java.util.Map.Entry.class );
+        final TSType type = TSType.of( java.util.Map.Entry.class );
                 
         Assert.assertThat(type.supportNamespace() , equalTo(true));
         Assert.assertThat(type.getNamespace() , equalTo("java.util"));
@@ -35,7 +35,7 @@ public class MemeberClassTest extends AbstractConverterTest {
     public void testMemberClass() throws Exception {
         
         TypescriptConverter.Context ctx = 
-                converter.contextOf(TSType.from( java.util.Map.Entry.class ), declaredTypeMap(), Compatibility.NASHORN);
+                converter.contextOf(TSType.of( java.util.Map.Entry.class ), declaredTypeMap(), Compatibility.NASHORN);
         
         Assert.assertThat(ctx, IsNull.notNullValue());
         
@@ -55,8 +55,8 @@ public class MemeberClassTest extends AbstractConverterTest {
         final Type rType = m.getGenericReturnType();
 
         final String result = TypescriptConverter.convertJavaToTS(rType, m, 
-                TSType.from(type),
-                declaredTypeMap( TSType.from(java.util.Set.class), TSType.from(java.util.Map.Entry.class)), 
+                TSType.of(type),
+                declaredTypeMap( TSType.of(java.util.Set.class), TSType.of(java.util.Map.Entry.class)),
                 true, 
                 Optional.empty());
 

@@ -4,9 +4,9 @@
 name: Maven Package
 
 on:
-  push:
-    branches:
-      - develop
+  release:
+    types:
+      - published
 
 jobs:
   build:
@@ -21,4 +21,6 @@ jobs:
         java-version: 1.8
 
     - name: Build with Maven
-      run: mvn -B install --file pom.xml -s settings-template.xml
+      env:
+        SONATYPE_PASSWORD: ${{ secrets.SonatypePassword }}
+      run: mvn -B deploy --file pom.xml -s settings-template.xml

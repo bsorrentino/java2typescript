@@ -50,8 +50,8 @@ public class ConverterTest extends AbstractConverterTest {
 			final Method m = type.getMethod("method1", java.util.Map.Entry.class);
 			final String result = 
 				converter.getMethodParametersAndReturnDecl( m, 
-									TSType.from(type), 
-									declaredTypeMap( TSType.from(Map.Entry.class), TSType.from(java.util.List.class)),
+									TSType.of(type),
+									declaredTypeMap( TSType.of(Map.Entry.class), TSType.of(java.util.List.class)),
 									true ) ;
 			
 			Assert.assertThat( result, IsNull.notNullValue());
@@ -69,8 +69,8 @@ public class ConverterTest extends AbstractConverterTest {
 			final Method m = type.getMethod("method2", Function.class);
 			final String result = 
 				converter.getMethodParametersAndReturnDecl( m, 
-									TSType.from(type), 
-									declaredTypeMap( TSType.from(Function.class), TSType.from(java.util.List.class)),
+									TSType.of(type),
+									declaredTypeMap( TSType.of(Function.class), TSType.of(java.util.List.class)),
 									true) ;
 			
 			Assert.assertThat( result, IsNull.notNullValue());
@@ -83,17 +83,17 @@ public class ConverterTest extends AbstractConverterTest {
     public void functionalInterfaceTest() {
         
         
-        Assert.assertThat(TSType.from(java.lang.Runnable.class).isFunctional() , equalTo(true));
+        Assert.assertThat(TSType.of(java.lang.Runnable.class).isFunctional() , equalTo(true));
         {
-            TSType t = TSType.from(Consumer.class);
+            TSType t = TSType.of(Consumer.class);
             Assert.assertThat(t.isFunctional() , equalTo(true));
             t.setFunctional(false);
             Assert.assertThat(t.isFunctional() , equalTo(true));
 
         }
-        Assert.assertThat(TSType.from(Action.class).isFunctional() , equalTo(true));
+        Assert.assertThat(TSType.of(Action.class).isFunctional() , equalTo(true));
         {
-            TSType t = TSType.from(Action2.class);
+            TSType t = TSType.of(Action2.class);
             Assert.assertThat(t.isFunctional() , equalTo(false));
             t.setFunctional(true);
             Assert.assertThat(t.isFunctional() , equalTo(false));

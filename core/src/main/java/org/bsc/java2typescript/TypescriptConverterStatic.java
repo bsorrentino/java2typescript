@@ -39,12 +39,12 @@ public abstract class TypescriptConverterStatic {
     static final String ENDL = ";\n";
 
     public static final List<TSType> PREDEFINED_TYPES = Arrays.asList(
-            TSType.from(Class.class),
-            TSType.from(Serializable.class),
-            TSType.from(Closeable.class),
-            TSType.from(AutoCloseable.class),
-            TSType.from(Cloneable.class),
-            TSType.from(RandomAccess.class)
+            TSType.of(Class.class),
+            TSType.of(Serializable.class),
+            TSType.of(Closeable.class),
+            TSType.of(AutoCloseable.class),
+            TSType.of(Cloneable.class),
+            TSType.of(RandomAccess.class)
          );
 
 
@@ -58,20 +58,18 @@ public abstract class TypescriptConverterStatic {
      *
      */
     static BiPredicate<Class<?>,Type> typeParameterMatch = (declaringClass, type) ->
-        ( type instanceof TypeVariable ) ?
-                Arrays.stream(declaringClass.getTypeParameters())
-                    .map( (tp) -> tp.getName())
-                    .anyMatch( name -> name.equals(((TypeVariable<?>)type).getName())) :
-                false
+        type instanceof TypeVariable && Arrays.stream(declaringClass.getTypeParameters())
+            .map(tp -> tp.getName())
+            .anyMatch(name -> name.equals(((TypeVariable<?>) type).getName()))
                     ;
 
     static void log( String fmt, Object ...args ) {
-        if( Boolean.getBoolean("debug") ) System.out.println( format( fmt, args));
+        if( Boolean.getBoolean("debug") ) System.out.printf( fmt, args);
     }
     
     static void debug( String fmt, Object ...args ) {
         System.out.print( "DEBUG: ");       
-        System.out.println( format( fmt, args));
+        System.out.printf( fmt, args );
     }
     /**
     *
@@ -265,18 +263,19 @@ public abstract class TypescriptConverterStatic {
       return format("any /*%s*/",type.getName());
 
   }
-   
-   /**
-   *
-   * @param type
-   * @param declaringMember
-   * @param declaredTypeMap
-   * @param packageResolution
-   * @param typeMatch
-   * @param onTypeMismatch
-   * @return
-   */
-  public static <M extends Member> String convertJavaToTS( 
+
+    /**
+     *
+     * @param type
+     * @param declaringMember
+     * @param declaringType
+     * @param declaredTypeMap
+     * @param packageResolution
+     * @param onTypeMismatch
+     * @param <M>
+     * @return
+     */
+  public static <M extends Member> String convertJavaToTS(
                                           Type type,
                                           M declaringMember,
                                           TSType declaringType,
@@ -290,6 +289,7 @@ public abstract class TypescriptConverterStatic {
       Objects.requireNonNull(declaredTypeMap, "declaredTypeMap argument is null!");
 
       log( "PROCESSING MEMEBER: [%s]", declaringMember.getName());
+
       /**
        * 
        */

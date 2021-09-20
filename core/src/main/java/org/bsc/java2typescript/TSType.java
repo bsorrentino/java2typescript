@@ -29,7 +29,15 @@ public class TSType extends HashMap<String, Object> {
         super(3);
     }
 
-    public static TSType from(Class<?> cl) {
+
+    public static TSType of() {
+        return new TSType() {
+            {
+                put(VALUE, Void.class);
+            }
+        };
+    }
+    public static TSType of(Class<?> cl) {
         return new TSType() {
             {
                 put(VALUE, cl);
@@ -239,4 +247,8 @@ public class TSType extends HashMap<String, Object> {
         return getValue().hashCode();
     }
 
+    @Override
+    public String toString() {
+        return format("TSType{ value: %s }", getValue().getName());
+    }
 }
