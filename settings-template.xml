@@ -14,7 +14,12 @@
         <server>
             <id>sonatype-server</id>
             <username>bsorrentino</username>
-            <password>${env.SONATYPE_PASSWORD}</password>
+            <password>${env.OSS_SONATYPE_PASSWORD}</password>
+        </server>
+
+        <server>
+            <id>github</id>
+            <password>${env.GITHUB_TOKEN}</password>
         </server>
 
     </servers>
