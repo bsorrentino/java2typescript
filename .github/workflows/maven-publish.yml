@@ -21,10 +21,10 @@ jobs:
       with:
         java-version: 1.8
     - name: GPG Setup
-        env:
-          GPG_KEY_BASE64: ${{ secrets.GPG_KEY_BASE64 }}
-          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
-        run: ./gpg-setup.sh
+      env:
+        GPG_KEY_BASE64: ${{ secrets.GPG_KEY_BASE64 }}
+        GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+      run: ./gpg-setup.sh
     - name: Deploy to OSS Sonatype
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN  }}
