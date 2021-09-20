@@ -24,4 +24,4 @@ jobs:
     - name: Build with Maven
       env:
         OSS_SONATYPE_PASSWORD: ${{ secrets.OSS_SONATYPE_PASSWORD }}
-      run: mvn -B -Prelease source:jar javadoc:jar deploy --file pom.xml -s settings-template.xml
+      run: mvn -B -Prelease source:jar javadoc:jar deploy --file pom.xml -s settings-template.xml -Dgpg.passphrase=${{ secrets.GPG_PASSPHRASE }}
