@@ -14,10 +14,10 @@ This task will generate `jdk8.d.ts` and `jdk8-types.ts` into folder `ts/j2ts`
 
 ### Compile typescript
 
-> npm run build:main
+> npm run build
 
 This task use [parcel](https://parceljs.org/) to bundle all modules in a single javascript file in `target/js/main.js`
 
 ### Run sample
 
-> mvn exec:exec
+> npm start
