@@ -13,8 +13,7 @@
     <description>graaljs sample</description>
 
     <properties>
-        <graalvm.version.1>1.0.0-rc16</graalvm.version.1>
-        <graalvm.version>19.3.1</graalvm.version>
+        <graalvm.version>20.3.0</graalvm.version>
         <compiler.dir>${project.build.directory}/compiler</compiler.dir>
         <main.app>app.js</main.app>
     </properties>
@@ -23,7 +22,7 @@
         <profile>
             <id>jdk11</id>
             <activation>
-                <jdk>11</jdk>
+                <jdk>[11,</jdk>
             </activation>
             <dependencies>
                 <dependency>
@@ -59,8 +58,9 @@
                 <plugins>
                     <plugin>
                         <artifactId>maven-surefire-plugin</artifactId>
+                        <version>2.22.1</version>
                         <configuration>
-                            <argLine>-XX:+UnlockExperimentalVMOptions -XX:+EnableJVMCI --module-path=${compiler.dir} --upgrade-module-path=${compiler.dir}/compiler.jar</argLine>
+                            <argLine>-XX:+UnlockExperimentalVMOptions -XX:+EnableJVMCI --module-path=${compiler.dir} --upgrade-module-path=${compiler.dir}/compiler.jar:${compiler.dir}/compiler-management.jar</argLine>
                         </configuration>
                     </plugin>
                     <plugin>
@@ -83,6 +83,14 @@
                                             <type>jar</type>
                                             <overWrite>true</overWrite>
                                             <destFileName>compiler.jar</destFileName>
+                                        </artifactItem>
+                                        <artifactItem>
+                                            <groupId>org.graalvm.compiler</groupId>
+                                            <artifactId>compiler-management</artifactId>
+                                            <version>${graalvm.version}</version>
+                                            <type>jar</type>
+                                            <overWrite>true</overWrite>
+                                            <destFileName>compiler-management.jar</destFileName>
                                         </artifactItem>
                                         <artifactItem>
                                             <groupId>org.graalvm.truffle</groupId>
@@ -126,7 +134,7 @@
                                         <classpath/>
                                         <argument>-XX:+UnlockExperimentalVMOptions</argument>
                                         <argument>-XX:+EnableJVMCI</argument>
-                                        <argument>--upgrade-module-path=${compiler.dir}/compiler.jar</argument>
+                                        <argument>--upgrade-module-path=${compiler.dir}/compiler.jar:${compiler.dir}/compiler-management.jar</argument>
 				                        <argument>org.bsc.java2ts.JSRun$Graaljs</argument>
 				                        <argument>${main.app}</argument>
                                     </arguments>
@@ -307,7 +315,7 @@
         </plugins>
     </build>
     <dependencies>
-      
+
     <dependency>
       <groupId>org.bsc.processor</groupId>
       <artifactId>java2ts-processor</artifactId>
