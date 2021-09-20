@@ -22,9 +22,8 @@
   },
   "scripts": {
     "build:chalk": "parcel build ts/main.chalk.ts --target=node --bundle-node-modules --no-source-maps --no-minify -d ./target/js -o main.js",
-    "build:main": "parcel build ts/main.ts --target=node --bundle-node-modules --no-source-maps --no-minify -d ./target/js",
-    "build:main2": "parcel build ts/main.ts  --no-source-maps --no-minify -d ./target/js",
-    "start:graaljs": "mvn -f pom.xml exec:exec",
+    "build": "parcel build ts/main.ts --target=node --bundle-node-modules --no-source-maps --no-minify -d ./target/js",
+    "start": "mvn -f pom.xml exec:exec",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
