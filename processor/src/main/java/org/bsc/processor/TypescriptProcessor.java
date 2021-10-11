@@ -151,6 +151,7 @@ public class TypescriptProcessor extends AbstractProcessorEx {
       types.stream()
           .filter(tt -> !PREDEFINED_TYPES.contains(tt))
           .map(tt -> converter.processClass(0, tt, declaredTypes))
+          .sorted()
           .forEach(wD_append);
 
       wT_append.accept(String.format("/// <reference path=\"%s\"/>\n\n", definitionsFile));
@@ -158,6 +159,7 @@ public class TypescriptProcessor extends AbstractProcessorEx {
       types.stream()
           .filter(t -> t.isExport())
           .map(t -> converter.processStatic(t, declaredTypes))
+          .sorted()
           .forEach(wT_append);
 
     } // end try-with-resources

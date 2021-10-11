@@ -9,10 +9,7 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
-import java.util.Arrays;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -97,7 +94,7 @@ public class TypescriptConverter extends TypescriptConverterStatic {
 
             if (!methodSet.isEmpty()) {
 
-                methodSet.stream().sorted((a, b) -> a.getName().compareTo(b.getName())).forEach(md -> ctx.append('\t')
+                methodSet.stream().sorted(Comparator.comparing(Method::toGenericString)).forEach(md -> ctx.append('\t')
                         .append(md.getName()).append(getMethodParametersAndReturnDecl(ctx, md, false)).append(ENDL));
             }
 
