@@ -1,10 +1,23 @@
+# macosx
 .DS_Store
+
+# okhttp
+.okhttpcache/
+
+# maven
 target/
 bin/
+
+# eclipse
 .classpath
 .settings/
 .project
-.vscode/
 .factorypath
+
+# vscode
+.vscode/
+
+# intellij
+
 .idea/
 *.iml
