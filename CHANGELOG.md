@@ -1,25 +1,54 @@
-# Changelog
+# Maven Confluence Plugin - Changelog
 
-Changelog for bsorrentino java2typescript.
+<!-- Changelog for bsorrentino java2typescript. -->
 
 ## Next release
 ### Generic changes
 
+**task(build): add changelog mustache template**
+
+
+[7986a6cd318133d](https://github.com/bsorrentino/java2typescript/commit/7986a6cd318133d) bsorrentino *2021-10-13 15:24:05*
+
+
+###  [#35](https://github.com/bsorrentino/java2typescript/pull/35) fix class, method ordering  
+
+**Merge tag 'v1.3.1' into develop**
+
+ * merge PR #35
+
+[517ab2479debe8e](https://github.com/bsorrentino/java2typescript/commit/517ab2479debe8e) bsorrentino *2021-10-12 10:29:58*
+
+
+## v1.3.1
+### Generic changes
+
+**Merge branch 'release/1.3.1'**
+
+
+[0d11e2d897b8520](https://github.com/bsorrentino/java2typescript/commit/0d11e2d897b8520) bsorrentino *2021-10-12 10:29:26*
+
 **task(build)**
 
- * add support for changelog gen 
+ * update changelog
+
+[03666586f82c60b](https://github.com/bsorrentino/java2typescript/commit/03666586f82c60b) bsorrentino *2021-10-12 10:29:06*
+
+**task(build)**
+
+ * add support for changelog gen
 
 [2e37d7c4026aff9](https://github.com/bsorrentino/java2typescript/commit/2e37d7c4026aff9) bsorrentino *2021-10-12 10:24:47*
 
 **task(build)**
 
- * update github action name 
+ * update github action name
 
 [2ce93e4e593ec43](https://github.com/bsorrentino/java2typescript/commit/2ce93e4e593ec43) bsorrentino *2021-10-12 10:16:38*
 
 **task(build)**
 
- * update to next release version 
+ * update to next release version
 
 [6ba6e63baf5e5e9](https://github.com/bsorrentino/java2typescript/commit/6ba6e63baf5e5e9) bsorrentino *2021-10-12 10:15:09*
 
@@ -35,7 +64,7 @@ Changelog for bsorrentino java2typescript.
 
 **task(build)**
 
- * updane to next dev version 
+ * updane to next dev version
 
 [e4f21629659e07e](https://github.com/bsorrentino/java2typescript/commit/e4f21629659e07e) bsorrentino *2021-10-12 10:08:29*
 
@@ -101,7 +130,7 @@ Changelog for bsorrentino java2typescript.
 
 **Merge tag 'v1.3.0' into develop**
 
- * new release 
+ * new release
 
 [325de887193cbd7](https://github.com/bsorrentino/java2typescript/commit/325de887193cbd7) Build Pipeline *2021-09-20 09:11:28*
 
@@ -186,15 +215,15 @@ Changelog for bsorrentino java2typescript.
 
 **Bump ws from 5.2.2 to 5.2.3 in /samples.rhino**
 
- * Bumps [ws](https://github.com/websockets/ws) from 5.2.2 to 5.2.3. 
- * - [Release notes](https://github.com/websockets/ws/releases) 
- * - [Commits](https://github.com/websockets/ws/compare/5.2.2...5.2.3) 
- * --- 
- * updated-dependencies: 
- * - dependency-name: ws 
- * dependency-type: indirect 
- * ... 
- * Signed-off-by: dependabot[bot] &lt;support@github.com&gt; 
+ * Bumps [ws](https://github.com/websockets/ws) from 5.2.2 to 5.2.3.
+ * - [Release notes](https://github.com/websockets/ws/releases)
+ * - [Commits](https://github.com/websockets/ws/compare/5.2.2...5.2.3)
+ * ---
+ * updated-dependencies:
+ * - dependency-name: ws
+ * dependency-type: indirect
+ * ...
+ * Signed-off-by: dependabot[bot] &lt;support@github.com&gt;
 
 [08e328e8a277021](https://github.com/bsorrentino/java2typescript/commit/08e328e8a277021) dependabot[bot] *2021-09-19 15:30:30*
 
@@ -205,144 +234,144 @@ Changelog for bsorrentino java2typescript.
 
 **Bump color-string from 1.5.3 to 1.6.0 in /samples.rhino**
 
- * Bumps [color-string](https://github.com/Qix-/color-string) from 1.5.3 to 1.6.0. 
- * - [Release notes](https://github.com/Qix-/color-string/releases) 
- * - [Changelog](https://github.com/Qix-/color-string/blob/master/CHANGELOG.md) 
- * - [Commits](https://github.com/Qix-/color-string/commits/1.6.0) 
- * --- 
- * updated-dependencies: 
- * - dependency-name: color-string 
- * dependency-type: indirect 
- * ... 
- * Signed-off-by: dependabot[bot] &lt;support@github.com&gt; 
+ * Bumps [color-string](https://github.com/Qix-/color-string) from 1.5.3 to 1.6.0.
+ * - [Release notes](https://github.com/Qix-/color-string/releases)
+ * - [Changelog](https://github.com/Qix-/color-string/blob/master/CHANGELOG.md)
+ * - [Commits](https://github.com/Qix-/color-string/commits/1.6.0)
+ * ---
+ * updated-dependencies:
+ * - dependency-name: color-string
+ * dependency-type: indirect
+ * ...
+ * Signed-off-by: dependabot[bot] &lt;support@github.com&gt;
 
 [add54d0cf7ea295](https://github.com/bsorrentino/java2typescript/commit/add54d0cf7ea295) dependabot[bot] *2021-09-18 08:44:09*
 
 **Bump acorn from 5.7.3 to 5.7.4 in /samples**
 
- * Bumps [acorn](https://github.com/acornjs/acorn) from 5.7.3 to 5.7.4. 
- * - [Release notes](https://github.com/acornjs/acorn/releases) 
- * - [Commits](https://github.com/acornjs/acorn/compare/5.7.3...5.7.4) 
- * --- 
- * updated-dependencies: 
- * - dependency-name: acorn 
- * dependency-type: indirect 
- * ... 
- * Signed-off-by: dependabot[bot] &lt;support@github.com&gt; 
+ * Bumps [acorn](https://github.com/acornjs/acorn) from 5.7.3 to 5.7.4.
+ * - [Release notes](https://github.com/acornjs/acorn/releases)
+ * - [Commits](https://github.com/acornjs/acorn/compare/5.7.3...5.7.4)
+ * ---
+ * updated-dependencies:
+ * - dependency-name: acorn
+ * dependency-type: indirect
+ * ...
+ * Signed-off-by: dependabot[bot] &lt;support@github.com&gt;
 
 [b31f0339c969189](https://github.com/bsorrentino/java2typescript/commit/b31f0339c969189) dependabot[bot] *2021-09-18 08:43:13*
 
 **Bump dot-prop from 4.2.0 to 4.2.1 in /samples**
 
- * Bumps [dot-prop](https://github.com/sindresorhus/dot-prop) from 4.2.0 to 4.2.1. 
- * - [Release notes](https://github.com/sindresorhus/dot-prop/releases) 
- * - [Commits](https://github.com/sindresorhus/dot-prop/compare/v4.2.0...v4.2.1) 
- * --- 
- * updated-dependencies: 
- * - dependency-name: dot-prop 
- * dependency-type: indirect 
- * ... 
- * Signed-off-by: dependabot[bot] &lt;support@github.com&gt; 
+ * Bumps [dot-prop](https://github.com/sindresorhus/dot-prop) from 4.2.0 to 4.2.1.
+ * - [Release notes](https://github.com/sindresorhus/dot-prop/releases)
+ * - [Commits](https://github.com/sindresorhus/dot-prop/compare/v4.2.0...v4.2.1)
+ * ---
+ * updated-dependencies:
+ * - dependency-name: dot-prop
+ * dependency-type: indirect
+ * ...
+ * Signed-off-by: dependabot[bot] &lt;support@github.com&gt;
 
 [1e1f4a71203ed81](https://github.com/bsorrentino/java2typescript/commit/1e1f4a71203ed81) dependabot[bot] *2021-09-18 08:43:00*
 
 **Bump browserslist from 4.5.6 to 4.17.0 in /samples**
 
- * Bumps [browserslist](https://github.com/browserslist/browserslist) from 4.5.6 to 4.17.0. 
- * - [Release notes](https://github.com/browserslist/browserslist/releases) 
- * - [Changelog](https://github.com/browserslist/browserslist/blob/main/CHANGELOG.md) 
- * - [Commits](https://github.com/browserslist/browserslist/compare/4.5.6...4.17.0) 
- * --- 
- * updated-dependencies: 
- * - dependency-name: browserslist 
- * dependency-type: indirect 
- * ... 
- * Signed-off-by: dependabot[bot] &lt;support@github.com&gt; 
+ * Bumps [browserslist](https://github.com/browserslist/browserslist) from 4.5.6 to 4.17.0.
+ * - [Release notes](https://github.com/browserslist/browserslist/releases)
+ * - [Changelog](https://github.com/browserslist/browserslist/blob/main/CHANGELOG.md)
+ * - [Commits](https://github.com/browserslist/browserslist/compare/4.5.6...4.17.0)
+ * ---
+ * updated-dependencies:
+ * - dependency-name: browserslist
+ * dependency-type: indirect
+ * ...
+ * Signed-off-by: dependabot[bot] &lt;support@github.com&gt;
 
 [83f13112cddc5f5](https://github.com/bsorrentino/java2typescript/commit/83f13112cddc5f5) dependabot[bot] *2021-09-18 08:42:31*
 
 **Bump ini from 1.3.5 to 1.3.8 in /samples**
 
- * Bumps [ini](https://github.com/isaacs/ini) from 1.3.5 to 1.3.8. 
- * - [Release notes](https://github.com/isaacs/ini/releases) 
- * - [Commits](https://github.com/isaacs/ini/compare/v1.3.5...v1.3.8) 
- * --- 
- * updated-dependencies: 
- * - dependency-name: ini 
- * dependency-type: indirect 
- * ... 
- * Signed-off-by: dependabot[bot] &lt;support@github.com&gt; 
+ * Bumps [ini](https://github.com/isaacs/ini) from 1.3.5 to 1.3.8.
+ * - [Release notes](https://github.com/isaacs/ini/releases)
+ * - [Commits](https://github.com/isaacs/ini/compare/v1.3.5...v1.3.8)
+ * ---
+ * updated-dependencies:
+ * - dependency-name: ini
+ * dependency-type: indirect
+ * ...
+ * Signed-off-by: dependabot[bot] &lt;support@github.com&gt;
 
 [f85dec3fb3c1391](https://github.com/bsorrentino/java2typescript/commit/f85dec3fb3c1391) dependabot[bot] *2021-09-18 08:41:56*
 
 **Bump elliptic from 6.4.1 to 6.5.4 in /samples**
 
- * Bumps [elliptic](https://github.com/indutny/elliptic) from 6.4.1 to 6.5.4. 
- * - [Release notes](https://github.com/indutny/elliptic/releases) 
- * - [Commits](https://github.com/indutny/elliptic/compare/v6.4.1...v6.5.4) 
- * --- 
- * updated-dependencies: 
- * - dependency-name: elliptic 
- * dependency-type: indirect 
- * ... 
- * Signed-off-by: dependabot[bot] &lt;support@github.com&gt; 
+ * Bumps [elliptic](https://github.com/indutny/elliptic) from 6.4.1 to 6.5.4.
+ * - [Release notes](https://github.com/indutny/elliptic/releases)
+ * - [Commits](https://github.com/indutny/elliptic/compare/v6.4.1...v6.5.4)
+ * ---
+ * updated-dependencies:
+ * - dependency-name: elliptic
+ * dependency-type: indirect
+ * ...
+ * Signed-off-by: dependabot[bot] &lt;support@github.com&gt;
 
 [95f56e21db366d7](https://github.com/bsorrentino/java2typescript/commit/95f56e21db366d7) dependabot[bot] *2021-09-18 08:41:55*
 
 **Bump path-parse from 1.0.6 to 1.0.7 in /samples**
 
- * Bumps [path-parse](https://github.com/jbgutierrez/path-parse) from 1.0.6 to 1.0.7. 
- * - [Release notes](https://github.com/jbgutierrez/path-parse/releases) 
- * - [Commits](https://github.com/jbgutierrez/path-parse/commits/v1.0.7) 
- * --- 
- * updated-dependencies: 
- * - dependency-name: path-parse 
- * dependency-type: indirect 
- * ... 
- * Signed-off-by: dependabot[bot] &lt;support@github.com&gt; 
+ * Bumps [path-parse](https://github.com/jbgutierrez/path-parse) from 1.0.6 to 1.0.7.
+ * - [Release notes](https://github.com/jbgutierrez/path-parse/releases)
+ * - [Commits](https://github.com/jbgutierrez/path-parse/commits/v1.0.7)
+ * ---
+ * updated-dependencies:
+ * - dependency-name: path-parse
+ * dependency-type: indirect
+ * ...
+ * Signed-off-by: dependabot[bot] &lt;support@github.com&gt;
 
 [0a502ab52778074](https://github.com/bsorrentino/java2typescript/commit/0a502ab52778074) dependabot[bot] *2021-09-18 08:41:44*
 
 **Bump lodash from 4.17.15 to 4.17.21 in /samples**
 
- * Bumps [lodash](https://github.com/lodash/lodash) from 4.17.15 to 4.17.21. 
- * - [Release notes](https://github.com/lodash/lodash/releases) 
- * - [Commits](https://github.com/lodash/lodash/compare/4.17.15...4.17.21) 
- * --- 
- * updated-dependencies: 
- * - dependency-name: lodash 
- * dependency-type: indirect 
- * ... 
- * Signed-off-by: dependabot[bot] &lt;support@github.com&gt; 
+ * Bumps [lodash](https://github.com/lodash/lodash) from 4.17.15 to 4.17.21.
+ * - [Release notes](https://github.com/lodash/lodash/releases)
+ * - [Commits](https://github.com/lodash/lodash/compare/4.17.15...4.17.21)
+ * ---
+ * updated-dependencies:
+ * - dependency-name: lodash
+ * dependency-type: indirect
+ * ...
+ * Signed-off-by: dependabot[bot] &lt;support@github.com&gt;
 
 [28202964a256697](https://github.com/bsorrentino/java2typescript/commit/28202964a256697) dependabot[bot] *2021-09-18 08:41:28*
 
 **Bump color-string from 1.5.3 to 1.6.0 in /samples**
 
- * Bumps [color-string](https://github.com/Qix-/color-string) from 1.5.3 to 1.6.0. 
- * - [Release notes](https://github.com/Qix-/color-string/releases) 
- * - [Changelog](https://github.com/Qix-/color-string/blob/master/CHANGELOG.md) 
- * - [Commits](https://github.com/Qix-/color-string/commits/1.6.0) 
- * --- 
- * updated-dependencies: 
- * - dependency-name: color-string 
- * dependency-type: indirect 
- * ... 
- * Signed-off-by: dependabot[bot] &lt;support@github.com&gt; 
+ * Bumps [color-string](https://github.com/Qix-/color-string) from 1.5.3 to 1.6.0.
+ * - [Release notes](https://github.com/Qix-/color-string/releases)
+ * - [Changelog](https://github.com/Qix-/color-string/blob/master/CHANGELOG.md)
+ * - [Commits](https://github.com/Qix-/color-string/commits/1.6.0)
+ * ---
+ * updated-dependencies:
+ * - dependency-name: color-string
+ * dependency-type: indirect
+ * ...
+ * Signed-off-by: dependabot[bot] &lt;support@github.com&gt;
 
 [870c1ee6ec53fe3](https://github.com/bsorrentino/java2typescript/commit/870c1ee6ec53fe3) dependabot[bot] *2021-09-18 08:39:19*
 
 **Bump ws from 5.2.2 to 5.2.3 in /samples**
 
- * Bumps [ws](https://github.com/websockets/ws) from 5.2.2 to 5.2.3. 
- * - [Release notes](https://github.com/websockets/ws/releases) 
- * - [Commits](https://github.com/websockets/ws/compare/5.2.2...5.2.3) 
- * --- 
- * updated-dependencies: 
- * - dependency-name: ws 
- * dependency-type: indirect 
- * ... 
- * Signed-off-by: dependabot[bot] &lt;support@github.com&gt; 
+ * Bumps [ws](https://github.com/websockets/ws) from 5.2.2 to 5.2.3.
+ * - [Release notes](https://github.com/websockets/ws/releases)
+ * - [Commits](https://github.com/websockets/ws/compare/5.2.2...5.2.3)
+ * ---
+ * updated-dependencies:
+ * - dependency-name: ws
+ * dependency-type: indirect
+ * ...
+ * Signed-off-by: dependabot[bot] &lt;support@github.com&gt;
 
 [f1d6056d6e1306b](https://github.com/bsorrentino/java2typescript/commit/f1d6056d6e1306b) dependabot[bot] *2021-09-18 08:39:17*
 
@@ -353,52 +382,52 @@ Changelog for bsorrentino java2typescript.
 
 **Bump path-parse from 1.0.6 to 1.0.7 in /samples.rhino**
 
- * Bumps [path-parse](https://github.com/jbgutierrez/path-parse) from 1.0.6 to 1.0.7. 
- * - [Release notes](https://github.com/jbgutierrez/path-parse/releases) 
- * - [Commits](https://github.com/jbgutierrez/path-parse/commits/v1.0.7) 
- * --- 
- * updated-dependencies: 
- * - dependency-name: path-parse 
- * dependency-type: indirect 
- * ... 
- * Signed-off-by: dependabot[bot] &lt;support@github.com&gt; 
+ * Bumps [path-parse](https://github.com/jbgutierrez/path-parse) from 1.0.6 to 1.0.7.
+ * - [Release notes](https://github.com/jbgutierrez/path-parse/releases)
+ * - [Commits](https://github.com/jbgutierrez/path-parse/commits/v1.0.7)
+ * ---
+ * updated-dependencies:
+ * - dependency-name: path-parse
+ * dependency-type: indirect
+ * ...
+ * Signed-off-by: dependabot[bot] &lt;support@github.com&gt;
 
 [747552535d9d61c](https://github.com/bsorrentino/java2typescript/commit/747552535d9d61c) dependabot[bot] *2021-08-11 10:55:01*
 
 **Bump browserslist from 4.5.6 to 4.16.6 in /samples.rhino**
 
- * Bumps [browserslist](https://github.com/browserslist/browserslist) from 4.5.6 to 4.16.6. 
- * - [Release notes](https://github.com/browserslist/browserslist/releases) 
- * - [Changelog](https://github.com/browserslist/browserslist/blob/main/CHANGELOG.md) 
- * - [Commits](https://github.com/browserslist/browserslist/compare/4.5.6...4.16.6) 
- * Signed-off-by: dependabot[bot] &lt;support@github.com&gt; 
+ * Bumps [browserslist](https://github.com/browserslist/browserslist) from 4.5.6 to 4.16.6.
+ * - [Release notes](https://github.com/browserslist/browserslist/releases)
+ * - [Changelog](https://github.com/browserslist/browserslist/blob/main/CHANGELOG.md)
+ * - [Commits](https://github.com/browserslist/browserslist/compare/4.5.6...4.16.6)
+ * Signed-off-by: dependabot[bot] &lt;support@github.com&gt;
 
 [88084b1fe53c793](https://github.com/bsorrentino/java2typescript/commit/88084b1fe53c793) dependabot[bot] *2021-05-25 15:11:32*
 
 **Bump lodash from 4.17.15 to 4.17.21 in /samples.rhino**
 
- * Bumps [lodash](https://github.com/lodash/lodash) from 4.17.15 to 4.17.21. 
- * - [Release notes](https://github.com/lodash/lodash/releases) 
- * - [Commits](https://github.com/lodash/lodash/compare/4.17.15...4.17.21) 
- * Signed-off-by: dependabot[bot] &lt;support@github.com&gt; 
+ * Bumps [lodash](https://github.com/lodash/lodash) from 4.17.15 to 4.17.21.
+ * - [Release notes](https://github.com/lodash/lodash/releases)
+ * - [Commits](https://github.com/lodash/lodash/compare/4.17.15...4.17.21)
+ * Signed-off-by: dependabot[bot] &lt;support@github.com&gt;
 
 [4e05ef9ad084b95](https://github.com/bsorrentino/java2typescript/commit/4e05ef9ad084b95) dependabot[bot] *2021-05-10 12:48:50*
 
 **Bump elliptic from 6.4.1 to 6.5.4 in /samples.rhino**
 
- * Bumps [elliptic](https://github.com/indutny/elliptic) from 6.4.1 to 6.5.4. 
- * - [Release notes](https://github.com/indutny/elliptic/releases) 
- * - [Commits](https://github.com/indutny/elliptic/compare/v6.4.1...v6.5.4) 
- * Signed-off-by: dependabot[bot] &lt;support@github.com&gt; 
+ * Bumps [elliptic](https://github.com/indutny/elliptic) from 6.4.1 to 6.5.4.
+ * - [Release notes](https://github.com/indutny/elliptic/releases)
+ * - [Commits](https://github.com/indutny/elliptic/compare/v6.4.1...v6.5.4)
+ * Signed-off-by: dependabot[bot] &lt;support@github.com&gt;
 
 [7749239ea150c6d](https://github.com/bsorrentino/java2typescript/commit/7749239ea150c6d) dependabot[bot] *2021-03-09 17:05:58*
 
 **Bump ini from 1.3.5 to 1.3.7 in /samples.rhino**
 
- * Bumps [ini](https://github.com/isaacs/ini) from 1.3.5 to 1.3.7. 
- * - [Release notes](https://github.com/isaacs/ini/releases) 
- * - [Commits](https://github.com/isaacs/ini/compare/v1.3.5...v1.3.7) 
- * Signed-off-by: dependabot[bot] &lt;support@github.com&gt; 
+ * Bumps [ini](https://github.com/isaacs/ini) from 1.3.5 to 1.3.7.
+ * - [Release notes](https://github.com/isaacs/ini/releases)
+ * - [Commits](https://github.com/isaacs/ini/compare/v1.3.5...v1.3.7)
+ * Signed-off-by: dependabot[bot] &lt;support@github.com&gt;
 
 [25422f964c9557e](https://github.com/bsorrentino/java2typescript/commit/25422f964c9557e) dependabot[bot] *2020-12-11 20:13:00*
 
@@ -459,10 +488,10 @@ Changelog for bsorrentino java2typescript.
 
 **Bump dot-prop from 4.2.0 to 4.2.1 in /samples.rhino**
 
- * Bumps [dot-prop](https://github.com/sindresorhus/dot-prop) from 4.2.0 to 4.2.1. 
- * - [Release notes](https://github.com/sindresorhus/dot-prop/releases) 
- * - [Commits](https://github.com/sindresorhus/dot-prop/compare/v4.2.0...v4.2.1) 
- * Signed-off-by: dependabot[bot] &lt;support@github.com&gt; 
+ * Bumps [dot-prop](https://github.com/sindresorhus/dot-prop) from 4.2.0 to 4.2.1.
+ * - [Release notes](https://github.com/sindresorhus/dot-prop/releases)
+ * - [Commits](https://github.com/sindresorhus/dot-prop/compare/v4.2.0...v4.2.1)
+ * Signed-off-by: dependabot[bot] &lt;support@github.com&gt;
 
 [aa7fea518eeb2bd](https://github.com/bsorrentino/java2typescript/commit/aa7fea518eeb2bd) dependabot[bot] *2020-11-02 20:32:37*
 
@@ -488,11 +517,11 @@ Changelog for bsorrentino java2typescript.
 
 **Bump junit from 4.12 to 4.13.1**
 
- * Bumps [junit](https://github.com/junit-team/junit4) from 4.12 to 4.13.1. 
- * - [Release notes](https://github.com/junit-team/junit4/releases) 
- * - [Changelog](https://github.com/junit-team/junit4/blob/main/doc/ReleaseNotes4.12.md) 
- * - [Commits](https://github.com/junit-team/junit4/compare/r4.12...r4.13.1) 
- * Signed-off-by: dependabot[bot] &lt;support@github.com&gt; 
+ * Bumps [junit](https://github.com/junit-team/junit4) from 4.12 to 4.13.1.
+ * - [Release notes](https://github.com/junit-team/junit4/releases)
+ * - [Changelog](https://github.com/junit-team/junit4/blob/main/doc/ReleaseNotes4.12.md)
+ * - [Commits](https://github.com/junit-team/junit4/compare/r4.12...r4.13.1)
+ * Signed-off-by: dependabot[bot] &lt;support@github.com&gt;
 
 [ed30ac4f62f727d](https://github.com/bsorrentino/java2typescript/commit/ed30ac4f62f727d) dependabot[bot] *2020-10-13 06:46:38*
 
@@ -508,15 +537,15 @@ Changelog for bsorrentino java2typescript.
 
 **Merge remote-tracking branch 'origin/develop' into develop**
 
- * # Conflicts: 
- * #	.gitignore 
+ * # Conflicts:
+ * #	.gitignore
 
 [61342a4c001a0fe](https://github.com/bsorrentino/java2typescript/commit/61342a4c001a0fe) bartolomeo sorrentino *2020-10-11 18:06:56*
 
 **Merge remote-tracking branch 'origin/develop' into develop**
 
- * # Conflicts: 
- * #	.gitignore 
+ * # Conflicts:
+ * #	.gitignore
 
 [49d7f59da4dfa5f](https://github.com/bsorrentino/java2typescript/commit/49d7f59da4dfa5f) bartolomeo sorrentino *2020-10-10 10:48:05*
 
@@ -527,10 +556,10 @@ Changelog for bsorrentino java2typescript.
 
 **Bump acorn from 5.7.3 to 5.7.4 in /samples.rhino**
 
- * Bumps [acorn](https://github.com/acornjs/acorn) from 5.7.3 to 5.7.4. 
- * - [Release notes](https://github.com/acornjs/acorn/releases) 
- * - [Commits](https://github.com/acornjs/acorn/compare/5.7.3...5.7.4) 
- * Signed-off-by: dependabot[bot] &lt;support@github.com&gt; 
+ * Bumps [acorn](https://github.com/acornjs/acorn) from 5.7.3 to 5.7.4.
+ * - [Release notes](https://github.com/acornjs/acorn/releases)
+ * - [Commits](https://github.com/acornjs/acorn/compare/5.7.3...5.7.4)
+ * Signed-off-by: dependabot[bot] &lt;support@github.com&gt;
 
 [f5c929937e50fd3](https://github.com/bsorrentino/java2typescript/commit/f5c929937e50fd3) dependabot[bot] *2020-03-16 12:27:26*
 
@@ -555,20 +584,20 @@ Changelog for bsorrentino java2typescript.
 [dcc6c9da2b1acc7](https://github.com/bsorrentino/java2typescript/commit/dcc6c9da2b1acc7) bartolomeo sorrentino *2019-09-08 17:43:55*
 
 
-### GitHub [#11](https://github.com/bsorrentino/java2typescript/pull/11) Bump acorn from 5.7.3 to 5.7.4 in /samples.rhino    *dependencies*  
+###  [#11](https://github.com/bsorrentino/java2typescript/pull/11) Bump acorn from 5.7.3 to 5.7.4 in /samples.rhino    *dependencies*  
 
 **Merge pull request #11 from bsorrentino/dependabot/npm_and_yarn/samples.rhino/acorn-5.7.4**
 
- * Bump acorn from 5.7.3 to 5.7.4 in /samples.rhino 
+ * Bump acorn from 5.7.3 to 5.7.4 in /samples.rhino
 
 [f3a2eebcb0a797c](https://github.com/bsorrentino/java2typescript/commit/f3a2eebcb0a797c) bsorrentino *2021-09-18 08:38:41*
 
 
-### GitHub [#14](https://github.com/bsorrentino/java2typescript/pull/14) Bump junit from 4.12 to 4.13.1    *dependencies*  *java*  
+###  [#14](https://github.com/bsorrentino/java2typescript/pull/14) Bump junit from 4.12 to 4.13.1    *dependencies*  *java*  
 
 **Merge pull request #14 from bsorrentino/dependabot/maven/junit-junit-4.13.1**
 
- * Bump junit from 4.12 to 4.13.1 
+ * Bump junit from 4.12 to 4.13.1
 
 [4e30e8fd216c36a](https://github.com/bsorrentino/java2typescript/commit/4e30e8fd216c36a) bsorrentino *2021-09-18 08:39:03*
 
@@ -578,160 +607,160 @@ Changelog for bsorrentino java2typescript.
 [60d301bec805e68](https://github.com/bsorrentino/java2typescript/commit/60d301bec805e68) bsorrentino *2020-11-03 09:37:21*
 
 
-### GitHub [#16](https://github.com/bsorrentino/java2typescript/pull/16) Bump dot-prop from 4.2.0 to 4.2.1 in /samples.rhino    *dependencies*  *javascript*  
+###  [#16](https://github.com/bsorrentino/java2typescript/pull/16) Bump dot-prop from 4.2.0 to 4.2.1 in /samples.rhino    *dependencies*  *javascript*  
 
 **Merge pull request #16 from bsorrentino/dependabot/npm_and_yarn/samples.rhino/dot-prop-4.2.1**
 
- * Bump dot-prop from 4.2.0 to 4.2.1 in /samples.rhino 
+ * Bump dot-prop from 4.2.0 to 4.2.1 in /samples.rhino
 
 [8ddb99c2280890a](https://github.com/bsorrentino/java2typescript/commit/8ddb99c2280890a) bsorrentino *2021-09-18 08:39:18*
 
 
-### GitHub [#17](https://github.com/bsorrentino/java2typescript/pull/17) Bump ini from 1.3.5 to 1.3.7 in /samples.rhino    *dependencies*  *javascript*  
+###  [#17](https://github.com/bsorrentino/java2typescript/pull/17) Bump ini from 1.3.5 to 1.3.7 in /samples.rhino    *dependencies*  *javascript*  
 
 **Merge pull request #17 from bsorrentino/dependabot/npm_and_yarn/samples.rhino/ini-1.3.7**
 
- * Bump ini from 1.3.5 to 1.3.7 in /samples.rhino 
+ * Bump ini from 1.3.5 to 1.3.7 in /samples.rhino
 
 [119589538e2a5ce](https://github.com/bsorrentino/java2typescript/commit/119589538e2a5ce) bsorrentino *2021-09-18 08:39:43*
 
 
-### GitHub [#19](https://github.com/bsorrentino/java2typescript/pull/19) Bump elliptic from 6.4.1 to 6.5.4 in /samples.rhino    *dependencies*  *javascript*  
+###  [#19](https://github.com/bsorrentino/java2typescript/pull/19) Bump elliptic from 6.4.1 to 6.5.4 in /samples.rhino    *dependencies*  *javascript*  
 
 **Merge pull request #19 from bsorrentino/dependabot/npm_and_yarn/samples.rhino/elliptic-6.5.4**
 
- * Bump elliptic from 6.4.1 to 6.5.4 in /samples.rhino 
+ * Bump elliptic from 6.4.1 to 6.5.4 in /samples.rhino
 
 [59451384726d9e8](https://github.com/bsorrentino/java2typescript/commit/59451384726d9e8) bsorrentino *2021-09-18 08:40:30*
 
 
-### GitHub [#20](https://github.com/bsorrentino/java2typescript/pull/20) Bump lodash from 4.17.15 to 4.17.21 in /samples.rhino    *dependencies*  *javascript*  
+###  [#20](https://github.com/bsorrentino/java2typescript/pull/20) Bump lodash from 4.17.15 to 4.17.21 in /samples.rhino    *dependencies*  *javascript*  
 
 **Merge pull request #20 from bsorrentino/dependabot/npm_and_yarn/samples.rhino/lodash-4.17.21**
 
- * Bump lodash from 4.17.15 to 4.17.21 in /samples.rhino 
+ * Bump lodash from 4.17.15 to 4.17.21 in /samples.rhino
 
 [e3fb7f8f0c89bd4](https://github.com/bsorrentino/java2typescript/commit/e3fb7f8f0c89bd4) bsorrentino *2021-09-18 08:40:48*
 
 
-### GitHub [#21](https://github.com/bsorrentino/java2typescript/pull/21) Bump browserslist from 4.5.6 to 4.16.6 in /samples.rhino    *dependencies*  *javascript*  
+###  [#21](https://github.com/bsorrentino/java2typescript/pull/21) Bump browserslist from 4.5.6 to 4.16.6 in /samples.rhino    *dependencies*  *javascript*  
 
 **Merge pull request #21 from bsorrentino/dependabot/npm_and_yarn/samples.rhino/browserslist-4.16.6**
 
- * Bump browserslist from 4.5.6 to 4.16.6 in /samples.rhino 
+ * Bump browserslist from 4.5.6 to 4.16.6 in /samples.rhino
 
 [c7520f5050e33e0](https://github.com/bsorrentino/java2typescript/commit/c7520f5050e33e0) bsorrentino *2021-09-18 08:41:00*
 
 
-### GitHub [#22](https://github.com/bsorrentino/java2typescript/pull/22) Bump path-parse from 1.0.6 to 1.0.7 in /samples.rhino    *dependencies*  *javascript*  
+###  [#22](https://github.com/bsorrentino/java2typescript/pull/22) Bump path-parse from 1.0.6 to 1.0.7 in /samples.rhino    *dependencies*  *javascript*  
 
 **Merge pull request #22 from bsorrentino/dependabot/npm_and_yarn/samples.rhino/path-parse-1.0.7**
 
- * Bump path-parse from 1.0.6 to 1.0.7 in /samples.rhino 
+ * Bump path-parse from 1.0.6 to 1.0.7 in /samples.rhino
 
 [1c9d1110c0031ba](https://github.com/bsorrentino/java2typescript/commit/1c9d1110c0031ba) bsorrentino *2021-09-18 08:41:13*
 
 
-### GitHub [#23](https://github.com/bsorrentino/java2typescript/pull/23) Bump ws from 5.2.2 to 5.2.3 in /samples    *dependencies*  *javascript*  
+###  [#23](https://github.com/bsorrentino/java2typescript/pull/23) Bump ws from 5.2.2 to 5.2.3 in /samples    *dependencies*  *javascript*  
 
 **Merge pull request #23 from bsorrentino/dependabot/npm_and_yarn/samples/ws-5.2.3**
 
- * Bump ws from 5.2.2 to 5.2.3 in /samples 
+ * Bump ws from 5.2.2 to 5.2.3 in /samples
 
 [0679c4437acc360](https://github.com/bsorrentino/java2typescript/commit/0679c4437acc360) bsorrentino *2021-09-18 08:41:23*
 
 
-### GitHub [#24](https://github.com/bsorrentino/java2typescript/pull/24) Bump lodash from 4.17.15 to 4.17.21 in /samples    *dependencies*  *javascript*  
+###  [#24](https://github.com/bsorrentino/java2typescript/pull/24) Bump lodash from 4.17.15 to 4.17.21 in /samples    *dependencies*  *javascript*  
 
 **Merge pull request #24 from bsorrentino/dependabot/npm_and_yarn/samples/lodash-4.17.21**
 
- * Bump lodash from 4.17.15 to 4.17.21 in /samples 
+ * Bump lodash from 4.17.15 to 4.17.21 in /samples
 
 [f99d1cbc706d8b8](https://github.com/bsorrentino/java2typescript/commit/f99d1cbc706d8b8) bsorrentino *2021-09-18 08:41:45*
 
 
-### GitHub [#25](https://github.com/bsorrentino/java2typescript/pull/25) Bump path-parse from 1.0.6 to 1.0.7 in /samples    *dependencies*  *javascript*  
+###  [#25](https://github.com/bsorrentino/java2typescript/pull/25) Bump path-parse from 1.0.6 to 1.0.7 in /samples    *dependencies*  *javascript*  
 
 **Merge pull request #25 from bsorrentino/dependabot/npm_and_yarn/samples/path-parse-1.0.7**
 
- * Bump path-parse from 1.0.6 to 1.0.7 in /samples 
+ * Bump path-parse from 1.0.6 to 1.0.7 in /samples
 
 [964f822d0934a08](https://github.com/bsorrentino/java2typescript/commit/964f822d0934a08) bsorrentino *2021-09-18 08:42:08*
 
 
-### GitHub [#26](https://github.com/bsorrentino/java2typescript/pull/26) Bump elliptic from 6.4.1 to 6.5.4 in /samples    *dependencies*  *javascript*  
+###  [#26](https://github.com/bsorrentino/java2typescript/pull/26) Bump elliptic from 6.4.1 to 6.5.4 in /samples    *dependencies*  *javascript*  
 
 **Merge pull request #26 from bsorrentino/dependabot/npm_and_yarn/samples/elliptic-6.5.4**
 
- * Bump elliptic from 6.4.1 to 6.5.4 in /samples 
+ * Bump elliptic from 6.4.1 to 6.5.4 in /samples
 
 [f3a785d2571e9c8](https://github.com/bsorrentino/java2typescript/commit/f3a785d2571e9c8) bsorrentino *2021-09-18 08:42:23*
 
 
-### GitHub [#27](https://github.com/bsorrentino/java2typescript/pull/27) Bump color-string from 1.5.3 to 1.6.0 in /samples    *dependencies*  *javascript*  
+###  [#27](https://github.com/bsorrentino/java2typescript/pull/27) Bump color-string from 1.5.3 to 1.6.0 in /samples    *dependencies*  *javascript*  
 
 **Merge pull request #27 from bsorrentino/dependabot/npm_and_yarn/samples/color-string-1.6.0**
 
- * Bump color-string from 1.5.3 to 1.6.0 in /samples 
+ * Bump color-string from 1.5.3 to 1.6.0 in /samples
 
 [1f163e0c2c1d0d9](https://github.com/bsorrentino/java2typescript/commit/1f163e0c2c1d0d9) bsorrentino *2021-09-18 08:42:39*
 
 
-### GitHub [#28](https://github.com/bsorrentino/java2typescript/pull/28) Bump browserslist from 4.5.6 to 4.17.0 in /samples    *dependencies*  *javascript*  
+###  [#28](https://github.com/bsorrentino/java2typescript/pull/28) Bump browserslist from 4.5.6 to 4.17.0 in /samples    *dependencies*  *javascript*  
 
 **Merge pull request #28 from bsorrentino/dependabot/npm_and_yarn/samples/browserslist-4.17.0**
 
- * Bump browserslist from 4.5.6 to 4.17.0 in /samples 
+ * Bump browserslist from 4.5.6 to 4.17.0 in /samples
 
 [d2f15f0f4f95fb1](https://github.com/bsorrentino/java2typescript/commit/d2f15f0f4f95fb1) bsorrentino *2021-09-18 08:42:50*
 
 
-### GitHub [#29](https://github.com/bsorrentino/java2typescript/pull/29) Bump ini from 1.3.5 to 1.3.8 in /samples    *dependencies*  *javascript*  
+###  [#29](https://github.com/bsorrentino/java2typescript/pull/29) Bump ini from 1.3.5 to 1.3.8 in /samples    *dependencies*  *javascript*  
 
 **Merge pull request #29 from bsorrentino/dependabot/npm_and_yarn/samples/ini-1.3.8**
 
- * Bump ini from 1.3.5 to 1.3.8 in /samples 
+ * Bump ini from 1.3.5 to 1.3.8 in /samples
 
 [7fd85eb60feddca](https://github.com/bsorrentino/java2typescript/commit/7fd85eb60feddca) bsorrentino *2021-09-18 08:43:03*
 
 
-### GitHub [#30](https://github.com/bsorrentino/java2typescript/pull/30) Bump dot-prop from 4.2.0 to 4.2.1 in /samples    *dependencies*  *javascript*  
+###  [#30](https://github.com/bsorrentino/java2typescript/pull/30) Bump dot-prop from 4.2.0 to 4.2.1 in /samples    *dependencies*  *javascript*  
 
 **Merge pull request #30 from bsorrentino/dependabot/npm_and_yarn/samples/dot-prop-4.2.1**
 
- * Bump dot-prop from 4.2.0 to 4.2.1 in /samples 
+ * Bump dot-prop from 4.2.0 to 4.2.1 in /samples
 
 [1c55dc2345d4554](https://github.com/bsorrentino/java2typescript/commit/1c55dc2345d4554) bsorrentino *2021-09-18 08:43:25*
 
 
-### GitHub [#31](https://github.com/bsorrentino/java2typescript/pull/31) Bump acorn from 5.7.3 to 5.7.4 in /samples    *dependencies*  *javascript*  
+###  [#31](https://github.com/bsorrentino/java2typescript/pull/31) Bump acorn from 5.7.3 to 5.7.4 in /samples    *dependencies*  *javascript*  
 
 **Merge pull request #31 from bsorrentino/dependabot/npm_and_yarn/samples/acorn-5.7.4**
 
- * Bump acorn from 5.7.3 to 5.7.4 in /samples 
+ * Bump acorn from 5.7.3 to 5.7.4 in /samples
 
 [357738ece90acd2](https://github.com/bsorrentino/java2typescript/commit/357738ece90acd2) bsorrentino *2021-09-18 08:43:35*
 
 
-### GitHub [#32](https://github.com/bsorrentino/java2typescript/pull/32) Bump color-string from 1.5.3 to 1.6.0 in /samples.rhino    *dependencies*  *javascript*  
+###  [#32](https://github.com/bsorrentino/java2typescript/pull/32) Bump color-string from 1.5.3 to 1.6.0 in /samples.rhino    *dependencies*  *javascript*  
 
 **Merge pull request #32 from bsorrentino/dependabot/npm_and_yarn/samples.rhino/color-string-1.6.0**
 
- * Bump color-string from 1.5.3 to 1.6.0 in /samples.rhino 
+ * Bump color-string from 1.5.3 to 1.6.0 in /samples.rhino
 
 [5d21d0a399c353e](https://github.com/bsorrentino/java2typescript/commit/5d21d0a399c353e) bsorrentino *2021-09-19 15:29:54*
 
 
-### GitHub [#33](https://github.com/bsorrentino/java2typescript/pull/33) Bump ws from 5.2.2 to 5.2.3 in /samples.rhino    *dependencies*  *javascript*  
+###  [#33](https://github.com/bsorrentino/java2typescript/pull/33) Bump ws from 5.2.2 to 5.2.3 in /samples.rhino    *dependencies*  *javascript*  
 
 **Merge pull request #33 from bsorrentino/dependabot/npm_and_yarn/samples.rhino/ws-5.2.3**
 
- * Bump ws from 5.2.2 to 5.2.3 in /samples.rhino 
+ * Bump ws from 5.2.2 to 5.2.3 in /samples.rhino
 
 [468fab721a8a336](https://github.com/bsorrentino/java2typescript/commit/468fab721a8a336) bsorrentino *2021-09-19 15:32:36*
 
 
-### GitHub [#6](https://github.com/bsorrentino/java2typescript/issues/6) generate definitions for Functional Interface    *enhancement*  
+###  [#6](https://github.com/bsorrentino/java2typescript/issues/6) generate definitions for Functional Interface    *enhancement*  
 
 **#6 add namespace class management**
 
@@ -743,13 +772,13 @@ Changelog for bsorrentino java2typescript.
 
 **Merge pull request #31 from bsorrentino/dependabot/npm_and_yarn/samples/acorn-5.7.4**
 
- * Bump acorn from 5.7.3 to 5.7.4 in /samples 
+ * Bump acorn from 5.7.3 to 5.7.4 in /samples
 
 [357738ece90acd2](https://github.com/bsorrentino/java2typescript/commit/357738ece90acd2) bsorrentino *2021-09-18 08:43:35*
 
 **Merge pull request #11 from bsorrentino/dependabot/npm_and_yarn/samples.rhino/acorn-5.7.4**
 
- * Bump acorn from 5.7.3 to 5.7.4 in /samples.rhino 
+ * Bump acorn from 5.7.3 to 5.7.4 in /samples.rhino
 
 [f3a2eebcb0a797c](https://github.com/bsorrentino/java2typescript/commit/f3a2eebcb0a797c) bsorrentino *2021-09-18 08:38:41*
 
@@ -768,13 +797,13 @@ Changelog for bsorrentino java2typescript.
 
 **Merge pull request #28 from bsorrentino/dependabot/npm_and_yarn/samples/browserslist-4.17.0**
 
- * Bump browserslist from 4.5.6 to 4.17.0 in /samples 
+ * Bump browserslist from 4.5.6 to 4.17.0 in /samples
 
 [d2f15f0f4f95fb1](https://github.com/bsorrentino/java2typescript/commit/d2f15f0f4f95fb1) bsorrentino *2021-09-18 08:42:50*
 
 **Merge pull request #21 from bsorrentino/dependabot/npm_and_yarn/samples.rhino/browserslist-4.16.6**
 
- * Bump browserslist from 4.5.6 to 4.16.6 in /samples.rhino 
+ * Bump browserslist from 4.5.6 to 4.16.6 in /samples.rhino
 
 [c7520f5050e33e0](https://github.com/bsorrentino/java2typescript/commit/c7520f5050e33e0) bsorrentino *2021-09-18 08:41:00*
 
@@ -783,13 +812,13 @@ Changelog for bsorrentino java2typescript.
 
 **Merge pull request #26 from bsorrentino/dependabot/npm_and_yarn/samples/elliptic-6.5.4**
 
- * Bump elliptic from 6.4.1 to 6.5.4 in /samples 
+ * Bump elliptic from 6.4.1 to 6.5.4 in /samples
 
 [f3a785d2571e9c8](https://github.com/bsorrentino/java2typescript/commit/f3a785d2571e9c8) bsorrentino *2021-09-18 08:42:23*
 
 **Merge pull request #19 from bsorrentino/dependabot/npm_and_yarn/samples.rhino/elliptic-6.5.4**
 
- * Bump elliptic from 6.4.1 to 6.5.4 in /samples.rhino 
+ * Bump elliptic from 6.4.1 to 6.5.4 in /samples.rhino
 
 [59451384726d9e8](https://github.com/bsorrentino/java2typescript/commit/59451384726d9e8) bsorrentino *2021-09-18 08:40:30*
 
@@ -798,13 +827,13 @@ Changelog for bsorrentino java2typescript.
 
 **Merge pull request #29 from bsorrentino/dependabot/npm_and_yarn/samples/ini-1.3.8**
 
- * Bump ini from 1.3.5 to 1.3.8 in /samples 
+ * Bump ini from 1.3.5 to 1.3.8 in /samples
 
 [7fd85eb60feddca](https://github.com/bsorrentino/java2typescript/commit/7fd85eb60feddca) bsorrentino *2021-09-18 08:43:03*
 
 **Merge pull request #17 from bsorrentino/dependabot/npm_and_yarn/samples.rhino/ini-1.3.7**
 
- * Bump ini from 1.3.5 to 1.3.7 in /samples.rhino 
+ * Bump ini from 1.3.5 to 1.3.7 in /samples.rhino
 
 [119589538e2a5ce](https://github.com/bsorrentino/java2typescript/commit/119589538e2a5ce) bsorrentino *2021-09-18 08:39:43*
 
@@ -813,7 +842,7 @@ Changelog for bsorrentino java2typescript.
 
 **Merge pull request #14 from bsorrentino/dependabot/maven/junit-junit-4.13.1**
 
- * Bump junit from 4.12 to 4.13.1 
+ * Bump junit from 4.12 to 4.13.1
 
 [4e30e8fd216c36a](https://github.com/bsorrentino/java2typescript/commit/4e30e8fd216c36a) bsorrentino *2021-09-18 08:39:03*
 
@@ -822,13 +851,13 @@ Changelog for bsorrentino java2typescript.
 
 **Merge pull request #24 from bsorrentino/dependabot/npm_and_yarn/samples/lodash-4.17.21**
 
- * Bump lodash from 4.17.15 to 4.17.21 in /samples 
+ * Bump lodash from 4.17.15 to 4.17.21 in /samples
 
 [f99d1cbc706d8b8](https://github.com/bsorrentino/java2typescript/commit/f99d1cbc706d8b8) bsorrentino *2021-09-18 08:41:45*
 
 **Merge pull request #20 from bsorrentino/dependabot/npm_and_yarn/samples.rhino/lodash-4.17.21**
 
- * Bump lodash from 4.17.15 to 4.17.21 in /samples.rhino 
+ * Bump lodash from 4.17.15 to 4.17.21 in /samples.rhino
 
 [e3fb7f8f0c89bd4](https://github.com/bsorrentino/java2typescript/commit/e3fb7f8f0c89bd4) bsorrentino *2021-09-18 08:40:48*
 
@@ -837,13 +866,13 @@ Changelog for bsorrentino java2typescript.
 
 **Merge pull request #25 from bsorrentino/dependabot/npm_and_yarn/samples/path-parse-1.0.7**
 
- * Bump path-parse from 1.0.6 to 1.0.7 in /samples 
+ * Bump path-parse from 1.0.6 to 1.0.7 in /samples
 
 [964f822d0934a08](https://github.com/bsorrentino/java2typescript/commit/964f822d0934a08) bsorrentino *2021-09-18 08:42:08*
 
 **Merge pull request #22 from bsorrentino/dependabot/npm_and_yarn/samples.rhino/path-parse-1.0.7**
 
- * Bump path-parse from 1.0.6 to 1.0.7 in /samples.rhino 
+ * Bump path-parse from 1.0.6 to 1.0.7 in /samples.rhino
 
 [1c9d1110c0031ba](https://github.com/bsorrentino/java2typescript/commit/1c9d1110c0031ba) bsorrentino *2021-09-18 08:41:13*
 
@@ -852,13 +881,13 @@ Changelog for bsorrentino java2typescript.
 
 **Merge pull request #30 from bsorrentino/dependabot/npm_and_yarn/samples/dot-prop-4.2.1**
 
- * Bump dot-prop from 4.2.0 to 4.2.1 in /samples 
+ * Bump dot-prop from 4.2.0 to 4.2.1 in /samples
 
 [1c55dc2345d4554](https://github.com/bsorrentino/java2typescript/commit/1c55dc2345d4554) bsorrentino *2021-09-18 08:43:25*
 
 **Merge pull request #16 from bsorrentino/dependabot/npm_and_yarn/samples.rhino/dot-prop-4.2.1**
 
- * Bump dot-prop from 4.2.0 to 4.2.1 in /samples.rhino 
+ * Bump dot-prop from 4.2.0 to 4.2.1 in /samples.rhino
 
 [8ddb99c2280890a](https://github.com/bsorrentino/java2typescript/commit/8ddb99c2280890a) bsorrentino *2021-09-18 08:39:18*
 
@@ -867,13 +896,13 @@ Changelog for bsorrentino java2typescript.
 
 **Merge pull request #32 from bsorrentino/dependabot/npm_and_yarn/samples.rhino/color-string-1.6.0**
 
- * Bump color-string from 1.5.3 to 1.6.0 in /samples.rhino 
+ * Bump color-string from 1.5.3 to 1.6.0 in /samples.rhino
 
 [5d21d0a399c353e](https://github.com/bsorrentino/java2typescript/commit/5d21d0a399c353e) bsorrentino *2021-09-19 15:29:54*
 
 **Merge pull request #27 from bsorrentino/dependabot/npm_and_yarn/samples/color-string-1.6.0**
 
- * Bump color-string from 1.5.3 to 1.6.0 in /samples 
+ * Bump color-string from 1.5.3 to 1.6.0 in /samples
 
 [1f163e0c2c1d0d9](https://github.com/bsorrentino/java2typescript/commit/1f163e0c2c1d0d9) bsorrentino *2021-09-18 08:42:39*
 
@@ -882,13 +911,13 @@ Changelog for bsorrentino java2typescript.
 
 **Merge pull request #33 from bsorrentino/dependabot/npm_and_yarn/samples.rhino/ws-5.2.3**
 
- * Bump ws from 5.2.2 to 5.2.3 in /samples.rhino 
+ * Bump ws from 5.2.2 to 5.2.3 in /samples.rhino
 
 [468fab721a8a336](https://github.com/bsorrentino/java2typescript/commit/468fab721a8a336) bsorrentino *2021-09-19 15:32:36*
 
 **Merge pull request #23 from bsorrentino/dependabot/npm_and_yarn/samples/ws-5.2.3**
 
- * Bump ws from 5.2.2 to 5.2.3 in /samples 
+ * Bump ws from 5.2.2 to 5.2.3 in /samples
 
 [0679c4437acc360](https://github.com/bsorrentino/java2typescript/commit/0679c4437acc360) bsorrentino *2021-09-18 08:41:23*
 
@@ -1127,7 +1156,7 @@ Changelog for bsorrentino java2typescript.
 [176768cfbae5cbe](https://github.com/bsorrentino/java2typescript/commit/176768cfbae5cbe) bsorrentino *2019-02-12 15:49:00*
 
 
-### GitHub [#9](https://github.com/bsorrentino/java2typescript/issues/9) add support for Graal.JS    *enhancement*  
+###  [#9](https://github.com/bsorrentino/java2typescript/issues/9) add support for Graal.JS    *enhancement*  
 
 **Merge branch 'feature/issue#9' into develop**
 
@@ -1145,7 +1174,7 @@ Changelog for bsorrentino java2typescript.
 
 **promote release**
 
- * update doc 
+ * update doc
 
 [02af98927d4eb65](https://github.com/bsorrentino/java2typescript/commit/02af98927d4eb65) bsorrentino *2019-02-12 15:48:33*
 
@@ -1205,7 +1234,7 @@ Changelog for bsorrentino java2typescript.
 [fcc64ec180b41f3](https://github.com/bsorrentino/java2typescript/commit/fcc64ec180b41f3) bsorrentino *2018-06-05 19:26:25*
 
 
-### GitHub [#8](https://github.com/bsorrentino/java2typescript/issues/8) add support for Rhino    *enhancement*  
+###  [#8](https://github.com/bsorrentino/java2typescript/issues/8) add support for Rhino    *enhancement*  
 
 **issue #8 - rhino support refinements**
 
@@ -1381,7 +1410,7 @@ Changelog for bsorrentino java2typescript.
 [193781c222eb6d7](https://github.com/bsorrentino/java2typescript/commit/193781c222eb6d7) bsorrentino *2018-05-09 16:00:19*
 
 
-### GitHub [#2](https://github.com/bsorrentino/java2typescript/issues/2) add support of inner classes    *enhancement*  
+###  [#2](https://github.com/bsorrentino/java2typescript/issues/2) add support of inner classes    *enhancement*  
 
 **support of declarative member classes #2**
 
@@ -1389,7 +1418,7 @@ Changelog for bsorrentino java2typescript.
 [34124ec4c9e13f7](https://github.com/bsorrentino/java2typescript/commit/34124ec4c9e13f7) bsorrentino *2018-05-16 15:25:40*
 
 
-### GitHub [#3](https://github.com/bsorrentino/java2typescript/issues/3) Add support of GenericArrayType    *bug*  
+###  [#3](https://github.com/bsorrentino/java2typescript/issues/3) Add support of GenericArrayType    *bug*  
 
 **fix #3**
 
@@ -1397,7 +1426,7 @@ Changelog for bsorrentino java2typescript.
 [ca2cbf401a82d9c](https://github.com/bsorrentino/java2typescript/commit/ca2cbf401a82d9c) bsorrentino *2018-05-16 23:16:37*
 
 
-### GitHub [#4](https://github.com/bsorrentino/java2typescript/issues/4) verify generation of MemoryType definition    *bug*  
+###  [#4](https://github.com/bsorrentino/java2typescript/issues/4) verify generation of MemoryType definition    *bug*  
 
 **fix #4**
 
@@ -1405,7 +1434,7 @@ Changelog for bsorrentino java2typescript.
 [703d27ccaf090c2](https://github.com/bsorrentino/java2typescript/commit/703d27ccaf090c2) bsorrentino *2018-05-18 10:12:24*
 
 
-### GitHub [#6](https://github.com/bsorrentino/java2typescript/issues/6) generate definitions for Functional Interface    *enhancement*  
+###  [#6](https://github.com/bsorrentino/java2typescript/issues/6) generate definitions for Functional Interface    *enhancement*  
 
 **fix #6**
 
@@ -1413,7 +1442,7 @@ Changelog for bsorrentino java2typescript.
 [900875010b95848](https://github.com/bsorrentino/java2typescript/commit/900875010b95848) bsorrentino *2018-05-18 21:20:38*
 
 
-### GitHub [#7](https://github.com/bsorrentino/java2typescript/issues/7) Problem on ConcurrentHashMap declaration (BiFunction)    *bug*  
+###  [#7](https://github.com/bsorrentino/java2typescript/issues/7) Problem on ConcurrentHashMap declaration (BiFunction)    *bug*  
 
 **Merge branch 'feature/issue#7' into develop**
 
