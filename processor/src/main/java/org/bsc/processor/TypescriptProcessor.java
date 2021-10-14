@@ -2,7 +2,7 @@ package org.bsc.processor;
 
 import org.bsc.java2typescript.TSNamespace;
 import org.bsc.java2typescript.TSType;
-import org.bsc.java2typescript.TypescriptConverter;
+import org.bsc.java2typescript.TSConverter;
 import org.bsc.processor.annotation.Java2TS;
 
 import javax.annotation.processing.SupportedAnnotationTypes;
@@ -22,8 +22,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static java.util.Optional.*;
-import static org.bsc.java2typescript.TypescriptConverter.PREDEFINED_TYPES;
+import static org.bsc.java2typescript.TSConverter.PREDEFINED_TYPES;
 
 ;
 
@@ -110,8 +109,8 @@ public class TypescriptProcessor extends AbstractProcessorEx {
             .toUpperCase();
     info("COMPATIBILITY WITH [%s]", compatibilityOption);
 
-    final TypescriptConverter converter =
-        new TypescriptConverter(TypescriptConverter.Compatibility.valueOf(compatibilityOption));
+    final TSConverter converter =
+        new TSConverter(TSConverter.Compatibility.valueOf(compatibilityOption));
 
     try (
         final java.io.Writer wD = openFile(Paths.get(definitionsFile), converter.isRhino() ? "headerD-rhino.ts" : "headerD.ts");

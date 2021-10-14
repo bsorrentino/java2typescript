@@ -34,9 +34,9 @@ import java.util.stream.Stream;
  * @author bsorrentino
  *
  */
-public abstract class TypescriptConverterStatic {
+public abstract class TSConverterStatic {
     
-    static final String ENDL = ";\n";
+    public static final String ENDL = ";\n";
 
     public static final List<TSType> PREDEFINED_TYPES = Arrays.asList(
             TSType.of(Class.class),
@@ -105,7 +105,7 @@ public abstract class TypescriptConverterStatic {
     * @param m
     * @return
     */
-   static boolean isFactoryMethod( Method m ) {
+   public static boolean isFactoryMethod( Method m ) {
 
            return (isStatic(m) &&
                    m.getReturnType().equals(m.getDeclaringClass()));
@@ -116,7 +116,7 @@ public abstract class TypescriptConverterStatic {
     * @param type_parameters_list
     * @return
     */
-   static String getClassParametersDecl( java.util.List<String> type_parameters_list ) {
+   public static String getClassParametersDecl( java.util.List<String> type_parameters_list ) {
 
        if( type_parameters_list.isEmpty() ) return "";
 
@@ -126,7 +126,7 @@ public abstract class TypescriptConverterStatic {
    }
    
    private static StringBuilder loadResourceByName( String name, StringBuilder result ) throws IOException {
-       try(final java.io.InputStream is = TypescriptConverter.class.getClassLoader().getResourceAsStream(name) ) {
+       try(final java.io.InputStream is = TSConverter.class.getClassLoader().getResourceAsStream(name) ) {
            int c; while( (c = is.read()) != -1 ) result.append((char)c);
        }
        
@@ -178,7 +178,7 @@ public abstract class TypescriptConverterStatic {
     * @param declaringType
     * @return
     */
-   static String getTypeName( TSType type, TSType declaringType, boolean packageResolution ) {
+   public static String getTypeName( TSType type, TSType declaringType, boolean packageResolution ) {
 
        final java.util.List<String> dc_parameters_list =
                Arrays.stream(declaringType.getValue().getTypeParameters())
@@ -213,7 +213,7 @@ public abstract class TypescriptConverterStatic {
    * @param packageResolution
    * @return
    */
-  static String convertJavaToTS(  Class<?> type,
+  public static String convertJavaToTS(  Class<?> type,
                                           TSType declaringType,
                                           java.util.Map<String, TSType> declaredTypeMap,
                                           boolean packageResolution,
