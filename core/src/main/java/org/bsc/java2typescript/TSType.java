@@ -16,7 +16,6 @@ import java.util.Arrays;
  * @author bsorrentino
  *
  */
-@SuppressWarnings("serial")
 public class TSType extends HashMap<String, Object> {
 
     private static final String ALIAS = "alias";
@@ -165,7 +164,6 @@ public class TSType extends HashMap<String, Object> {
     
     /**
      *
-     * @param type
      * @return
      */
     public Set<Field> getFields() {
@@ -181,22 +179,37 @@ public class TSType extends HashMap<String, Object> {
 
     /**
      *
-     * @param type
+     * @param m
      * @return
      */
-    public Set<Method> getMethods() {
-        final Predicate<Method> include = m -> !m.isBridge() && !m.isSynthetic() && Modifier.isPublic(m.getModifiers())
+    protected boolean testIncludeMethod( Method m ) {
+        return !m.isBridge() && !m.isSynthetic() && Modifier.isPublic(m.getModifiers())
                 && Character.isJavaIdentifierStart(m.getName().charAt(0))
                 && m.getName().chars().skip(1).allMatch(Character::isJavaIdentifierPart);
+    }
 
-        return Stream.concat(Stream.of(getValue().getMethods()), Stream.of(getValue().getDeclaredMethods()))
-                .filter(include).collect(Collectors.toSet());
+    /**
+     *
+     * @return
+     */
+    public Stream<Method> getMethodsAsStream() {
 
+        return Stream.concat(
+                        Stream.of(getValue().getMethods()),
+                        Stream.of(getValue().getDeclaredMethods()))
+                .filter(this::testIncludeMethod);
+    }
+
+    /**
+     *
+     * @return
+     */
+    public final Set<Method> getMethods() {
+        return getMethodsAsStream().collect(Collectors.toSet());
     }
 
     /**
      * 
-     * @param name
      * @return
      */
     private Class<?> getMemberClassForName( String fqn ) throws ClassNotFoundException {

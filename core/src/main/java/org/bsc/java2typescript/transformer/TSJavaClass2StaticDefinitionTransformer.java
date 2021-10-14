@@ -1,6 +1,6 @@
 package org.bsc.java2typescript.transformer;
 
-import org.bsc.java2typescript.TSConverter;
+import org.bsc.java2typescript.Java2TSConverter;
 import org.bsc.java2typescript.TSConverterContext;
 import org.bsc.java2typescript.TSConverterStatic;
 import org.bsc.java2typescript.TSTransformer;
@@ -48,7 +48,7 @@ public class TSJavaClass2StaticDefinitionTransformer extends TSConverterStatic i
                         ctx.append("\tnew").append(ctx.getMethodParametersAndReturnDecl(c, false)).append(ENDL);
                     });
 
-            final java.util.Set<Method> methodSet = ctx.type.getMethods().stream().filter(TSConverter::isStatic)
+            final java.util.Set<Method> methodSet = ctx.type.getMethods().stream().filter(Java2TSConverter::isStatic)
                     .collect(Collectors.toCollection(() -> new java.util.LinkedHashSet<>()));
 
             if (!methodSet.isEmpty()) {
@@ -64,7 +64,7 @@ public class TSJavaClass2StaticDefinitionTransformer extends TSConverterStatic i
                 .append(": ")
                 .append(ctx.type.getSimpleTypeName())
                 .append("Static = ")
-                .append(ctx.compatibility.javaType(ctx.type.getValue().getName()))
+                .append(ctx.getOptions().compatibility.javaType(ctx.type.getValue().getName()))
                 .append(ENDL)
                 .append("\n\n");
 

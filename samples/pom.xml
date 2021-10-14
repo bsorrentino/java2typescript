@@ -307,6 +307,8 @@
 						<outputDirectory>ts</outputDirectory>
 						<options>
 							<ts.outfile>jdk8</ts.outfile>
+                            <compatibility>GRAALJS</compatibility>
+                            <foreignobjectprototype>true</foreignobjectprototype>
 						</options>
 					</configuration>
 				</execution>

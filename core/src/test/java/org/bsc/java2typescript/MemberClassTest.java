@@ -4,7 +4,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.Optional;
 
-import org.bsc.java2typescript.TSConverter.Compatibility;
+import org.bsc.java2typescript.Java2TSConverter.Compatibility;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -34,7 +34,9 @@ public class MemberClassTest extends AbstractConverterTest {
     public void testMemberClass() throws Exception {
 
         final TSConverterContext ctx =
-                TSConverterContext.of(TSType.of( java.util.Map.Entry.class ), declaredTypeMap(), Compatibility.NASHORN);
+                TSConverterContext.of(  TSType.of( java.util.Map.Entry.class ),
+                                        declaredTypeMap(),
+                                        Java2TSConverter.Options.of(Compatibility.NASHORN ));
         
         assertNotNull(ctx);
         
@@ -53,7 +55,7 @@ public class MemberClassTest extends AbstractConverterTest {
         final Method m = type.getMethod("entrySet");         
         final Type rType = m.getGenericReturnType();
 
-        final String result = TSConverter.convertJavaToTS(rType, m,
+        final String result = Java2TSConverter.convertJavaToTS(rType, m,
                 TSType.of(type),
                 declaredTypeMap( TSType.of(java.util.Set.class), TSType.of(java.util.Map.Entry.class)),
                 true, 

@@ -11,7 +11,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
-import org.bsc.java2typescript.TSConverter.Compatibility;
+import org.bsc.java2typescript.Java2TSConverter.Compatibility;
 import org.hamcrest.core.Is;
 import org.hamcrest.core.IsEqual;
 import org.hamcrest.core.IsNull;
@@ -68,7 +68,7 @@ public class ProcessorTest extends AbstractConverterTest {
 		{
 			final Method m = type.getValue().getMethod("transform", java.util.function.Function.class );	
 			final Type pType = m.getGenericParameterTypes()[0];
-			final String result = TSConverter.convertJavaToTS(pType, m,
+			final String result = Java2TSConverter.convertJavaToTS(pType, m,
 					type,
 					declaredTypeMap( TSType.of(String.class), TSType.of(java.util.function.Function.class).setAlias("Func").setExport(false)), 
 					true, 
@@ -103,8 +103,8 @@ public class ProcessorTest extends AbstractConverterTest {
 
 	@Test
 	public void testClassDecl() throws Exception {
-		
-        TSConverterContext ctx = TSConverterContext.of(TSType.of(ArrayList.class), Collections.emptyMap(), Compatibility.NASHORN);
+
+        TSConverterContext ctx = TSConverterContext.of(TSType.of(ArrayList.class), Collections.emptyMap(), Java2TSConverter.Options.of(Compatibility.NASHORN ));
 		{
 			final String result  = ctx.getClassDecl().toString();
 		
@@ -122,7 +122,7 @@ public class ProcessorTest extends AbstractConverterTest {
 		{
 			final Method m = type.getMethod("getAttributeList");			
 			final Type rType = m.getGenericReturnType();
-			final String result = TSConverter.convertJavaToTS(rType, m,
+			final String result = Java2TSConverter.convertJavaToTS(rType, m,
 					TSType.of(type),
 					declaredTypeMap( TSType.of(String.class), TSType.of(java.util.List.class).setExport(false).setAlias("List") ), 
 					true, 
@@ -158,7 +158,7 @@ public class ProcessorTest extends AbstractConverterTest {
 		{
 		final Method m = type.getMethod("method4");			
 		final Type rType = m.getGenericReturnType();
-		final String result = TSConverter.convertJavaToTS(rType, m,
+		final String result = Java2TSConverter.convertJavaToTS(rType, m,
 				TSType.of(type),
 				Collections.emptyMap(), 
 				true, 
@@ -169,7 +169,7 @@ public class ProcessorTest extends AbstractConverterTest {
 		{
 		final Method m = type.getMethod("method5");			
 		final Type rType = m.getGenericReturnType();
-		final String result = TSConverter.convertJavaToTS(rType, m,
+		final String result = Java2TSConverter.convertJavaToTS(rType, m,
 				TSType.of(type),
 				Collections.emptyMap(), 
 				true, 
@@ -180,7 +180,7 @@ public class ProcessorTest extends AbstractConverterTest {
 		{
 		final Method m = type.getMethod("method1_1");			
 		final Type rType = m.getGenericReturnType();
-		final String result = TSConverter.convertJavaToTS(rType, m,
+		final String result = Java2TSConverter.convertJavaToTS(rType, m,
 				TSType.of(type),
 				declaredClassMap(Sample2.class),
 				true,
@@ -191,7 +191,7 @@ public class ProcessorTest extends AbstractConverterTest {
 		{
 		final Method m = type.getMethod("method1_2");			
 		final Type rType = m.getGenericReturnType();
-		final String result = TSConverter.convertJavaToTS(rType, m,
+		final String result = Java2TSConverter.convertJavaToTS(rType, m,
 				TSType.of(type),
 				declaredClassMap(Sample2.class,java.lang.Comparable.class),
 				true,
@@ -203,7 +203,7 @@ public class ProcessorTest extends AbstractConverterTest {
 		TypeVarSet.clear();
 		final Method m = type.getMethod("method1_3");			
 		final Type rType = m.getGenericReturnType();
-		final String result = TSConverter.convertJavaToTS(rType, m,
+		final String result = Java2TSConverter.convertJavaToTS(rType, m,
 				TSType.of(type), 
 				declaredTypeMap( TSType.of(java.util.function.BiPredicate.class).setExport(false).setAlias("BiPredicate") ),
 				true,
@@ -217,7 +217,7 @@ public class ProcessorTest extends AbstractConverterTest {
 		{
 		final Method m = type.getMethod("method1_3");			
 		final Type rType = m.getGenericReturnType();
-		final String result = TSConverter.convertJavaToTS(rType, m,
+		final String result = Java2TSConverter.convertJavaToTS(rType, m,
 				TSType.of(type),
 				Collections.emptyMap(),
 				true,
@@ -228,7 +228,7 @@ public class ProcessorTest extends AbstractConverterTest {
 		{
 		final Method m = type.getMethod("method1");			
 		final Type rType = m.getGenericReturnType();
-		final String result = TSConverter.convertJavaToTS(rType, m,
+		final String result = Java2TSConverter.convertJavaToTS(rType, m,
 				TSType.of(type),
 				declaredClassMap(java.util.Map.class),
 				true,
@@ -240,7 +240,7 @@ public class ProcessorTest extends AbstractConverterTest {
 		{
 		final Method m = type.getMethod("method2", Sample2.class);			
 		final Type rType = m.getGenericReturnType();
-		final String result = TSConverter.convertJavaToTS(rType, m,
+		final String result = Java2TSConverter.convertJavaToTS(rType, m,
 				TSType.of(type),
 				Collections.emptyMap(),
 				true,
@@ -249,7 +249,7 @@ public class ProcessorTest extends AbstractConverterTest {
 		Assert.assertThat( result, IsEqual.equalTo("string"));
 		
 		final Type pType = m.getParameters()[0].getParameterizedType();
-		final String rresult = TSConverter.convertJavaToTS(pType, m,
+		final String rresult = Java2TSConverter.convertJavaToTS(pType, m,
 				TSType.of(type),
 				declaredClassMap(Sample2.class),
 				true,
@@ -261,7 +261,7 @@ public class ProcessorTest extends AbstractConverterTest {
 		{
 		final Method m = type.getMethod("method2_1", Sample2.class);			
 		final Type rType = m.getGenericReturnType();
-		final String result = TSConverter.convertJavaToTS(rType, m,
+		final String result = Java2TSConverter.convertJavaToTS(rType, m,
 				TSType.of(type),
 				declaredClassMap(Sample2.class, CharSequence.class),
 				true,
@@ -270,7 +270,7 @@ public class ProcessorTest extends AbstractConverterTest {
 		Assert.assertThat( result, IsEqual.equalTo("string"));
 		
 		final Type pType = m.getParameters()[0].getParameterizedType();
-		final String rresult = TSConverter.convertJavaToTS(pType, m,
+		final String rresult = Java2TSConverter.convertJavaToTS(pType, m,
 				TSType.of(type),
 				declaredClassMap(Sample2.class),
 				true,
@@ -290,7 +290,7 @@ public class ProcessorTest extends AbstractConverterTest {
 			Assert.assertThat( result, IsEqual.equalTo("string"));
 		
 			final Type pType = m.getParameters()[0].getParameterizedType();
-			final String rresult = TSConverter.convertJavaToTS(pType, m,
+			final String rresult = Java2TSConverter.convertJavaToTS(pType, m,
 					TSType.of(type),
 					declaredTypeMap( TSType.of(Sample2.class), TSType.of(Consumer.class).setExport(false).setAlias("Consumer")),
 					true,

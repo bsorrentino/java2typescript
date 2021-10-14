@@ -126,7 +126,7 @@ public abstract class TSConverterStatic {
    }
    
    private static StringBuilder loadResourceByName( String name, StringBuilder result ) throws IOException {
-       try(final java.io.InputStream is = TSConverter.class.getClassLoader().getResourceAsStream(name) ) {
+       try(final java.io.InputStream is = Java2TSConverter.class.getClassLoader().getResourceAsStream(name) ) {
            int c; while( (c = is.read()) != -1 ) result.append((char)c);
        }
        

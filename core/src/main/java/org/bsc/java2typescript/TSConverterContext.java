@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 public class TSConverterContext extends TSConverterStatic implements Cloneable {
     public final TSType type;
     public final java.util.Map<String, TSType> declaredTypeMap;
-    public final TSConverter.Compatibility compatibility;
+    public final Java2TSConverter.Options options;
     final StringBuilder sb = new StringBuilder();
 
     /**
@@ -21,18 +21,26 @@ public class TSConverterContext extends TSConverterStatic implements Cloneable {
      */
     public static TSConverterContext of(TSType tstype,
                                         java.util.Map<String, TSType> declaredTypeMap,
-                                        TSConverter.Compatibility compatibility) {
-        return new TSConverterContext(tstype, declaredTypeMap, compatibility);
+                                        Java2TSConverter.Options options) {
+        return new TSConverterContext(tstype, declaredTypeMap, options);
     }
 
 
-    private TSConverterContext(TSType type, Map<String, TSType> declaredClassMap, TSConverter.Compatibility compatibility) {
+    private TSConverterContext(TSType type, Map<String, TSType> declaredClassMap, Java2TSConverter.Options options) {
         Objects.requireNonNull(type, "type is null!");
         Objects.requireNonNull(declaredClassMap, "declaredClassMap is null!");
 
         this.type = type;
         this.declaredTypeMap = declaredClassMap;
-        this.compatibility = compatibility;
+        this.options = options;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public Java2TSConverter.Options getOptions() {
+        return options;
     }
 
     /**
@@ -253,7 +261,7 @@ public class TSConverterContext extends TSConverterStatic implements Cloneable {
      */
     public TSConverterContext clone() {
 
-        return new TSConverterContext(type, declaredTypeMap, compatibility);
+        return new TSConverterContext(type, declaredTypeMap, options);
     }
 
     /**
