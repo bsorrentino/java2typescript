@@ -83,7 +83,8 @@ public class TSConverterContext extends TSConverterStatic implements Cloneable {
             final TSType superclass = TSType.of(type.getValue().getSuperclass());
 
             if (superclass != null) {
-                inherited.append(" extends ").append(getTypeName(superclass, type, true));
+                inherited.append(" extends ")
+                        .append(getTypeName(superclass, type, true));
             }
         }
 
@@ -92,8 +93,11 @@ public class TSConverterContext extends TSConverterStatic implements Cloneable {
         if (interfaces.length > 0) {
 
             final String ifc = Arrays.stream(interfaces).map(c -> TSType.of(c))
-                    .map(t -> getTypeName(t, type, true)).collect(Collectors.joining(", "));
-            inherited.append((type.getValue().isInterface()) ? " extends " : " implements ").append(ifc);
+                    .map(t -> getTypeName(t, type, true))
+                    .collect(Collectors.joining(", "));
+
+            inherited.append((type.getValue().isInterface()) ? " extends " : " implements ")
+                    .append(ifc);
 
         }
 

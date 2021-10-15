@@ -34,17 +34,29 @@ public class TSJavaClass2DeclarationTransformer extends TSConverterStatic implem
                 ;
     }
 
+    /**
+     *
+     * @param md
+     * @return
+     */
     private boolean testMethodsNotAllowedInForeignObjectPrototypeOnList( Method md ) {
         final String name = md.getName();
-
-        System.out.printf( "testMethodsNotAllowedInForeignObjectPrototypeOnList('%s')\n",  name );
 
         return !(name.equals("forEach")      ||
                 name.equals("indexOf")      ||
                 name.equals("lastIndexOf")  ||
                 name.equals("sort"))
                 ;
+    }
 
+    /**
+     *
+     * @param ctx
+     * @return
+     */
+    private boolean isForeignObjectPrototypeOptionEnabled(TSConverterContext ctx) {
+        return ctx.options.compatibility == GRAALJS &&
+                ctx.options.foreignObjectPrototype;
     }
 
     /**
@@ -54,8 +66,7 @@ public class TSJavaClass2DeclarationTransformer extends TSConverterStatic implem
      */
     protected Stream<Method> getMethodsAsStream(TSConverterContext ctx) {
 
-        if(  ctx.options.compatibility == GRAALJS &&
-                ctx.options.foreignObjectPrototype &&
+        if(  isForeignObjectPrototypeOptionEnabled(ctx) &&
                 ctx.type.getValue().equals(java.util.List.class)) {
 
             return ctx.type.getMethodsAsStream()
@@ -70,6 +81,20 @@ public class TSJavaClass2DeclarationTransformer extends TSConverterStatic implem
      * @param ctx
      * @return
      */
+    protected TSConverterContext getClassDecl(TSConverterContext ctx) {
+
+        if(  isForeignObjectPrototypeOptionEnabled(ctx) &&
+                ctx.type.getValue().equals(java.util.List.class)) {
+            return ctx.append("interface List<E> extends Array<E>/* extends Collection<E> */ {");
+        }
+
+        return ctx.getClassDecl();
+    }
+    /**
+     *
+     * @param ctx
+     * @return
+     */
     public TSConverterContext apply(TSConverterContext ctx) {
 
         final TSType tstype = ctx.type;
@@ -77,9 +102,10 @@ public class TSJavaClass2DeclarationTransformer extends TSConverterStatic implem
         final Set<Method> methods = getMethodsAsStream(ctx).collect(Collectors.toSet());;
 
         if (tstype.supportNamespace())
-            ctx.append("declare namespace ").append(tstype.getNamespace()).append(" {\n\n");
+            ctx.append("declare namespace ")
+                .append(tstype.getNamespace()).append(" {\n\n");
 
-        ctx.getClassDecl().append("\n\n");
+        getClassDecl(ctx).append("\n\n");
 
         if (tstype.isFunctional()) {
 
