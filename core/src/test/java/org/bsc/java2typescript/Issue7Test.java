@@ -117,7 +117,7 @@ public class Issue7Test extends AbstractConverterTest {
 									true) ;
 			
 			assertNotNull( result);
-			assertEquals( "<K,V>(  ):TestIssue7$TestBean1<K, V>", result);
+			assertEquals( "<K,V>(  ):Issue7Test$TestBean1<K, V>", result);
 		}
 
 		
