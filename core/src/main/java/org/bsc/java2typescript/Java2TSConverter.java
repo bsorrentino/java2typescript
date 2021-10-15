@@ -129,20 +129,6 @@ public class Java2TSConverter extends TSConverterStatic {
     }
 
     /**
-     * @param tstype
-     * @param declaredTypeMap
-     * @return
-     */
-    public String javaClass2StaticDefinitionTransformer(TSType tstype, java.util.Map<String, TSType> declaredTypeMap) {
-
-        final TSConverterContext ctx = TSConverterContext.of(tstype, declaredTypeMap, options);
-
-        return JavaClass2StaticDefinitionTransformer
-                .apply(ctx)
-                .toString();
-    }
-
-    /**
      * @param m
      * @param type
      * @param declaredTypeMap
@@ -156,6 +142,17 @@ public class Java2TSConverter extends TSConverterStatic {
                 .getMethodParametersAndReturnDecl(m, packageResolution);
     }
 
+    /**
+     * @param tstype
+     * @param declaredTypeMap
+     * @return
+     */
+    public String javaClass2StaticDefinitionTransformer(TSType tstype, java.util.Map<String, TSType> declaredTypeMap) {
+
+        return TSConverterContext.of(tstype, declaredTypeMap, options)
+                .apply( JavaClass2StaticDefinitionTransformer )
+                .toString();
+    }
 
     /**
      * @param level
@@ -165,12 +162,9 @@ public class Java2TSConverter extends TSConverterStatic {
      */
     public String javaClass2DeclarationTransformer(int level, TSType tstype, java.util.Map<String, TSType> declaredTypeMap) {
 
-        final TSConverterContext ctx = TSConverterContext.of(tstype, declaredTypeMap, options);
-
-        return javaClass2DeclarationTransformer
-                        .apply(ctx)
-                        .toString();
-
+        return TSConverterContext.of(tstype, declaredTypeMap, options)
+                .apply(javaClass2DeclarationTransformer)
+                .toString();
 
     }
 

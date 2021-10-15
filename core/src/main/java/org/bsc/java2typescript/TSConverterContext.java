@@ -6,9 +6,10 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
-public class TSConverterContext extends TSConverterStatic implements Cloneable {
+public class TSConverterContext extends TSConverterStatic implements Cloneable, Function<TSTransformer,TSConverterContext> {
     public final TSType type;
     public final java.util.Map<String, TSType> declaredTypeMap;
     public final Java2TSConverter.Options options;
@@ -33,6 +34,11 @@ public class TSConverterContext extends TSConverterStatic implements Cloneable {
         this.type = type;
         this.declaredTypeMap = declaredClassMap;
         this.options = options;
+    }
+
+    @Override
+    public TSConverterContext apply(TSTransformer transformer) {
+        return transformer.apply(this);
     }
 
     /**
