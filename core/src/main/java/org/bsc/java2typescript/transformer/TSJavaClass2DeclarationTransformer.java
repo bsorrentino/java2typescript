@@ -139,6 +139,14 @@ public class TSJavaClass2DeclarationTransformer extends TSConverterStatic implem
                 .forEach( decl -> ctx.append('\t').append(decl).append(ENDL));
         }
 
+        ctx.append("\n} // end ").append(tstype.getSimpleTypeName()).append('\n');
+
+        // NESTED CLASSES
+        // if( level == 0 ) ctx.processMemberClasses( level );
+
+        if (tstype.supportNamespace())
+            ctx.append("\n} // end namespace ").append(tstype.getNamespace()).append('\n');
+
         return ctx;
     }
 }
