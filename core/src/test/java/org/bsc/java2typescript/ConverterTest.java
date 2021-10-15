@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -36,6 +37,15 @@ public class ConverterTest extends AbstractConverterTest {
         void method2( Function<String, ? extends java.util.List<?>> p1 );
     }
 
+    private Java2TSConverter converter;
+
+    @Before
+    public void initConverter() {
+        converter =  Java2TSConverter.builder()
+                .compatibility(Java2TSConverter.Compatibility.NASHORN)
+                .build();
+    }
+
     @Test
 	public void testMethod1() throws Exception {
 		final Class<?> type = TestBean.class;
@@ -44,7 +54,7 @@ public class ConverterTest extends AbstractConverterTest {
 		{
 			final Method m = type.getMethod("method1", java.util.Map.Entry.class);
 			final String result = 
-				converter.getMethodParametersAndReturnDecl( m, 
+				converter.getMethodParametersAndReturnDecl( m,
 									TSType.of(type),
 									declaredTypeMap( TSType.of(Map.Entry.class), TSType.of(java.util.List.class)),
 									true ) ;
@@ -65,7 +75,7 @@ public class ConverterTest extends AbstractConverterTest {
 		{
 			final Method m = type.getMethod("method2", Function.class);
 			final String result = 
-				converter.getMethodParametersAndReturnDecl( m, 
+				converter.getMethodParametersAndReturnDecl( m,
 									TSType.of(type),
 									declaredTypeMap( TSType.of(Function.class), TSType.of(java.util.List.class)),
 									true) ;
