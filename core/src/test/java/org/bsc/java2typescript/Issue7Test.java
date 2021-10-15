@@ -1,5 +1,6 @@
 package org.bsc.java2typescript;
 
+import org.junit.Before;
 import org.junit.Test;
 
 import java.lang.reflect.Constructor;
@@ -15,7 +16,7 @@ import static org.junit.Assert.assertNotNull;
  * @author bsorrentino
  *
  */
-public class TestIssue7 extends AbstractConverterTest {
+public class Issue7Test extends AbstractConverterTest {
 
     interface TestBean<K,V> {
 
@@ -34,6 +35,15 @@ public class TestIssue7 extends AbstractConverterTest {
 		public TestBean1() {
 
 		}
+	}
+
+	private Java2TSConverter converter;
+
+	@Before
+	public void initConverter() {
+		converter =  Java2TSConverter.builder()
+				.compatibility(Java2TSConverter.Compatibility.NASHORN)
+				.build();
 	}
 
 	@Test
