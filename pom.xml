@@ -64,11 +64,11 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
     <modules>
-        <module>processor</module>
-        <module>archetype</module>
-        <module>samples</module>
-        <module>samples.rhino</module>
         <module>core</module>
+        <module>processor</module>
+        <module>samples/graaljs</module>
+        <module>samples/rhino</module>
+        <module>archetype</module>
     </modules>
     <dependencyManagement>
         <dependencies>
