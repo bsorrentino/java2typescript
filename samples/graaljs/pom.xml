@@ -160,7 +160,8 @@
                             </execution>
                         </executions>
                         <configuration>
-                            <executable>${JAVA_HOME}/bin/java</executable>
+                            <!--suppress UnresolvedMavenProperty -->
+                            <executable>${env.JAVA_HOME}/bin/java</executable>
                         </configuration>
                     </plugin>
                 </plugins>
@@ -232,7 +233,8 @@
                             </execution>
                         </executions>
                         <configuration>
-                            <executable>${JAVA_HOME}/bin/java</executable>
+                            <!--suppress UnresolvedMavenProperty -->
+                            <executable>${env.JAVA_HOME}/bin/java</executable>
                         </configuration>
                     </plugin>
                 </plugins>
@@ -307,7 +309,7 @@
 						<outputDirectory>ts</outputDirectory>
 						<options>
 							<ts.outfile>jdk8</ts.outfile>
-                            <compatibility>GRAALJS</compatibility>
+                            <compatibility>graaljs</compatibility>
                             <foreignobjectprototype>true</foreignobjectprototype>
 						</options>
 					</configuration>
