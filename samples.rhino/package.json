@@ -8,7 +8,7 @@
     "colors": "^1.1.2",
     "marked": "^0.7.0",
     "mustache": "^2.3.0",
-    "validator": "^10.3.0"
+    "validator": "^13.7.0"
   },
   "devDependencies": {
     "@types/chalk": "^2.2.0",
