@@ -7,17 +7,14 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.bsc.java2typescript.TypescriptConverter.Compatibility;
-
 /**
  * 
  * @author bsorrentino
  *
  */
 public abstract class AbstractConverterTest {
-    
-    final TypescriptConverter converter = new TypescriptConverter(Compatibility.NASHORN);
-    
+
+
     protected java.util.Map<String,TSType> declaredClassMap( Class<?> ... classes) {
         return Stream.of( classes )
             .collect( Collectors.toMap( c -> c.getName(), c -> TSType.of(c) ))
@@ -42,7 +39,7 @@ public abstract class AbstractConverterTest {
     protected String getReturnType( java.util.Map<String, TSType> declaredClassMap, Class<?> type, Method m ) throws Exception 
     {
         final Type rType = m.getGenericReturnType();
-        final String result = TypescriptConverter.convertJavaToTS(rType, m, 
+        final String result = Java2TSConverter.convertJavaToTS(rType, m,
                 TSType.of(type),
                 declaredClassMap, 
                 true, 
