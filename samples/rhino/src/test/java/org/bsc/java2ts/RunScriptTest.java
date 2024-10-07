@@ -39,7 +39,7 @@ public class RunScriptTest {
             Scriptable newScope = ctx.newObject(topLevel);
             newScope.setPrototype(topLevel);
 
-            return ctx.evaluateString(newScope, js, "<cmd>", 1, null);
+            return ctx.evaluateString(newScope, js, "testRequireExists", 1, null);
         });
 
         Assert.assertEquals( "The CommonJS require function works!", result );
@@ -68,14 +68,9 @@ public class RunScriptTest {
 
             ScriptableObject scope = ctx.initStandardObjects(topLevel, false);
 
-            topLevel.defineES6Exports(ctx.newObject(scope));
-
             topLevel.installRequire(ctx, true, new UrlModuleSourceProvider( modules, null ));
 
-            Scriptable newScope = ctx.newObject(topLevel);
-            newScope.setPrototype(topLevel);
-
-            return ctx.evaluateString(newScope, js, "<cmd>", 1, null);
+            return ctx.evaluateString(topLevel, js, "testES6Module", 1, null);
         });
 
         Assert.assertEquals( "The ES6 import function works!", result );
