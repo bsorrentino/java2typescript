@@ -5,7 +5,7 @@
     <parent>
       <groupId>org.bsc.processor</groupId>
       <artifactId>java2ts-processor-parent</artifactId>
-      <version>1.3.1</version>
+      <version>1.4-SNAPSHOT</version>
     </parent>
 
     <artifactId>graaljs-sample</artifactId>
@@ -160,7 +160,8 @@
                             </execution>
                         </executions>
                         <configuration>
-                            <executable>${JAVA_HOME}/bin/java</executable>
+                            <!--suppress UnresolvedMavenProperty -->
+                            <executable>${env.JAVA_HOME}/bin/java</executable>
                         </configuration>
                     </plugin>
                 </plugins>
@@ -232,7 +233,8 @@
                             </execution>
                         </executions>
                         <configuration>
-                            <executable>${JAVA_HOME}/bin/java</executable>
+                            <!--suppress UnresolvedMavenProperty -->
+                            <executable>${env.JAVA_HOME}/bin/java</executable>
                         </configuration>
                     </plugin>
                 </plugins>
@@ -307,6 +309,8 @@
 						<outputDirectory>ts</outputDirectory>
 						<options>
 							<ts.outfile>jdk8</ts.outfile>
+                            <compatibility>graaljs</compatibility>
+                            <foreignobjectprototype>true</foreignobjectprototype>
 						</options>
 					</configuration>
 				</execution>

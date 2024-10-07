@@ -1,18 +1,14 @@
 package org.bsc.java2typescript;
 
-
-
-import static org.hamcrest.core.IsEqual.equalTo;
-
 import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-import org.hamcrest.core.IsEqual;
-import org.hamcrest.core.IsNull;
-import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
+
+import static org.junit.Assert.*;
 
 /**
  * 
@@ -41,6 +37,15 @@ public class ConverterTest extends AbstractConverterTest {
         void method2( Function<String, ? extends java.util.List<?>> p1 );
     }
 
+    private Java2TSConverter converter;
+
+    @Before
+    public void initConverter() {
+        converter =  Java2TSConverter.builder()
+                .compatibility(Java2TSConverter.Compatibility.NASHORN)
+                .build();
+    }
+
     @Test
 	public void testMethod1() throws Exception {
 		final Class<?> type = TestBean.class;
@@ -49,13 +54,15 @@ public class ConverterTest extends AbstractConverterTest {
 		{
 			final Method m = type.getMethod("method1", java.util.Map.Entry.class);
 			final String result = 
-				converter.getMethodParametersAndReturnDecl( m, 
+				converter.getMethodParametersAndReturnDecl( m,
 									TSType.of(type),
 									declaredTypeMap( TSType.of(Map.Entry.class), TSType.of(java.util.List.class)),
 									true ) ;
 			
-			Assert.assertThat( result, IsNull.notNullValue());
-			Assert.assertThat( result, IsEqual.equalTo("( p1:java.util.Map$Entry<any /*java.lang.Object*/, java.util.List<any /*java.lang.Object*/>> ):void"));
+			assertNotNull( result );
+			assertEquals(
+    "( p1:java.util.Map$Entry<any /*java.lang.Object*/, java.util.List<any /*java.lang.Object*/>> ):void",
+                result);
 		}
 
 		
@@ -68,13 +75,13 @@ public class ConverterTest extends AbstractConverterTest {
 		{
 			final Method m = type.getMethod("method2", Function.class);
 			final String result = 
-				converter.getMethodParametersAndReturnDecl( m, 
+				converter.getMethodParametersAndReturnDecl( m,
 									TSType.of(type),
 									declaredTypeMap( TSType.of(Function.class), TSType.of(java.util.List.class)),
 									true) ;
 			
-			Assert.assertThat( result, IsNull.notNullValue());
-			Assert.assertThat( result, IsEqual.equalTo("( p1:java.util.function.Function<string, java.util.List<any /*java.lang.Object*/>> ):void"));
+			assertNotNull( result );
+			assertEquals( "( p1:java.util.function.Function<string, java.util.List<any /*java.lang.Object*/>> ):void", result);
 		}
 	
 	}
@@ -83,20 +90,20 @@ public class ConverterTest extends AbstractConverterTest {
     public void functionalInterfaceTest() {
         
         
-        Assert.assertThat(TSType.of(java.lang.Runnable.class).isFunctional() , equalTo(true));
+        assertTrue(TSType.of(java.lang.Runnable.class).isFunctional());
         {
             TSType t = TSType.of(Consumer.class);
-            Assert.assertThat(t.isFunctional() , equalTo(true));
+            assertTrue(t.isFunctional());
             t.setFunctional(false);
-            Assert.assertThat(t.isFunctional() , equalTo(true));
+            assertTrue(t.isFunctional());
 
         }
-        Assert.assertThat(TSType.of(Action.class).isFunctional() , equalTo(true));
+        assertTrue(TSType.of(Action.class).isFunctional());
         {
             TSType t = TSType.of(Action2.class);
-            Assert.assertThat(t.isFunctional() , equalTo(false));
+            assertFalse(t.isFunctional());
             t.setFunctional(true);
-            Assert.assertThat(t.isFunctional() , equalTo(false));
+            assertFalse(t.isFunctional());
         }
 
     }

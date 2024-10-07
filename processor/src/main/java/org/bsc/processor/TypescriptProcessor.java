@@ -2,7 +2,7 @@ package org.bsc.processor;
 
 import org.bsc.java2typescript.TSNamespace;
 import org.bsc.java2typescript.TSType;
-import org.bsc.java2typescript.TypescriptConverter;
+import org.bsc.java2typescript.Java2TSConverter;
 import org.bsc.processor.annotation.Java2TS;
 
 import javax.annotation.processing.SupportedAnnotationTypes;
@@ -22,8 +22,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static java.util.Optional.*;
-import static org.bsc.java2typescript.TypescriptConverter.PREDEFINED_TYPES;
+import static org.bsc.java2typescript.Java2TSConverter.PREDEFINED_TYPES;
 
 ;
 
@@ -99,19 +98,23 @@ public class TypescriptProcessor extends AbstractProcessorEx {
   public boolean process(Context processingContext) throws Exception {
 
     final String targetDefinitionFile = processingContext.getOptionMap().getOrDefault("ts.outfile", "out");
-    //final String compatibility 		= processingContext.getOptionMap().getOrDefault("compatibility", "nashorn");
 
     final String definitionsFile = targetDefinitionFile.concat(".d.ts");
     final String typesFile = targetDefinitionFile.concat("-types.ts");
 
+    final String foreignObjectPrototype =
+            processingContext.getOptionMap()
+                    .getOrDefault( "foreignobjectprototype", "false");
+
     final String compatibilityOption =
         processingContext.getOptionMap()
-            .getOrDefault("compatibility", "NASHORN")
-            .toUpperCase();
+            .getOrDefault("compatibility", "NASHORN") ;
     info("COMPATIBILITY WITH [%s]", compatibilityOption);
 
-    final TypescriptConverter converter =
-        new TypescriptConverter(TypescriptConverter.Compatibility.valueOf(compatibilityOption));
+    final Java2TSConverter converter = Java2TSConverter.builder()
+                                                    .compatibility( compatibilityOption  )
+                                                    .foreignObjectPrototype( foreignObjectPrototype )
+                                                    .build();
 
     try (
         final java.io.Writer wD = openFile(Paths.get(definitionsFile), converter.isRhino() ? "headerD-rhino.ts" : "headerD.ts");
@@ -150,7 +153,7 @@ public class TypescriptProcessor extends AbstractProcessorEx {
 
       types.stream()
           .filter(tt -> !PREDEFINED_TYPES.contains(tt))
-          .map(tt -> converter.processClass(0, tt, declaredTypes))
+          .map(tt -> converter.javaClass2DeclarationTransformer(0, tt, declaredTypes))
           .sorted()
           .forEach(wD_append);
 
@@ -158,7 +161,7 @@ public class TypescriptProcessor extends AbstractProcessorEx {
 
       types.stream()
           .filter(t -> t.isExport())
-          .map(t -> converter.processStatic(t, declaredTypes))
+          .map(t -> converter.javaClass2StaticDefinitionTransformer(t, declaredTypes))
           .sorted()
           .forEach(wT_append);
 

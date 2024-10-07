@@ -1,21 +1,22 @@
 package org.bsc.java2typescript;
 
+import org.junit.Before;
+import org.junit.Test;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.function.BiFunction;
 
-import org.hamcrest.core.IsEqual;
-import org.hamcrest.core.IsNull;
-import org.junit.Assert;
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * 
  * @author bsorrentino
  *
  */
-public class TestIssue7 extends AbstractConverterTest {
+public class Issue7Test extends AbstractConverterTest {
 
     interface TestBean<K,V> {
 
@@ -36,6 +37,15 @@ public class TestIssue7 extends AbstractConverterTest {
 		}
 	}
 
+	private Java2TSConverter converter;
+
+	@Before
+	public void initConverter() {
+		converter =  Java2TSConverter.builder()
+				.compatibility(Java2TSConverter.Compatibility.NASHORN)
+				.build();
+	}
+
 	@Test
 	public void testMethod1() throws Exception {
 		final Class<?> type = TestBean.class;
@@ -48,8 +58,8 @@ public class TestIssue7 extends AbstractConverterTest {
 									declaredTypeMap( TSType.of(BiFunction.class), TSType.of(Map.Entry.class)),
 									true) ;
 			
-			Assert.assertThat( result, IsNull.notNullValue());
-			Assert.assertThat( result, IsEqual.equalTo("( reducer:java.util.Map$Entry<K, V> ):void"));
+			assertNotNull( result );
+			assertEquals( "( reducer:java.util.Map$Entry<K, V> ):void", result);
 		}
 		
 	}
@@ -66,8 +76,8 @@ public class TestIssue7 extends AbstractConverterTest {
 									declaredTypeMap( TSType.of(java.util.List.class), TSType.of(Map.Entry.class)),
 									true) ;
 			
-			Assert.assertThat( result, IsNull.notNullValue());
-			Assert.assertThat( result, IsEqual.equalTo("<E>( reducer:java.util.List<java.util.Map$Entry<E, V>> ):void"));
+			assertNotNull( result );
+			assertEquals( "<E>( reducer:java.util.List<java.util.Map$Entry<E, V>> ):void", result );
 		}
 
 		
@@ -86,8 +96,8 @@ public class TestIssue7 extends AbstractConverterTest {
 									declaredTypeMap( TSType.of(Map.Entry.class)),
 									true) ;
 			
-			Assert.assertThat( result, IsNull.notNullValue());
-			Assert.assertThat( result, IsEqual.equalTo("(  ):java.util.Map$Entry<K, V>"));
+			assertNotNull( result );
+			assertEquals( "(  ):java.util.Map$Entry<K, V>", result);
 		}
 
 		
@@ -106,8 +116,8 @@ public class TestIssue7 extends AbstractConverterTest {
 									declaredTypeMap( TSType.of(Map.Entry.class), TSType.of(type) ),
 									true) ;
 			
-			Assert.assertThat( result, IsNull.notNullValue());
-			Assert.assertThat( result, IsEqual.equalTo("<K,V>(  ):TestIssue7$TestBean1<K, V>"));
+			assertNotNull( result);
+			assertEquals( "<K,V>(  ):Issue7Test$TestBean1<K, V>", result);
 		}
 
 		
@@ -115,19 +125,19 @@ public class TestIssue7 extends AbstractConverterTest {
 	@Test
 	public void testReduceEntries() throws Exception {
 		final Class<?> type = TestBean.class;
-		
+
 		{
-		final Method m = type.getMethod("reduceEntries", Long.TYPE, BiFunction.class);
-		final String result = 
-			converter.getMethodParametersAndReturnDecl( m, 
-								TSType.of(type),
-								declaredTypeMap( TSType.of(BiFunction.class), TSType.of(Map.Entry.class)),
-								true) ;
-		
-		Assert.assertThat( result, IsNull.notNullValue());
-		Assert.assertThat( result, IsEqual.equalTo("( parallelismThreshold:long, reducer:java.util.function.BiFunction<java.util.Map$Entry<K, V>, java.util.Map$Entry<K, V>, java.util.Map$Entry<K, V>> ):java.util.Map$Entry<K, V>"));
+			final Method m = type.getMethod("reduceEntries", Long.TYPE, BiFunction.class);
+			final String result =
+					converter.getMethodParametersAndReturnDecl(m,
+							TSType.of(type),
+							declaredTypeMap(TSType.of(BiFunction.class), TSType.of(Map.Entry.class)),
+							true);
+			assertNotNull(result);
+			assertEquals(
+					"( parallelismThreshold:long, reducer:java.util.function.BiFunction<java.util.Map$Entry<K, V>, java.util.Map$Entry<K, V>, java.util.Map$Entry<K, V>> ):java.util.Map$Entry<K, V>",
+					result);
+
 		}
-		
-		
 	}
 }
