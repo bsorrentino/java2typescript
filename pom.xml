@@ -238,6 +238,7 @@
                             </execution>
                         </executions>
                         <configuration>
+                            <keyname>bartolomeo.sorrentino@gmail.com</keyname>
                             <gpgArguments>
                                 <arg>--pinentry-mode</arg>
                                 <arg>loopback</arg>
