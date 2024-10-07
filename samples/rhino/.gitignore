@@ -1,5 +1,7 @@
 node_modules/
 .apt_generated/
 .apt_generated_tests/
-.cache/
+.parcel-cache
 ts/j2ts/
+bun.lockb
+package-lock.json
