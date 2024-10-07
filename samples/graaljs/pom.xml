@@ -13,10 +13,23 @@
     <description>graaljs sample</description>
 
     <properties>
-        <graalvm.version>20.3.0</graalvm.version>
+        <graalvm.version>24.1.0</graalvm.version>
+        <graalvm.tools.version>23.0.5</graalvm.tools.version>
         <compiler.dir>${project.build.directory}/compiler</compiler.dir>
         <main.app>app.js</main.app>
     </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.graalvm.js</groupId>
+                <artifactId>js</artifactId>
+                <version>${graalvm.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <profiles>
         <profile>
@@ -32,25 +45,19 @@
                 </dependency>
                 <dependency>
                     <groupId>org.graalvm.js</groupId>
-                    <artifactId>js</artifactId>
-                    <version>${graalvm.version}</version>
-                    <scope>runtime</scope>
-                </dependency>
-                <dependency>
-                    <groupId>org.graalvm.js</groupId>
                     <artifactId>js-scriptengine</artifactId>
                     <version>${graalvm.version}</version>
                 </dependency>
                 <dependency>
                     <groupId>org.graalvm.tools</groupId>
                     <artifactId>profiler</artifactId>
-                    <version>${graalvm.version}</version>
+                    <version>${graalvm.tools.version}</version>
                     <scope>runtime</scope>
                 </dependency>
                 <dependency>
                     <groupId>org.graalvm.tools</groupId>
                     <artifactId>chromeinspector</artifactId>
-                    <version>${graalvm.version}</version>
+                    <version>${graalvm.tools.version}</version>
                     <scope>runtime</scope>
                 </dependency>
             </dependencies>
@@ -95,7 +102,7 @@
                                         <artifactItem>
                                             <groupId>org.graalvm.truffle</groupId>
                                             <artifactId>truffle-api</artifactId>
-                                            <version>${graalvm.version}</version>
+                                            <version>${graalvm.tools.version}</version>
                                             <type>jar</type>
                                             <overWrite>true</overWrite>
                                             <destFileName>truffle-api.jar</destFileName>
@@ -184,12 +191,6 @@
                 </dependency>
                 <dependency>
                     <groupId>org.graalvm.js</groupId>
-                    <artifactId>js</artifactId>
-                    <version>${graalvm.version}</version>
-                    <scope>runtime</scope>
-                </dependency>
-                <dependency>
-                    <groupId>org.graalvm.js</groupId>
                     <artifactId>js-scriptengine</artifactId>
                     <version>${graalvm.version}</version>
                     <scope>runtime</scope>
@@ -197,13 +198,13 @@
                 <dependency>
                     <groupId>org.graalvm.tools</groupId>
                     <artifactId>profiler</artifactId>
-                    <version>${graalvm.version}</version>
+                    <version>${graalvm.tools.version}</version>
                     <scope>runtime</scope>
                 </dependency>
                 <dependency>
                     <groupId>org.graalvm.tools</groupId>
                     <artifactId>chromeinspector</artifactId>
-                    <version>${graalvm.version}</version>
+                    <version>${graalvm.tools.version}</version>
                     <scope>runtime</scope>
                 </dependency>
             </dependencies>
