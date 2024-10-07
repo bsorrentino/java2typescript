@@ -2,55 +2,58 @@
 
 <!-- Changelog for bsorrentino java2typescript. -->
 
-## Next release
+## v1.4.0
 ### Generic changes
+
+**Merge branch 'release/1.4.0'**
+
+
+[a8aac88728922f6](https://github.com/bsorrentino/java2typescript/commit/a8aac88728922f6) bsorrentino *2024-10-07 17:13:13*
+
+**build: bump to new version**
+
+
+[04469b6cebbec61](https://github.com/bsorrentino/java2typescript/commit/04469b6cebbec61) bsorrentino *2024-10-07 17:12:47*
+
+**build: bump rhino version**
+
+
+[8d0bb5e57293956](https://github.com/bsorrentino/java2typescript/commit/8d0bb5e57293956) bsorrentino *2024-10-07 16:48:37*
+
+**test(rhino): evaluate build-in support for commonjs modules**
+
+
+[4190c469ad6b6f8](https://github.com/bsorrentino/java2typescript/commit/4190c469ad6b6f8) bsorrentino *2024-10-07 16:48:24*
+
+**Merge branch 'feature/issue34' into develop**
+
+
+[27397225658eb26](https://github.com/bsorrentino/java2typescript/commit/27397225658eb26) bsorrentino *2024-10-07 08:40:38*
+
+**refactor(pom): remove warning**
+
+
+[20f9be360dafd8b](https://github.com/bsorrentino/java2typescript/commit/20f9be360dafd8b) bsorrentino *2021-10-17 16:05:39*
+
+**refactor(dts): update directory tree structure**
+
+
+[3e547da4219ed5c](https://github.com/bsorrentino/java2typescript/commit/3e547da4219ed5c) bsorrentino *2021-10-15 17:02:55*
+
+**refactor(code): add transformer plugin**
+
+
+[213c383c21b7c85](https://github.com/bsorrentino/java2typescript/commit/213c383c21b7c85) bsorrentino *2021-10-14 11:14:01*
+
+**task(build): generate changelog**
+
+
+[c8f79b6f8bc7780](https://github.com/bsorrentino/java2typescript/commit/c8f79b6f8bc7780) bsorrentino *2021-10-13 15:25:48*
 
 **task(build): add changelog mustache template**
 
 
 [7986a6cd318133d](https://github.com/bsorrentino/java2typescript/commit/7986a6cd318133d) bsorrentino *2021-10-13 15:24:05*
-
-
-###  [#35](https://github.com/bsorrentino/java2typescript/pull/35) fix class, method ordering  
-
-**Merge tag 'v1.3.1' into develop**
-
- * merge PR #35
-
-[517ab2479debe8e](https://github.com/bsorrentino/java2typescript/commit/517ab2479debe8e) bsorrentino *2021-10-12 10:29:58*
-
-
-## v1.3.1
-### Generic changes
-
-**Merge branch 'release/1.3.1'**
-
-
-[0d11e2d897b8520](https://github.com/bsorrentino/java2typescript/commit/0d11e2d897b8520) bsorrentino *2021-10-12 10:29:26*
-
-**task(build)**
-
- * update changelog
-
-[03666586f82c60b](https://github.com/bsorrentino/java2typescript/commit/03666586f82c60b) bsorrentino *2021-10-12 10:29:06*
-
-**task(build)**
-
- * add support for changelog gen
-
-[2e37d7c4026aff9](https://github.com/bsorrentino/java2typescript/commit/2e37d7c4026aff9) bsorrentino *2021-10-12 10:24:47*
-
-**task(build)**
-
- * update github action name
-
-[2ce93e4e593ec43](https://github.com/bsorrentino/java2typescript/commit/2ce93e4e593ec43) bsorrentino *2021-10-12 10:16:38*
-
-**task(build)**
-
- * update to next release version
-
-[6ba6e63baf5e5e9](https://github.com/bsorrentino/java2typescript/commit/6ba6e63baf5e5e9) bsorrentino *2021-10-12 10:15:09*
 
 **Merge branch 'pintomau-fix-order' into develop**
 
@@ -78,80 +81,11 @@
 
 [7daa213a516fc9b](https://github.com/bsorrentino/java2typescript/commit/7daa213a516fc9b) Build Pipeline *2021-09-20 10:45:05*
 
-**Merge branch 'hotfix/action'**
-
-
-[f5e58b778804b82](https://github.com/bsorrentino/java2typescript/commit/f5e58b778804b82) Build Pipeline *2021-09-20 10:44:43*
-
-**skip source = false**
-
-
-[34ac374368965dc](https://github.com/bsorrentino/java2typescript/commit/34ac374368965dc) Build Pipeline *2021-09-20 10:35:29*
-
-**skip deploy**
-
-
-[29f10d0b045eec3](https://github.com/bsorrentino/java2typescript/commit/29f10d0b045eec3) Build Pipeline *2021-09-20 10:28:15*
-
-**update action**
-
-
-[82afe2c111141f0](https://github.com/bsorrentino/java2typescript/commit/82afe2c111141f0) Build Pipeline *2021-09-20 10:10:51*
-
-**update action**
-
-
-[727365ca0fb7bf0](https://github.com/bsorrentino/java2typescript/commit/727365ca0fb7bf0) Build Pipeline *2021-09-20 10:09:22*
-
-**update action**
-
-
-[74a27c402ec9f38](https://github.com/bsorrentino/java2typescript/commit/74a27c402ec9f38) Build Pipeline *2021-09-20 09:59:32*
-
-**update action**
-
-
-[5fe5843f13ed7ff](https://github.com/bsorrentino/java2typescript/commit/5fe5843f13ed7ff) Build Pipeline *2021-09-20 09:52:36*
-
-**update action**
-
-
-[7502a8a0bfcb5fc](https://github.com/bsorrentino/java2typescript/commit/7502a8a0bfcb5fc) Build Pipeline *2021-09-20 09:49:04*
-
-**update action**
-
-
-[1d7a9fbc4586f63](https://github.com/bsorrentino/java2typescript/commit/1d7a9fbc4586f63) Build Pipeline *2021-09-20 09:26:02*
-
-**update action**
-
-
-[be4cef192bbddbc](https://github.com/bsorrentino/java2typescript/commit/be4cef192bbddbc) Build Pipeline *2021-09-20 09:24:05*
-
 **Merge tag 'v1.3.0' into develop**
 
  * new release
 
 [325de887193cbd7](https://github.com/bsorrentino/java2typescript/commit/325de887193cbd7) Build Pipeline *2021-09-20 09:11:28*
-
-
-## v1.3.0
-### Generic changes
-
-**Merge branch 'release/1.3.0'**
-
-
-[555cc7c8991af53](https://github.com/bsorrentino/java2typescript/commit/555cc7c8991af53) Build Pipeline *2021-09-20 09:11:17*
-
-**move to release 1.3.0**
-
-
-[dc20544d9ff25dc](https://github.com/bsorrentino/java2typescript/commit/dc20544d9ff25dc) Build Pipeline *2021-09-20 09:10:59*
-
-**update readme**
-
-
-[068d96572dfdba8](https://github.com/bsorrentino/java2typescript/commit/068d96572dfdba8) Build Pipeline *2021-09-20 09:10:45*
 
 **update scripts**
 
@@ -213,6 +147,315 @@
 
 [74e2bc227077908](https://github.com/bsorrentino/java2typescript/commit/74e2bc227077908) Build Pipeline *2021-09-19 15:31:10*
 
+**Merge branch 'master' into develop**
+
+
+[9099b99b0a7d3e0](https://github.com/bsorrentino/java2typescript/commit/9099b99b0a7d3e0) Build Pipeline *2021-09-18 08:45:59*
+
+**clean code**
+
+
+[6b6a76a11faa318](https://github.com/bsorrentino/java2typescript/commit/6b6a76a11faa318) Build Pipeline *2021-09-18 08:36:11*
+
+**update maven settings for CI**
+
+
+[a17ee0d167ce501](https://github.com/bsorrentino/java2typescript/commit/a17ee0d167ce501) bsorrentino *2020-11-03 10:25:17*
+
+**update maven settings for CI**
+
+
+[427081c38fb513e](https://github.com/bsorrentino/java2typescript/commit/427081c38fb513e) bsorrentino *2020-11-03 09:59:22*
+
+**update maven settings for CI**
+
+
+[b06879dd8ae2f6f](https://github.com/bsorrentino/java2typescript/commit/b06879dd8ae2f6f) bsorrentino *2020-11-03 09:57:32*
+
+**update maven settings for CI**
+
+
+[dcfe54f19dc532a](https://github.com/bsorrentino/java2typescript/commit/dcfe54f19dc532a) bsorrentino *2020-11-03 09:55:13*
+
+**fix pipeline syntax error**
+
+
+[ac268cb7eea6d2a](https://github.com/bsorrentino/java2typescript/commit/ac268cb7eea6d2a) bsorrentino *2020-11-03 09:28:54*
+
+**update pipeline to support secretes**
+
+
+[d5bf937f1fe8421](https://github.com/bsorrentino/java2typescript/commit/d5bf937f1fe8421) bsorrentino *2020-11-03 09:27:42*
+
+**update maven settings**
+
+
+[ff57fac1a2b2609](https://github.com/bsorrentino/java2typescript/commit/ff57fac1a2b2609) bartolomeo sorrentino *2020-11-02 20:47:46*
+
+**deploy snapshot**
+
+
+[20146c59ba2b899](https://github.com/bsorrentino/java2typescript/commit/20146c59ba2b899) bartolomeo sorrentino *2020-11-02 20:45:16*
+
+**remove java10 target**
+
+
+[61925cf584a2325](https://github.com/bsorrentino/java2typescript/commit/61925cf584a2325) bartolomeo sorrentino *2020-11-02 20:41:33*
+
+**Merge branch 'master' into develop**
+
+
+[d1e5981f04243e7](https://github.com/bsorrentino/java2typescript/commit/d1e5981f04243e7) bartolomeo sorrentino *2020-11-02 20:36:18*
+
+**update readme**
+
+
+[32c38ddc77094c3](https://github.com/bsorrentino/java2typescript/commit/32c38ddc77094c3) bartolomeo sorrentino *2020-11-02 20:34:23*
+
+**fix twice call**
+
+
+[0ff14af8ff8a334](https://github.com/bsorrentino/java2typescript/commit/0ff14af8ff8a334) bartolomeo sorrentino *2020-10-29 22:41:22*
+
+**Merge branch 'feature/issue5' into develop**
+
+
+[60bbd515269f0ed](https://github.com/bsorrentino/java2typescript/commit/60bbd515269f0ed) bartolomeo sorrentino *2020-10-12 16:03:56*
+
+**clean code**
+
+
+[c8a72efab3579d2](https://github.com/bsorrentino/java2typescript/commit/c8a72efab3579d2) bartolomeo sorrentino *2020-10-12 16:03:49*
+
+**Merge remote-tracking branch 'origin/develop' into develop**
+
+ * # Conflicts:
+ * #	.gitignore
+
+[61342a4c001a0fe](https://github.com/bsorrentino/java2typescript/commit/61342a4c001a0fe) bartolomeo sorrentino *2020-10-11 18:06:56*
+
+**Merge remote-tracking branch 'origin/develop' into develop**
+
+ * # Conflicts:
+ * #	.gitignore
+
+[49d7f59da4dfa5f](https://github.com/bsorrentino/java2typescript/commit/49d7f59da4dfa5f) bartolomeo sorrentino *2020-10-10 10:48:05*
+
+**update ignore**
+
+
+[1186925c0324b43](https://github.com/bsorrentino/java2typescript/commit/1186925c0324b43) bartolomeo sorrentino *2020-10-10 10:46:42*
+
+**rhino compatibility refinement**
+
+
+[b3c1214dbb5208a](https://github.com/bsorrentino/java2typescript/commit/b3c1214dbb5208a) bsorrentino *2020-01-31 23:59:14*
+
+**create separate template betwwen Rhino and Graaljs**
+
+
+[57e90f0aa244a87](https://github.com/bsorrentino/java2typescript/commit/57e90f0aa244a87) bsorrentino *2020-01-28 18:03:50*
+
+**update rhino and graaljs version**
+
+
+[2c82a6fc3751a3b](https://github.com/bsorrentino/java2typescript/commit/2c82a6fc3751a3b) bsorrentino *2020-01-28 17:20:39*
+
+**Merge branch 'release/1.2.0' into develop**
+
+
+[dcc6c9da2b1acc7](https://github.com/bsorrentino/java2typescript/commit/dcc6c9da2b1acc7) bartolomeo sorrentino *2019-09-08 17:43:55*
+
+
+###  [#14](https://github.com/bsorrentino/java2typescript/pull/14) Bump junit from 4.12 to 4.13.1    *dependencies*  *java*  
+
+**merge PR #14**
+
+
+[60d301bec805e68](https://github.com/bsorrentino/java2typescript/commit/60d301bec805e68) bsorrentino *2020-11-03 09:37:21*
+
+
+###  [#34](https://github.com/bsorrentino/java2typescript/issues/34) Consider supporting GraalJS&#x27; foreign-object-prototype    *enhancement*  
+
+**fix(generation): add missing brackets**
+
+ * issue #34
+
+[c0e4030bdfe2a1d](https://github.com/bsorrentino/java2typescript/commit/c0e4030bdfe2a1d) bsorrentino *2021-10-15 16:58:27*
+
+**refactor(code): clean code**
+
+ * issue #34
+
+[9d1bfba4c41a272](https://github.com/bsorrentino/java2typescript/commit/9d1bfba4c41a272) bsorrentino *2021-10-15 00:22:46*
+
+**fix(test)**
+
+ * issue #34
+
+[23a671f4380598a](https://github.com/bsorrentino/java2typescript/commit/23a671f4380598a) bsorrentino *2021-10-15 00:09:13*
+
+**fix(converter): Java List inherit JS Array**
+
+ * issue #34
+
+[53146a0ef98d979](https://github.com/bsorrentino/java2typescript/commit/53146a0ef98d979) bsorrentino *2021-10-15 00:06:04*
+
+**fix(converter): test for 'foreign-object-prototype'**
+
+ * add unit test for &#x27;foreign-object-prototype&#x27;
+ * issue #34
+
+[0a440ec9bc40368](https://github.com/bsorrentino/java2typescript/commit/0a440ec9bc40368) bsorrentino *2021-10-15 00:05:11*
+
+**fix(converter): test for 'foreign-object-prototype'**
+
+ * add unit test for &#x27;foreign-object-prototype&#x27;
+ * issue #34
+
+[733926cfdb33e50](https://github.com/bsorrentino/java2typescript/commit/733926cfdb33e50) bsorrentino *2021-10-15 00:04:29*
+
+**fix(converter): support for 'foreign-object-prototype'**
+
+ * if options compatibility&#x3D;graaljs and foreignobjectprototype&#x3D;true the
+ * conversion on a java.util.List remove methods which signature clash with
+ * javascript Array
+ * issue #34
+
+[a4f53840b37589e](https://github.com/bsorrentino/java2typescript/commit/a4f53840b37589e) bsorrentino *2021-10-14 16:24:19*
+
+
+###  [#35](https://github.com/bsorrentino/java2typescript/pull/35) fix class, method ordering  
+
+**Merge tag 'v1.3.1' into develop**
+
+ * merge PR #35
+
+[517ab2479debe8e](https://github.com/bsorrentino/java2typescript/commit/517ab2479debe8e) bsorrentino *2021-10-12 10:29:58*
+
+
+###  [#6](https://github.com/bsorrentino/java2typescript/issues/6) generate definitions for Functional Interface    *enhancement*  
+
+**#6 add namespace class management**
+
+
+[bd291e321920cfd](https://github.com/bsorrentino/java2typescript/commit/bd291e321920cfd) bartolomeo sorrentino *2020-10-11 21:46:10*
+
+
+### Jira acorn-5   
+
+**Merge branch 'dependabot/npm_and_yarn/samples.rhino/acorn-5.7.4' into develop**
+
+
+[5c6ea59db950f07](https://github.com/bsorrentino/java2typescript/commit/5c6ea59db950f07) Build Pipeline *2021-09-18 08:37:11*
+
+**Merge branch 'develop' into dependabot/npm_and_yarn/samples.rhino/acorn-5.7.4**
+
+
+[b832c81c731edf7](https://github.com/bsorrentino/java2typescript/commit/b832c81c731edf7) Build Pipeline *2021-09-18 08:36:48*
+
+
+## v1.3.1
+### Generic changes
+
+**Merge branch 'release/1.3.1'**
+
+
+[0d11e2d897b8520](https://github.com/bsorrentino/java2typescript/commit/0d11e2d897b8520) bsorrentino *2021-10-12 10:29:26*
+
+**task(build)**
+
+ * update changelog
+
+[03666586f82c60b](https://github.com/bsorrentino/java2typescript/commit/03666586f82c60b) bsorrentino *2021-10-12 10:29:06*
+
+**task(build)**
+
+ * add support for changelog gen
+
+[2e37d7c4026aff9](https://github.com/bsorrentino/java2typescript/commit/2e37d7c4026aff9) bsorrentino *2021-10-12 10:24:47*
+
+**task(build)**
+
+ * update github action name
+
+[2ce93e4e593ec43](https://github.com/bsorrentino/java2typescript/commit/2ce93e4e593ec43) bsorrentino *2021-10-12 10:16:38*
+
+**task(build)**
+
+ * update to next release version
+
+[6ba6e63baf5e5e9](https://github.com/bsorrentino/java2typescript/commit/6ba6e63baf5e5e9) bsorrentino *2021-10-12 10:15:09*
+
+**Merge branch 'hotfix/action'**
+
+
+[f5e58b778804b82](https://github.com/bsorrentino/java2typescript/commit/f5e58b778804b82) Build Pipeline *2021-09-20 10:44:43*
+
+**skip source = false**
+
+
+[34ac374368965dc](https://github.com/bsorrentino/java2typescript/commit/34ac374368965dc) Build Pipeline *2021-09-20 10:35:29*
+
+**skip deploy**
+
+
+[29f10d0b045eec3](https://github.com/bsorrentino/java2typescript/commit/29f10d0b045eec3) Build Pipeline *2021-09-20 10:28:15*
+
+**update action**
+
+
+[82afe2c111141f0](https://github.com/bsorrentino/java2typescript/commit/82afe2c111141f0) Build Pipeline *2021-09-20 10:10:51*
+
+**update action**
+
+
+[727365ca0fb7bf0](https://github.com/bsorrentino/java2typescript/commit/727365ca0fb7bf0) Build Pipeline *2021-09-20 10:09:22*
+
+**update action**
+
+
+[74a27c402ec9f38](https://github.com/bsorrentino/java2typescript/commit/74a27c402ec9f38) Build Pipeline *2021-09-20 09:59:32*
+
+**update action**
+
+
+[5fe5843f13ed7ff](https://github.com/bsorrentino/java2typescript/commit/5fe5843f13ed7ff) Build Pipeline *2021-09-20 09:52:36*
+
+**update action**
+
+
+[7502a8a0bfcb5fc](https://github.com/bsorrentino/java2typescript/commit/7502a8a0bfcb5fc) Build Pipeline *2021-09-20 09:49:04*
+
+**update action**
+
+
+[1d7a9fbc4586f63](https://github.com/bsorrentino/java2typescript/commit/1d7a9fbc4586f63) Build Pipeline *2021-09-20 09:26:02*
+
+**update action**
+
+
+[be4cef192bbddbc](https://github.com/bsorrentino/java2typescript/commit/be4cef192bbddbc) Build Pipeline *2021-09-20 09:24:05*
+
+
+## v1.3.0
+### Generic changes
+
+**Merge branch 'release/1.3.0'**
+
+
+[555cc7c8991af53](https://github.com/bsorrentino/java2typescript/commit/555cc7c8991af53) Build Pipeline *2021-09-20 09:11:17*
+
+**move to release 1.3.0**
+
+
+[dc20544d9ff25dc](https://github.com/bsorrentino/java2typescript/commit/dc20544d9ff25dc) Build Pipeline *2021-09-20 09:10:59*
+
+**update readme**
+
+
+[068d96572dfdba8](https://github.com/bsorrentino/java2typescript/commit/068d96572dfdba8) Build Pipeline *2021-09-20 09:10:45*
+
 **Bump ws from 5.2.2 to 5.2.3 in /samples.rhino**
 
  * Bumps [ws](https://github.com/websockets/ws) from 5.2.2 to 5.2.3.
@@ -226,11 +469,6 @@
  * Signed-off-by: dependabot[bot] &lt;support@github.com&gt;
 
 [08e328e8a277021](https://github.com/bsorrentino/java2typescript/commit/08e328e8a277021) dependabot[bot] *2021-09-19 15:30:30*
-
-**Merge branch 'master' into develop**
-
-
-[9099b99b0a7d3e0](https://github.com/bsorrentino/java2typescript/commit/9099b99b0a7d3e0) Build Pipeline *2021-09-18 08:45:59*
 
 **Bump color-string from 1.5.3 to 1.6.0 in /samples.rhino**
 
@@ -375,11 +613,6 @@
 
 [f1d6056d6e1306b](https://github.com/bsorrentino/java2typescript/commit/f1d6056d6e1306b) dependabot[bot] *2021-09-18 08:39:17*
 
-**clean code**
-
-
-[6b6a76a11faa318](https://github.com/bsorrentino/java2typescript/commit/6b6a76a11faa318) Build Pipeline *2021-09-18 08:36:11*
-
 **Bump path-parse from 1.0.6 to 1.0.7 in /samples.rhino**
 
  * Bumps [path-parse](https://github.com/jbgutierrez/path-parse) from 1.0.6 to 1.0.7.
@@ -431,61 +664,6 @@
 
 [25422f964c9557e](https://github.com/bsorrentino/java2typescript/commit/25422f964c9557e) dependabot[bot] *2020-12-11 20:13:00*
 
-**update maven settings for CI**
-
-
-[a17ee0d167ce501](https://github.com/bsorrentino/java2typescript/commit/a17ee0d167ce501) bsorrentino *2020-11-03 10:25:17*
-
-**update maven settings for CI**
-
-
-[427081c38fb513e](https://github.com/bsorrentino/java2typescript/commit/427081c38fb513e) bsorrentino *2020-11-03 09:59:22*
-
-**update maven settings for CI**
-
-
-[b06879dd8ae2f6f](https://github.com/bsorrentino/java2typescript/commit/b06879dd8ae2f6f) bsorrentino *2020-11-03 09:57:32*
-
-**update maven settings for CI**
-
-
-[dcfe54f19dc532a](https://github.com/bsorrentino/java2typescript/commit/dcfe54f19dc532a) bsorrentino *2020-11-03 09:55:13*
-
-**fix pipeline syntax error**
-
-
-[ac268cb7eea6d2a](https://github.com/bsorrentino/java2typescript/commit/ac268cb7eea6d2a) bsorrentino *2020-11-03 09:28:54*
-
-**update pipeline to support secretes**
-
-
-[d5bf937f1fe8421](https://github.com/bsorrentino/java2typescript/commit/d5bf937f1fe8421) bsorrentino *2020-11-03 09:27:42*
-
-**update maven settings**
-
-
-[ff57fac1a2b2609](https://github.com/bsorrentino/java2typescript/commit/ff57fac1a2b2609) bartolomeo sorrentino *2020-11-02 20:47:46*
-
-**deploy snapshot**
-
-
-[20146c59ba2b899](https://github.com/bsorrentino/java2typescript/commit/20146c59ba2b899) bartolomeo sorrentino *2020-11-02 20:45:16*
-
-**remove java10 target**
-
-
-[61925cf584a2325](https://github.com/bsorrentino/java2typescript/commit/61925cf584a2325) bartolomeo sorrentino *2020-11-02 20:41:33*
-
-**Merge branch 'master' into develop**
-
-
-[d1e5981f04243e7](https://github.com/bsorrentino/java2typescript/commit/d1e5981f04243e7) bartolomeo sorrentino *2020-11-02 20:36:18*
-
-**update readme**
-
-
-[32c38ddc77094c3](https://github.com/bsorrentino/java2typescript/commit/32c38ddc77094c3) bartolomeo sorrentino *2020-11-02 20:34:23*
-
 **Bump dot-prop from 4.2.0 to 4.2.1 in /samples.rhino**
 
  * Bumps [dot-prop](https://github.com/sindresorhus/dot-prop) from 4.2.0 to 4.2.1.
@@ -510,11 +688,6 @@
 
 [5b94ac4a65bba9e](https://github.com/bsorrentino/java2typescript/commit/5b94ac4a65bba9e) bsorrentino *2020-11-02 14:55:36*
 
-**fix twice call**
-
-
-[0ff14af8ff8a334](https://github.com/bsorrentino/java2typescript/commit/0ff14af8ff8a334) bartolomeo sorrentino *2020-10-29 22:41:22*
-
 **Bump junit from 4.12 to 4.13.1**
 
  * Bumps [junit](https://github.com/junit-team/junit4) from 4.12 to 4.13.1.
@@ -525,35 +698,6 @@
 
 [ed30ac4f62f727d](https://github.com/bsorrentino/java2typescript/commit/ed30ac4f62f727d) dependabot[bot] *2020-10-13 06:46:38*
 
-**Merge branch 'feature/issue5' into develop**
-
-
-[60bbd515269f0ed](https://github.com/bsorrentino/java2typescript/commit/60bbd515269f0ed) bartolomeo sorrentino *2020-10-12 16:03:56*
-
-**clean code**
-
-
-[c8a72efab3579d2](https://github.com/bsorrentino/java2typescript/commit/c8a72efab3579d2) bartolomeo sorrentino *2020-10-12 16:03:49*
-
-**Merge remote-tracking branch 'origin/develop' into develop**
-
- * # Conflicts:
- * #	.gitignore
-
-[61342a4c001a0fe](https://github.com/bsorrentino/java2typescript/commit/61342a4c001a0fe) bartolomeo sorrentino *2020-10-11 18:06:56*
-
-**Merge remote-tracking branch 'origin/develop' into develop**
-
- * # Conflicts:
- * #	.gitignore
-
-[49d7f59da4dfa5f](https://github.com/bsorrentino/java2typescript/commit/49d7f59da4dfa5f) bartolomeo sorrentino *2020-10-10 10:48:05*
-
-**update ignore**
-
-
-[1186925c0324b43](https://github.com/bsorrentino/java2typescript/commit/1186925c0324b43) bartolomeo sorrentino *2020-10-10 10:46:42*
-
 **Bump acorn from 5.7.3 to 5.7.4 in /samples.rhino**
 
  * Bumps [acorn](https://github.com/acornjs/acorn) from 5.7.3 to 5.7.4.
@@ -562,26 +706,6 @@
  * Signed-off-by: dependabot[bot] &lt;support@github.com&gt;
 
 [f5c929937e50fd3](https://github.com/bsorrentino/java2typescript/commit/f5c929937e50fd3) dependabot[bot] *2020-03-16 12:27:26*
-
-**rhino compatibility refinement**
-
-
-[b3c1214dbb5208a](https://github.com/bsorrentino/java2typescript/commit/b3c1214dbb5208a) bsorrentino *2020-01-31 23:59:14*
-
-**create separate template betwwen Rhino and Graaljs**
-
-
-[57e90f0aa244a87](https://github.com/bsorrentino/java2typescript/commit/57e90f0aa244a87) bsorrentino *2020-01-28 18:03:50*
-
-**update rhino and graaljs version**
-
-
-[2c82a6fc3751a3b](https://github.com/bsorrentino/java2typescript/commit/2c82a6fc3751a3b) bsorrentino *2020-01-28 17:20:39*
-
-**Merge branch 'release/1.2.0' into develop**
-
-
-[dcc6c9da2b1acc7](https://github.com/bsorrentino/java2typescript/commit/dcc6c9da2b1acc7) bartolomeo sorrentino *2019-09-08 17:43:55*
 
 
 ###  [#11](https://github.com/bsorrentino/java2typescript/pull/11) Bump acorn from 5.7.3 to 5.7.4 in /samples.rhino    *dependencies*  
@@ -600,11 +724,6 @@
  * Bump junit from 4.12 to 4.13.1
 
 [4e30e8fd216c36a](https://github.com/bsorrentino/java2typescript/commit/4e30e8fd216c36a) bsorrentino *2021-09-18 08:39:03*
-
-**merge PR #14**
-
-
-[60d301bec805e68](https://github.com/bsorrentino/java2typescript/commit/60d301bec805e68) bsorrentino *2020-11-03 09:37:21*
 
 
 ###  [#16](https://github.com/bsorrentino/java2typescript/pull/16) Bump dot-prop from 4.2.0 to 4.2.1 in /samples.rhino    *dependencies*  *javascript*  
@@ -760,14 +879,6 @@
 [468fab721a8a336](https://github.com/bsorrentino/java2typescript/commit/468fab721a8a336) bsorrentino *2021-09-19 15:32:36*
 
 
-###  [#6](https://github.com/bsorrentino/java2typescript/issues/6) generate definitions for Functional Interface    *enhancement*  
-
-**#6 add namespace class management**
-
-
-[bd291e321920cfd](https://github.com/bsorrentino/java2typescript/commit/bd291e321920cfd) bartolomeo sorrentino *2020-10-11 21:46:10*
-
-
 ### Jira acorn-5   
 
 **Merge pull request #31 from bsorrentino/dependabot/npm_and_yarn/samples/acorn-5.7.4**
@@ -781,16 +892,6 @@
  * Bump acorn from 5.7.3 to 5.7.4 in /samples.rhino
 
 [f3a2eebcb0a797c](https://github.com/bsorrentino/java2typescript/commit/f3a2eebcb0a797c) bsorrentino *2021-09-18 08:38:41*
-
-**Merge branch 'dependabot/npm_and_yarn/samples.rhino/acorn-5.7.4' into develop**
-
-
-[5c6ea59db950f07](https://github.com/bsorrentino/java2typescript/commit/5c6ea59db950f07) Build Pipeline *2021-09-18 08:37:11*
-
-**Merge branch 'develop' into dependabot/npm_and_yarn/samples.rhino/acorn-5.7.4**
-
-
-[b832c81c731edf7](https://github.com/bsorrentino/java2typescript/commit/b832c81c731edf7) Build Pipeline *2021-09-18 08:36:48*
 
 
 ### Jira browserslist-4   
@@ -1948,17 +2049,17 @@
 **remove unused import**
 
 
-[268f00d089a1fe3](https://github.com/bsorrentino/java2typescript/commit/268f00d089a1fe3) bsorrentino *2017-12-31 16:18:52*
+[268f00d089a1fe3](https://github.com/bsorrentino/java2typescript/commit/268f00d089a1fe3) bsorrentino *2018-12-31 16:18:52*
 
 **support export of utility classes**
 
 
-[9eecb2397a7b7f6](https://github.com/bsorrentino/java2typescript/commit/9eecb2397a7b7f6) bsorrentino *2017-12-31 16:18:26*
+[9eecb2397a7b7f6](https://github.com/bsorrentino/java2typescript/commit/9eecb2397a7b7f6) bsorrentino *2018-12-31 16:18:26*
 
 **removed property from generation**
 
 
-[8d713022fcf4f6f](https://github.com/bsorrentino/java2typescript/commit/8d713022fcf4f6f) bsorrentino *2017-12-31 14:35:00*
+[8d713022fcf4f6f](https://github.com/bsorrentino/java2typescript/commit/8d713022fcf4f6f) bsorrentino *2018-12-31 14:35:00*
 
 **Merge branch 'feature/static' into develop**
 
