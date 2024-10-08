@@ -10,26 +10,6 @@
 	    <version>1.4-SNAPSHOT</version>
     </parent>
 
-    <properties>
-    </properties>
-
-    <build>
-        <finalName>java2ts-processor</finalName>
-
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.8.1</version> <!-- You can adjust this to the version you're using -->
-                <configuration>
-                    <source>17</source>
-                    <target>17</target>
-                </configuration>
-            </plugin>
-
-        </plugins>
-
-    </build>
 
     <dependencies>
         <dependency>
@@ -37,11 +17,13 @@
             <artifactId>junit</artifactId>
             <scope>test</scope>
         </dependency>
+
         <dependency>
             <groupId>org.kohsuke.metainf-services</groupId>
             <artifactId>metainf-services</artifactId>
             <optional>true</optional>
         </dependency>
+
 		<dependency>
 		    <groupId>org.glassfish</groupId>
 		    <artifactId>javax.json</artifactId>
