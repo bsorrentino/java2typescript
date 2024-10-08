@@ -45,6 +45,3 @@ import org.bsc.java2ts.JSExecutor;
 import org.bsc.processor.annotation.Java2TS;
 import org.bsc.processor.annotation.Type;
 
-class Test {
-	static JSExecutor executor = new JSExecutor();
-}

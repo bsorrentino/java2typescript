@@ -1,8 +1,6 @@
-module org.bsc.java2ts {
-    requires java.management;
-    requires org.graalvm.polyglot;
-    requires java.scripting;
+module org.bsc.java2typescript {
 
-    exports org.bsc.java2ts;
+
+    exports org.bsc.java2typescript;
 
 }
