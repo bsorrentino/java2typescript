@@ -1,5 +1,5 @@
 open module org.bsc.processor {
-    requires metainf.services;
+    requires org.kohsuke.metainf_services;
     requires java.json;
     requires java.compiler;
     requires org.bsc.java2typescript;
