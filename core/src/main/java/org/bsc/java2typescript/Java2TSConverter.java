@@ -4,6 +4,7 @@ import org.bsc.java2typescript.transformer.TSJavaClass2DeclarationTransformer;
 import org.bsc.java2typescript.transformer.TSJavaClass2StaticDefinitionTransformer;
 
 import java.lang.reflect.Executable;
+import java.util.Map;
 import java.util.Optional;
 
 import static java.lang.String.format;
@@ -77,12 +78,9 @@ public class Java2TSConverter extends TSConverterStatic {
         NASHORN, RHINO, GRAALJS;
 
         public String javaType(String fqn) {
-            switch (this.ordinal()) {
-                case 1:
-                    return format("Packages.%s", fqn);
-                default:
-                    return format("Java.type(\"%s\")", fqn);
-            }
+            return (this == RHINO ) ?
+                    format("Packages.%s", fqn) :
+                    format("Java.type(\"%s\")", fqn);
         }
     }
 
@@ -121,46 +119,31 @@ public class Java2TSConverter extends TSConverterStatic {
         JavaClass2StaticDefinitionTransformer = new TSJavaClass2StaticDefinitionTransformer();
     }
 
-     /**
-     * @return
-     */
     public final boolean isRhino() {
         return options.compatibility == Compatibility.RHINO;
     }
 
-    /**
-     * @param m
-     * @param type
-     * @param declaredTypeMap
-     * @param packageResolution
-     * @return
-     */
-    public <E extends Executable> String getMethodParametersAndReturnDecl(E m, TSType type,
-                                                                          java.util.Map<String, TSType> declaredTypeMap, boolean packageResolution) {
+    public <E extends Executable> String getMethodParametersAndReturnDecl(E m,
+                                                                          TSType type,
+                                                                          Map<String, TSType> declaredTypeMap,
+                                                                          boolean packageResolution)
+    {
 
         return TSConverterContext.of(type, declaredTypeMap, options)
                 .getMethodParametersAndReturnDecl(m, packageResolution);
     }
 
-    /**
-     * @param tstype
-     * @param declaredTypeMap
-     * @return
-     */
-    public String javaClass2StaticDefinitionTransformer(TSType tstype, java.util.Map<String, TSType> declaredTypeMap) {
+    public String javaClass2StaticDefinitionTransformer(TSType tstype,
+                                                        Map<String, TSType> declaredTypeMap) {
 
         return TSConverterContext.of(tstype, declaredTypeMap, options)
                 .apply( JavaClass2StaticDefinitionTransformer )
                 .toString();
     }
 
-    /**
-     * @param level
-     * @param tstype
-     * @param declaredTypeMap
-     * @return
-     */
-    public String javaClass2DeclarationTransformer(int level, TSType tstype, java.util.Map<String, TSType> declaredTypeMap) {
+    public String javaClass2DeclarationTransformer(int level,
+                                                   TSType tstype,
+                                                   Map<String, TSType> declaredTypeMap) {
 
         return TSConverterContext.of(tstype, declaredTypeMap, options)
                 .apply(javaClass2DeclarationTransformer)
