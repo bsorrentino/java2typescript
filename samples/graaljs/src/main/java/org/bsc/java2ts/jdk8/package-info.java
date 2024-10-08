@@ -35,11 +35,16 @@
 
 		@Type(value=java.util.function.Consumer.class, alias="Consumer", export=true),
 		
-		@Type( value=org.bsc.java2ts.JSExecutor.class, export=true)
+		@Type( value=JSExecutor.class, export=true)
 
 })
 package org.bsc.java2ts.jdk8;
 
 
+import org.bsc.java2ts.JSExecutor;
 import org.bsc.processor.annotation.Java2TS;
 import org.bsc.processor.annotation.Type;
+
+class Test {
+	static JSExecutor executor = new JSExecutor();
+}
