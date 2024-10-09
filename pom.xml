@@ -4,13 +4,13 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.bsc.processor</groupId>
     <artifactId>java2ts-processor-parent</artifactId>
-    <version>1.4-SNAPSHOT</version>
+    <version>2.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>java2ts-processor::parent</name>
     <description>
         Java Processor to generate Typescript Definition from Java classes - This is to help developing on JVM
-        javascript engine (ie Nashorn/Rhino) using Typescript
+        javascript engine (ie Rhino, Graaljs) using Typescript
     </description>
     <url>https://github.com/bsorrentino/java2typescript</url>
     <distributionManagement>
@@ -25,12 +25,6 @@
             <url>${snapshot.repo.url}</url>
             <!--uniqueVersion>false</uniqueVersion-->
         </snapshotRepository>
-        <!--
-        <site>
-            <id>${release.site.id}</id>
-            <url>${release.site.url}</url>
-        </site>
-        -->
     </distributionManagement>
     <scm>
         <connection>scm:git:https://github.com/bsorrentino/java2typescript.git</connection>
@@ -166,7 +160,6 @@
                     <artifactId>maven-javadoc-plugin</artifactId>
                     <version>3.10.1</version>
                     <configuration>
-                        <additionalparam>-Xdoclint:none</additionalparam>
                         <outputDirectory>${project.build.directory}/apidocs</outputDirectory>
                     </configuration>
                 </plugin>
