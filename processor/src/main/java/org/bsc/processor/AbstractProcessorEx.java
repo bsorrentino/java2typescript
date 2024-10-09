@@ -57,18 +57,9 @@ public abstract class AbstractProcessorEx extends AbstractProcessor {
          *
          * @return
          */
-        public final com.sun.source.util.Trees getTrees() {
-            return com.sun.source.util.Trees.instance(processingEnv);
-        }
-
-        /**
-         *
-         * @return
-         */
         public final java.util.Map<String, String> getOptionMap() {
             return processingEnv.getOptions();
         }
-
 
         /**
          *

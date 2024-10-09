@@ -6,23 +6,11 @@ import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 
-public class TSNamespace {
+public record TSNamespace (String name, Set<TSType> types ) {
 
-    private final String name;
-
-    private final Set<TSType> types;
-
-    private TSNamespace(String name, Set<TSType> types) {
+    public TSNamespace(String name, Set<TSType> types) {
         this.name = name;
         this.types = Collections.unmodifiableSet(types);
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public Set<TSType> getTypes() {
-        return types;
     }
 
     public static TSNamespace of( String name, Set<TSType> types ) {
@@ -32,7 +20,7 @@ public class TSNamespace {
     @Override
     public String toString() {
         return format( "TSNamespace: { name: '%s', types: [%s]  }",
-            name, getTypes().stream()
+            name, types().stream()
                     .map( TSType::toString ).collect(Collectors.joining(",\n")) );
     }
 }

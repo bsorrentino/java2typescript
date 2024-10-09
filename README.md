@@ -5,11 +5,35 @@
 
 [![Join the chat at https://gitter.im/bsorrentino/java2typescript](https://badges.gitter.im/bsorrentino/java2typescript.svg)](https://gitter.im/bsorrentino/java2typescript?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-Java Processor to **generate [Typescript](https://www.typescriptlang.org/)  Definition file (.d.ts)** from whatever Java classes.
+Java Processor to **generate [Typescript](https://www.typescriptlang.org/)  Definition file (`.d.ts`)** from whatever Java classes.
 
 ## Diagram of solution
 
-![java2ts diagram](images/java2ts2.png)
+```mermaid
+---
+title: Java to TypeScript Conversion Process
+---
+flowchart LR
+
+    subgraph "Java Compiler"
+        B(Java2TypeScript Processor) 
+    end
+   
+    subgraph "Java Project"
+        direction LR
+        A[Package_Info.java]:::javaSrc ---|Lookup annotations| B
+        C[Dependencies Classpath]:::javaSrc ---|Lookup classes| B
+    end
+
+    subgraph "Typescript"
+        D[&lt;Output>.d.ts]:::tsFile
+        E[&lt;Output>_types.ts]:::tsFile
+    end
+    
+    B o-->|Generate| D
+    B o-->|Generate| E
+    
+```
 
 ## What is it for ?
 
@@ -29,10 +53,10 @@ It is not a transpiler from Java to Javascript like  [datathings/java2typescript
 * [1c](https://1c.wizawu.com/#/whatis)
 > 1c is aimed to compile TypeScript to runnable code on both JVM and web browser. You can implement the full stack with TypeScript while using libraries from Maven and NPM together.
 
-## Related Project
+## Modules Support
 
-* [jvm-npm](https://github.com/bsorrentino/jvm-npm)
-> NPM compliant CommonJS module loader for the JVM
+* Rhino is compliant with CommonJS module loader for the JVM
+> Graaljs is compliant with ES6 module loader for the JVM
 
 ## DEMO
 
@@ -124,7 +148,7 @@ package org.mypackage;
 <plugin>
   <groupId>org.bsc.maven</groupId>
   <artifactId>maven-processor-plugin</artifactId>
-  <version>3.3.3</version>
+  <version>5.1</version>
   <executions>
     <execution>
       <id>process</id>
@@ -150,7 +174,7 @@ package org.mypackage;
 <plugin>
   <groupId>org.bsc.maven</groupId>
   <artifactId>maven-processor-plugin</artifactId>
-  <version>3.3.3</version>
+  <version>5.1</version>
   <executions>
     <execution>
       <id>process</id>

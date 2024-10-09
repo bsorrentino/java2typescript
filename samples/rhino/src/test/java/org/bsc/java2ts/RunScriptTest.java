@@ -6,6 +6,7 @@ import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ContextFactory;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
+import org.mozilla.javascript.commonjs.module.provider.UrlModuleSourceProvider;
 
 import java.net.URI;
 import java.net.URL;
@@ -30,15 +31,15 @@ public class RunScriptTest {
 
         Object result = factoryCtx.call( ctx -> {
 
-            CommonJsImporter topLevel = new CommonJsImporter(ctx, false);
+            RhinoTopLevel topLevel = new RhinoTopLevel(ctx, false);
 
             ctx.initStandardObjects(topLevel, false);
-            topLevel.installRequire(ctx, modules, true);
+            topLevel.installRequire(ctx, true,  new UrlModuleSourceProvider( modules, null ));
 
             Scriptable newScope = ctx.newObject(topLevel);
             newScope.setPrototype(topLevel);
 
-            return ctx.evaluateString(newScope, js, "<cmd>", 1, null);
+            return ctx.evaluateString(newScope, js, "testRequireExists", 1, null);
         });
 
         Assert.assertEquals( "The CommonJS require function works!", result );
@@ -63,18 +64,13 @@ public class RunScriptTest {
         Object result = factoryCtx.call( ctx -> {
             ctx.setLanguageVersion(Context.VERSION_ES6);
             // ctx.setOptimizationLevel(-1);
-            CommonJsImporter topLevel = new CommonJsImporter(ctx, false);
+            RhinoTopLevel topLevel = new RhinoTopLevel(ctx, false);
 
             ScriptableObject scope = ctx.initStandardObjects(topLevel, false);
 
-            topLevel.defineES6Exports(ctx.newObject(scope));
+            topLevel.installRequire(ctx, true, new UrlModuleSourceProvider( modules, null ));
 
-            topLevel.installRequire(ctx, modules, true);
-
-            Scriptable newScope = ctx.newObject(topLevel);
-            newScope.setPrototype(topLevel);
-
-            return ctx.evaluateString(newScope, js, "<cmd>", 1, null);
+            return ctx.evaluateString(topLevel, js, "testES6Module", 1, null);
         });
 
         Assert.assertEquals( "The ES6 import function works!", result );

@@ -24,12 +24,21 @@ import java.util.stream.Collectors;
 
 import static org.bsc.java2typescript.Java2TSConverter.PREDEFINED_TYPES;
 
-;
-
 /**
- * @author bsoorentino
+ * <p>
+ * Processor for annotations in {@link org.bsc.processor.annotation}.
+ * </p>
+ * <p>
+ * Supported options:
+ * </p>
+ * <ul>
+ *     <li>{@code ts.outfile}: target file for typescript declarations</li>
+ *     <li>{@code compatibility}: specify compatibility with a given script engine
+ *     (NASHORN, RHINO, V8)</li>
+ * </ul>
  */
-@SupportedSourceVersion(SourceVersion.RELEASE_8)
+//@SupportedSourceVersion(SourceVersion.RELEASE_8)
+@SupportedSourceVersion(SourceVersion.RELEASE_17)
 @SupportedAnnotationTypes("org.bsc.processor.annotation.*")
 @SupportedOptions({"ts.outfile", "compatibility"})
 @org.kohsuke.MetaInfServices(javax.annotation.processing.Processor.class)
@@ -69,10 +78,12 @@ public class TypescriptProcessor extends AbstractProcessorEx {
   );
 
   /**
-   * @param file
-   * @param header
-   * @return
-   * @throws IOException
+   * Open a file for output.
+   *
+   * @param file     target file
+   * @param header   header file to prepend to the output
+   * @return         a writer for the output file
+   * @throws IOException if an I/O error occurs
    */
   private java.io.Writer openFile(Path file, String header) throws IOException {
 
@@ -89,11 +100,6 @@ public class TypescriptProcessor extends AbstractProcessorEx {
 
     return w;
   }
-
-  /**
-   * @param processingContext
-   * @return
-   */
   @Override
   public boolean process(Context processingContext) throws Exception {
 
@@ -145,7 +151,7 @@ public class TypescriptProcessor extends AbstractProcessorEx {
       final Set<TSType> types = new HashSet<>(PREDEFINED_TYPES);
       types.addAll(REQUIRED_TYPES);
 
-      namespaces.forEach(ns -> types.addAll(ns.getTypes()));
+      namespaces.forEach(ns -> types.addAll(ns.types()));
 
       final java.util.Map<String, TSType> declaredTypes =
           types.stream()
@@ -160,7 +166,7 @@ public class TypescriptProcessor extends AbstractProcessorEx {
       wT_append.accept(String.format("/// <reference path=\"%s\"/>\n\n", definitionsFile));
 
       types.stream()
-          .filter(t -> t.isExport())
+          .filter(TSType::isExport)
           .map(t -> converter.javaClass2StaticDefinitionTransformer(t, declaredTypes))
           .sorted()
           .forEach(wT_append);
@@ -170,19 +176,32 @@ public class TypescriptProcessor extends AbstractProcessorEx {
     return true;
   }
 
+  /**
+   * Test if the given annotation is a {@link Java2TS}.
+   *
+   * @param am
+   *            the annotation to test
+   * @return true if the annotation is a {@link Java2TS}
+   */
   private boolean isJava2TS(AnnotationMirror am) {
 
     info("'%s'='%s'", am.getAnnotationType().toString(), Java2TS.class.getName());
     return am.getAnnotationType().toString().equals(Java2TS.class.getName());
 
   }
-
+  /**
+   * Processes the given annotation to generate a typescript declaration
+   *
+   * @param am the annotation to process
+   *
+   * @return the typescript declaration
+   */
   private TSNamespace toNamespace(AnnotationMirror am) {
 
     final Function<AnnotationValue, Set<TSType>> mapTypes = (value) ->
         ((List<? extends AnnotationValue>) value.getValue())
             .stream()
-            .map(av -> av.getValue())
+            .map(AnnotationValue::getValue)
             .filter(v -> v instanceof AnnotationMirror)
             .map(v -> toMapObject((AnnotationMirror) v, TSType::of))
             .collect(Collectors.toSet());
@@ -194,8 +213,7 @@ public class TypescriptProcessor extends AbstractProcessorEx {
     final Set<TSType> types =
         elementsValues.entrySet().stream()
         .filter( e -> String.valueOf(e.getKey()).startsWith("declare"))
-        .map( e -> e.getValue() )
-        .map( mapTypes )
+        .map(v -> mapTypes.apply(v.getValue()))
         .findFirst()
         .orElse(Collections.emptySet());
 
@@ -211,8 +229,8 @@ public class TypescriptProcessor extends AbstractProcessorEx {
 
   }
 
-
   /**
+   *
    * @param processingContext
    * @return
    */
@@ -227,5 +245,4 @@ public class TypescriptProcessor extends AbstractProcessorEx {
             .collect(Collectors.toList())
         ;
   }
-
 }

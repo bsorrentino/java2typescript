@@ -1,9 +1,9 @@
 
 
-import { test as future_test } from './future.test';
-import { MemoryType, Optional, URI } from './j2ts/jdk8-types';
-import { test as marked_test } from './marked.test';
-import { test as promise_test } from './promise.test';
+import { test as future_test } from './future.test.js';
+import { MemoryType, Optional, URI } from './j2ts/jdk8-types.js';
+//import { test as marked_test } from './marked.test';
+import { test as promise_test } from './promise.test.js';
 
 
 
@@ -43,7 +43,7 @@ let async_start = async () => {
     //color_test();
 
     future_test();
-    marked_test();
+    // marked_test();
     print( await promise_test() );
 
 }

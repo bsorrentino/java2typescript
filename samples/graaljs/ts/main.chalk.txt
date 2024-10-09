@@ -12,7 +12,7 @@ ${chalk.blue.underline.bold(msg)}
 );
 
 const error = chalk.bold.red;
-const warning = chalk.keyword('orange');
+const warning = chalk.bold.magenta;
  
 console.log(error('Error!'));
 console.log(warning('Warning!'));
