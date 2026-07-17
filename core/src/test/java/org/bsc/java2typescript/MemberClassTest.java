@@ -9,6 +9,7 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThrows;
 
 /**
  * 
@@ -62,6 +63,37 @@ public class MemberClassTest extends AbstractConverterTest {
                 Optional.empty());
 
         assertEquals( "Set<Map$Entry<K, V>>", result );
+    }
+
+    // Nested test fixtures: the source (dotted) name of Inner is
+    // org.bsc.java2typescript.MemberClassTest.Outer.Middle.Inner
+    // while its binary name is ...MemberClassTest$Outer$Middle$Inner
+    static class Outer {
+        static class Middle {
+            static class Inner {}
+        }
+    }
+
+    private static Class<?> resolveMemberClass(String fqn) throws Exception {
+        final Method m = TSType.class.getDeclaredMethod("getMemberClassForName", String.class);
+        m.setAccessible(true);
+        return (Class<?>) m.invoke(TSType.of(Object.class), fqn);
+    }
+
+    @Test
+    public void testSingleLevelNestedResolution() throws Exception {
+        assertEquals(java.util.Map.Entry.class, resolveMemberClass("java.util.Map.Entry"));
+    }
+
+    @Test
+    public void testDeeplyNestedResolution() throws Exception {
+        final String fqn = "org.bsc.java2typescript.MemberClassTest.Outer.Middle.Inner";
+        assertEquals(Outer.Middle.Inner.class, resolveMemberClass(fqn));
+    }
+
+    @Test
+    public void testUnresolvableMemberClassThrows() {
+        assertThrows(Exception.class, () -> resolveMemberClass("org.bsc.does.not.Exist.Nested"));
     }
 
 }

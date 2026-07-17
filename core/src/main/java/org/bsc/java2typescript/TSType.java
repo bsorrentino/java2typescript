@@ -213,11 +213,23 @@ public class TSType extends HashMap<String, Object> {
      * @return
      */
     private Class<?> getMemberClassForName( String fqn ) throws ClassNotFoundException {
-        final char[] ch = fqn.toCharArray();
-        final int i = fqn.lastIndexOf('.');
-        ch[i] = '$';
+        // The source form of a nested type uses '.' for both the package separator and the nesting
+        // separator (e.g. a.b.Outer.Inner), but the binary name the class loader expects uses '$'
+        // for nesting (a.b.Outer$Inner). We don't know where the package ends, so convert trailing
+        // dots to '$' one at a time, right to left, and return the first name that resolves. This
+        // handles arbitrarily nested types (a.b.Outer$Middle$Inner), not just a single level.
+        final StringBuilder name = new StringBuilder(fqn);
+        int i;
+        while ((i = name.lastIndexOf(".")) >= 0) {
+            name.setCharAt(i, '$');
+            try {
+                return loadClass(name.toString());
+            } catch (ClassNotFoundException ignored) {
+                // Not this split; convert the next dot to the left and retry.
+            }
+        }
 
-        return loadClass(String.valueOf(ch));
+        throw new ClassNotFoundException(fqn);
     }
 
     /**
