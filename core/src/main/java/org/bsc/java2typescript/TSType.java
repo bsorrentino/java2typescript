@@ -213,13 +213,29 @@ public class TSType extends HashMap<String, Object> {
      * @return
      */
     private Class<?> getMemberClassForName( String fqn ) throws ClassNotFoundException {
-        char[] ch = fqn.toCharArray();
-        int i = fqn.lastIndexOf('.');
+        final char[] ch = fqn.toCharArray();
+        final int i = fqn.lastIndexOf('.');
         ch[i] = '$';
 
-        return Class.forName(String.valueOf(ch));   
+        return loadClass(String.valueOf(ch));
     }
-    
+
+    /**
+     * Load a class WITHOUT running its static initializers.
+     * <p>
+     * Type generation only needs class metadata (methods, fields, modifiers). Initializing an
+     * application's classes outside their own runtime (as the 1-arg {@link Class#forName(String)}
+     * would) can trigger {@link ExceptionInInitializerError}: e.g. classes whose static
+     * initializers rely on framework state that has not been bootstrapped.
+     *
+     * @param fqn fully qualified class name
+     * @return the (uninitialized) loaded class
+     * @throws ClassNotFoundException if the class cannot be found
+     */
+    private static Class<?> loadClass(String fqn) throws ClassNotFoundException {
+        return Class.forName(fqn, false, TSType.class.getClassLoader());
+    }
+
     /**
      *
      * @param dt
@@ -231,7 +247,7 @@ public class TSType extends HashMap<String, Object> {
 
         final String fqn = dt.toString();
         try {
-            return Class.forName(fqn);
+            return loadClass(fqn);
 
         } catch (ClassNotFoundException e1) {
 
