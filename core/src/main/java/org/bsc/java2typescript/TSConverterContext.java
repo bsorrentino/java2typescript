@@ -273,6 +273,45 @@ public class TSConverterContext extends TSConverterStatic implements Cloneable, 
         return sb.toString();
     }
 
+    /**
+     * Render a public constructor as a TypeScript {@code constructor( ... )} declaration for use
+     * inside a {@code declare class}. Unlike a construct signature ({@code new(...)}), a TS
+     * constructor cannot carry its own type parameters, so none are emitted here; type variables
+     * that belong to the declaring class stay in scope, any others degrade to {@code any}.
+     *
+     * @param c the constructor
+     * @return the TypeScript constructor declaration (without the trailing separator)
+     */
+    public String getConstructorDecl(final Constructor<?> c) {
+
+        final StringBuilder params = new StringBuilder("( ");
+
+        final Parameter[] ps = c.getParameters();
+        for (int i = 0; i < ps.length; i++) {
+            if (i > 0)
+                params.append(", ");
+
+            final Parameter p = ps[i];
+            final String name = getParameterName(p);
+
+            if (p.isVarArgs()) {
+                final Type component = (p.getParameterizedType() instanceof GenericArrayType)
+                        ? ((GenericArrayType) p.getParameterizedType()).getGenericComponentType()
+                        : p.getType().getComponentType();
+                final String typeName = convertJavaToTS(component, c, type, declaredTypeMap, true, Optional.empty());
+                params.append(String.format("...%s:%s[]", name, typeName));
+            } else {
+                final String typeName =
+                        convertJavaToTS(p.getParameterizedType(), c, type, declaredTypeMap, true, Optional.empty());
+                params.append(String.format("%s:%s", name, typeName));
+            }
+        }
+
+        params.append(" )");
+
+        return "constructor".concat(params.toString());
+    }
+
     public String getMethodDecl(final Method m, boolean optional) {
 
         final StringBuilder sb = new StringBuilder();

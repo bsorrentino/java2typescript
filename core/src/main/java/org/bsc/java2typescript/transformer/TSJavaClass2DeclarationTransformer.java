@@ -139,6 +139,14 @@ public class TSJavaClass2DeclarationTransformer extends TSConverterStatic implem
                 .sorted()
                 .forEach( decl -> ctx.append('\t').append(decl).append(ENDL));
 
+            // Public constructors. Interfaces have none (getConstructors() is empty), so no invalid
+            // 'constructor' is emitted into a TS interface.
+            Stream.of(tstype.getValue().getConstructors())
+                .filter( c -> Modifier.isPublic(c.getModifiers()) )
+                .map( ctx::getConstructorDecl )
+                .sorted()
+                .forEach( decl -> ctx.append('\t').append(decl).append(ENDL));
+
             methods.stream()
                 .filter( md -> (tstype.isExport() && isStatic(md)) == false)
                 .filter( this::testMethodNotAllowed)
