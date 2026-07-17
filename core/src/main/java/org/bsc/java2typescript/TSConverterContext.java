@@ -242,6 +242,37 @@ public class TSConverterContext extends TSConverterStatic implements Cloneable, 
         return result.append("( ").append(params_string).append(" ):").append(tsReturnType).toString();
     }
 
+    /**
+     * Render a public field as a TypeScript property declaration, e.g.
+     * {@code static readonly FOO:string} or {@code name:int}. Enum constants are handled
+     * separately (see {@link #processEnumDecl()}) and should be filtered out before calling this.
+     *
+     * @param f the field
+     * @return the TypeScript property declaration (without the trailing separator)
+     */
+    public String getFieldDecl(final Field f) {
+
+        final StringBuilder sb = new StringBuilder();
+
+        final int mod = f.getModifiers();
+
+        if (Modifier.isStatic(mod)) {
+            // 'static' is illegal on a TS interface member; comment it out as getMethodDecl does.
+            if (type.getValue().isInterface())
+                sb.append("// ");
+            sb.append("static ");
+        }
+
+        if (Modifier.isFinal(mod))
+            sb.append("readonly ");
+
+        sb.append(f.getName())
+                .append(':')
+                .append(convertJavaToTS(f.getGenericType(), f, type, declaredTypeMap, true, Optional.empty()));
+
+        return sb.toString();
+    }
+
     public String getMethodDecl(final Method m, boolean optional) {
 
         final StringBuilder sb = new StringBuilder();

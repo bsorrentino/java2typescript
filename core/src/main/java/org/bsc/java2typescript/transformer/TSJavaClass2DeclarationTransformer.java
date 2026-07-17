@@ -131,6 +131,14 @@ public class TSJavaClass2DeclarationTransformer extends TSConverterStatic implem
 
             ctx.processEnumDecl();
 
+            // Public fields (class values). Enum constants are emitted by processEnumDecl / the
+            // static definition, so exclude them here to avoid duplicate declarations.
+            tstype.getFields().stream()
+                .filter( f -> !f.isEnumConstant() )
+                .map( ctx::getFieldDecl )
+                .sorted()
+                .forEach( decl -> ctx.append('\t').append(decl).append(ENDL));
+
             methods.stream()
                 .filter( md -> (tstype.isExport() && isStatic(md)) == false)
                 .filter( this::testMethodNotAllowed)
