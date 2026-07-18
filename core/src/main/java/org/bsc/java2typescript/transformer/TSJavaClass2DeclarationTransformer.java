@@ -99,6 +99,9 @@ public class TSJavaClass2DeclarationTransformer extends TSConverterStatic implem
 
         final TSType tstype = ctx.type;
 
+        if (tstype.getValue().isEnum())
+            return applyEnum(ctx, tstype);
+
         final Set<Method> methods = getMethodsAsStream(ctx).collect(Collectors.toSet());;
 
         if (tstype.supportNamespace())
@@ -159,6 +162,47 @@ public class TSJavaClass2DeclarationTransformer extends TSConverterStatic implem
 
         // NESTED CLASSES
         // if( level == 0 ) ctx.processMemberClasses( level );
+
+        if (tstype.supportNamespace())
+            ctx.append("\n} // end namespace ").append(tstype.getNamespace()).append('\n');
+
+        return ctx;
+    }
+
+    /**
+     * Emit a Java enum as a native, string-valued TypeScript enum, e.g.
+     * <pre>
+     * declare namespace pkg {
+     * enum Mode {
+     * 	SAFE = "SAFE",
+     * 	PROTECTED = "PROTECTED"
+     * }
+     * } // end namespace pkg
+     * </pre>
+     * Each constant maps to its own name as a string so that GraalJS' read-as-string coercion
+     * (e.g. {@code plugin.getMode() == "SAFE"}) type-checks, while the nominal enum type still
+     * rejects passing a bare string where a Java enum is required — which GraalJS rejects at
+     * runtime too. The instance methods and Java {@code Enum} machinery are intentionally dropped.
+     *
+     * @param ctx    the conversion context
+     * @param tstype the enum type
+     * @return the context
+     */
+    private TSConverterContext applyEnum(TSConverterContext ctx, TSType tstype) {
+
+        if (tstype.supportNamespace())
+            ctx.append("declare namespace ").append(tstype.getNamespace()).append(" {\n\n");
+
+        ctx.append("enum ").append(tstype.getSimpleTypeName()).append(" {\n");
+
+        final String members = tstype.getFields().stream()
+            .filter(java.lang.reflect.Field::isEnumConstant)
+            .map(java.lang.reflect.Field::getName)
+            .sorted()
+            .map(name -> String.format("\t%s = \"%s\"", name, name))
+            .collect(Collectors.joining(",\n"));
+
+        ctx.append(members).append("\n}\n");
 
         if (tstype.supportNamespace())
             ctx.append("\n} // end namespace ").append(tstype.getNamespace()).append('\n');
