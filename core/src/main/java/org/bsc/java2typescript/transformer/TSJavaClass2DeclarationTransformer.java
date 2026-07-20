@@ -150,8 +150,10 @@ public class TSJavaClass2DeclarationTransformer extends TSConverterStatic implem
                 .sorted()
                 .forEach( decl -> ctx.append('\t').append(decl).append(ENDL));
 
+            // Emit every method, static included. Static methods carry the `static` keyword (see
+            // getMethodDecl), so `typeof <class>` exposes the full static side in the .d.ts and the
+            // runtime binding in <out>-types.ts collapses to `typeof <class>` (no duplicated list).
             methods.stream()
-                .filter( md -> (tstype.isExport() && isStatic(md)) == false)
                 .filter( this::testMethodNotAllowed)
                 .map( md -> ctx.getMethodDecl(md, false /* optional */) )
                 .sorted()
