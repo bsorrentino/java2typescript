@@ -40,7 +40,7 @@ import static org.bsc.java2typescript.Java2TSConverter.PREDEFINED_TYPES;
 //@SupportedSourceVersion(SourceVersion.RELEASE_8)
 @SupportedSourceVersion(SourceVersion.RELEASE_17)
 @SupportedAnnotationTypes("org.bsc.processor.annotation.*")
-@SupportedOptions({"ts.outfile", "compatibility"})
+@SupportedOptions({"ts.outfile", "compatibility", "ts.registry"})
 @org.kohsuke.MetaInfServices(javax.annotation.processing.Processor.class)
 public class TypescriptProcessor extends AbstractProcessorEx {
 
@@ -78,25 +78,52 @@ public class TypescriptProcessor extends AbstractProcessorEx {
   );
 
   /**
-   * Open a file for output.
+   * Create a writer for an output file under the {@code j2ts} source-output folder.
    *
-   * @param file     target file
-   * @param header   header file to prepend to the output
-   * @return         a writer for the output file
+   * @param file target file
+   * @return     a writer for the output file
    * @throws IOException if an I/O error occurs
    */
-  private java.io.Writer openFile(Path file, String header) throws IOException {
+  private java.io.Writer createWriter(Path file) throws IOException {
 
     final FileObject out = super.getSourceOutputFile(Paths.get("j2ts"), file);
 
     info("output file [%s]", out.getName());
 
-    final java.io.Writer w = out.openWriter();
+    return out.openWriter();
+  }
 
+  /**
+   * Read a classpath resource (a header template) as a UTF-8 string.
+   *
+   * @param header header resource name
+   * @return       the resource content
+   * @throws IOException if an I/O error occurs
+   */
+  private String readResource(String header) throws IOException {
     try (final java.io.InputStream is = getClass().getClassLoader().getResourceAsStream(header)) {
-      int c;
-      while ((c = is.read()) != -1) w.write(c);
+      return new String(is.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8);
     }
+  }
+
+  /**
+   * Open a file for output, prepending a header template whose placeholders have been substituted.
+   *
+   * @param file          target file
+   * @param header        header template resource to prepend to the output
+   * @param substitutions placeholder -&gt; replacement map applied to the header
+   * @return              a writer for the output file, positioned after the header
+   * @throws IOException if an I/O error occurs
+   */
+  private java.io.Writer openFile(Path file, String header, java.util.Map<String, String> substitutions) throws IOException {
+
+    final java.io.Writer w = createWriter(file);
+
+    String content = readResource(header);
+    for (final java.util.Map.Entry<String, String> e : substitutions.entrySet()) {
+      content = content.replace(e.getKey(), e.getValue());
+    }
+    w.write(content);
 
     return w;
   }
@@ -107,6 +134,16 @@ public class TypescriptProcessor extends AbstractProcessorEx {
 
     final String definitionsFile = targetDefinitionFile.concat(".d.ts");
     final String typesFile = targetDefinitionFile.concat("-types.ts");
+    final String registryFile = targetDefinitionFile.concat("-registry.d.ts");
+
+    // Name of the generated type-registry interface. Configurable so distinct projects can each
+    // produce their own registry (e.g. ZapApiTypeRegistry, ZapAddonApiTypeRegistry).
+    final String registryName =
+        processingContext.getOptionMap().getOrDefault("ts.registry", "JavaTypeRegistry");
+
+    // Substituted into the header templates (re-enables the typed Java.type overload).
+    final java.util.Map<String, String> headerSubstitutions =
+        Collections.singletonMap("{{REGISTRY_TYPE}}", registryName);
 
     final String foreignObjectPrototype =
             processingContext.getOptionMap()
@@ -123,8 +160,9 @@ public class TypescriptProcessor extends AbstractProcessorEx {
                                                     .build();
 
     try (
-        final java.io.Writer wD = openFile(Paths.get(definitionsFile), converter.isRhino() ? "headerD-rhino.ts" : "headerD.ts");
-        final java.io.Writer wT = openFile(Paths.get(typesFile), "headerT.ts");
+        final java.io.Writer wD = openFile(Paths.get(definitionsFile), converter.isRhino() ? "headerD-rhino.ts" : "headerD.ts", headerSubstitutions);
+        final java.io.Writer wT = openFile(Paths.get(typesFile), "headerT.ts", headerSubstitutions);
+        final java.io.Writer wR = createWriter(Paths.get(registryFile));
     ) {
 
       final Consumer<String> wD_append = s -> {
@@ -137,6 +175,13 @@ public class TypescriptProcessor extends AbstractProcessorEx {
       final Consumer<String> wT_append = s -> {
         try {
           wT.append(s);
+        } catch (IOException e) {
+          error("error adding [%s]", s);
+        }
+      };
+      final Consumer<String> wR_append = s -> {
+        try {
+          wR.append(s);
         } catch (IOException e) {
           error("error adding [%s]", s);
         }
@@ -170,6 +215,25 @@ public class TypescriptProcessor extends AbstractProcessorEx {
           .map(t -> converter.javaClass2StaticDefinitionTransformer(t, declaredTypes))
           .sorted()
           .forEach(wT_append);
+
+      // Type registry: maps each Java.type(...) string key to the concrete class value so that a
+      // call with a known key is strongly typed. Only classes/enums are eligible: a TypeScript
+      // interface has no value form and cannot be referenced with `typeof`, so Java interfaces are
+      // excluded and fall through to the generic `type(k:string):T` overload.
+      wR_append.accept(String.format("/// <reference path=\"%s\"/>\n\n", definitionsFile));
+      wR_append.accept(String.format("interface %s {\n", registryName));
+
+      types.stream()
+          .filter(tt -> !PREDEFINED_TYPES.contains(tt))
+          .filter(TSType::supportNamespace)                 // skip aliased types (no namespace path)
+          .filter(tt -> !tt.getValue().isInterface())       // `typeof` needs a value
+          .filter(tt -> tt.getValue().getPackage() != null) // skip the default (unnamed) package
+          .map(tt -> String.format("  \"%s\": typeof %s;\n", tt.getValue().getName(), tt.getTypeName()))
+          .distinct()
+          .sorted()
+          .forEach(wR_append);
+
+      wR_append.accept("}\n");
 
     } // end try-with-resources
 

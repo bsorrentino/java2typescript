@@ -47,10 +47,16 @@ declare function load( module:string ):void
 
 declare namespace Java {
 
-  export function type<T>( t:string):T;
+  // Typed overload: for keys known to the generated registry, returns the concrete class
+  // (constructor + statics). Declared first so it takes precedence over the generic overload.
+  // {{REGISTRY_TYPE}} is substituted by the annotation processor (see the 'ts.registry' option).
+  export function type<K extends keyof {{REGISTRY_TYPE}}>( k:K ):{{REGISTRY_TYPE}}[K];
+
+  // Fallback so unknown class names still compile.
+  export function type<T>( t:string ):T;
 
   export function from<T>( list:java.util.List<T> ):Array<T> ;
-  
+
 }
 
 //
