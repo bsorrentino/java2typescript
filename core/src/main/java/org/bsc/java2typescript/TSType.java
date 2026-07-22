@@ -183,7 +183,14 @@ public class TSType extends HashMap<String, Object> {
      * @return
      */
     protected boolean testIncludeMethod( Method m ) {
-        return !m.isBridge() && !m.isSynthetic() && Modifier.isPublic(m.getModifiers())
+        final int mod = m.getModifiers();
+        // Public members are API. A `protected abstract` method is also part of the callable
+        // contract: every concrete subclass must implement it, so instances handed to a script
+        // (via host interop) always expose it -- e.g. WebSocketAlertWrapper.WebSocketAlertBuilder.raise().
+        // Ordinary protected/private concrete methods stay excluded.
+        final boolean visible = Modifier.isPublic(mod)
+                || (Modifier.isProtected(mod) && Modifier.isAbstract(mod));
+        return !m.isBridge() && !m.isSynthetic() && visible
                 && Character.isJavaIdentifierStart(m.getName().charAt(0))
                 && m.getName().chars().skip(1).allMatch(Character::isJavaIdentifierPart);
     }
