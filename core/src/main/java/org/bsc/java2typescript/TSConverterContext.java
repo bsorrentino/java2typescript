@@ -224,9 +224,12 @@ public class TSConverterContext extends TSConverterStatic implements Cloneable, 
 
             }
 
-            final String typeName = convertJavaToTS(tp.getParameterizedType(), m, type, declaredTypeMap,
+            final Type parameterizedType = tp.getParameterizedType();
+            final String typeName = convertJavaToTS(parameterizedType, m, type, declaredTypeMap,
                     packageResolution, Optional.of(addTypeVar));
-            return String.format("%s:%s", name, typeName);
+            return String.format("%s:%s", name,
+                    arrayWidenedCollectionParam(m, parameterizedType, typeName, packageResolution,
+                            Optional.of(addTypeVar)));
         }).collect(Collectors.joining(", "));
 
         final Type returnType = (m instanceof Method) ? ((Method) m).getGenericReturnType() : type.getValue();
@@ -300,13 +303,44 @@ public class TSConverterContext extends TSConverterStatic implements Cloneable, 
             } else {
                 final String typeName =
                         convertJavaToTS(p.getParameterizedType(), c, type, declaredTypeMap, true, Optional.empty());
-                params.append(String.format("%s:%s", name, typeName));
+                params.append(String.format("%s:%s", name,
+                        arrayWidenedCollectionParam(c, p.getParameterizedType(), typeName, true, Optional.empty())));
             }
         }
 
         params.append(" )");
 
         return "constructor".concat(params.toString());
+    }
+
+    /**
+     * Widen a Collection/Iterable PARAMETER type so it also accepts a plain TS array: GraalJS
+     * auto-converts a JS array to a java.util.List/Collection when it is passed to a Java
+     * method/constructor. Only parameters are widened (return types are rendered elsewhere), so a
+     * returned List keeps its full interface (add/get/size/...) for use from the script. Non
+     * Collection/Iterable types and raw (non-parameterized) usages are returned unchanged.
+     */
+    private <E extends Executable & Member> String arrayWidenedCollectionParam(E m, Type parameterizedType,
+            String typeName, boolean packageResolution, Optional<Consumer<TypeVariable<?>>> onTypeMismatch) {
+        if (!(parameterizedType instanceof ParameterizedType)) {
+            return typeName;
+        }
+        final ParameterizedType pt = (ParameterizedType) parameterizedType;
+        if (!(pt.getRawType() instanceof Class)) {
+            return typeName;
+        }
+        final Class<?> raw = (Class<?>) pt.getRawType();
+        final Type[] args = pt.getActualTypeArguments();
+        if (args.length != 1
+                || !(java.util.Collection.class.isAssignableFrom(raw) || Iterable.class.isAssignableFrom(raw))) {
+            return typeName;
+        }
+        // A bare WildcardType element (e.g. List<? extends Foo>) is not convertible on its own;
+        // `any` is fine for an input array (GraalJS coerces the elements).
+        final String elem = (args[0] instanceof WildcardType)
+                ? "any"
+                : convertJavaToTS(args[0], m, type, declaredTypeMap, packageResolution, onTypeMismatch);
+        return String.format("%s | (%s)[]", typeName, elem);
     }
 
     public String getMethodDecl(final Method m, boolean optional) {
