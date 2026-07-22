@@ -170,13 +170,49 @@ public class TSJavaClass2DeclarationTransformer extends TSConverterStatic implem
 
         ctx.append("\n} // end ").append(tstype.getSimpleTypeName()).append('\n');
 
-        // NESTED CLASSES
-        // if( level == 0 ) ctx.processMemberClasses( level );
+        appendNestedTypeAliases(ctx, tstype);
 
         if (tstype.supportNamespace())
             ctx.append("\n} // end namespace ").append(tstype.getNamespace()).append('\n');
 
         return ctx;
+    }
+
+    /**
+     * GraalJS accesses a nested Java type as {@code Outer.Inner}, but nested types are emitted
+     * flattened as {@code Outer$Inner} siblings in the package namespace. Emit a
+     * {@code namespace Outer { ... }} that merges with the {@code class Outer} and re-exposes each
+     * nested type under its simple name, so both {@code Outer.Inner} (GraalJS form) and
+     * {@code Outer$Inner} (flattened form) resolve. Only nested types that were themselves emitted
+     * (present in the declared-type map) are aliased.
+     */
+    private void appendNestedTypeAliases(TSConverterContext ctx, TSType tstype) {
+        final StringBuilder body = new StringBuilder();
+        for (Class<?> nested : tstype.getValue().getDeclaredClasses()) {
+            if (!Modifier.isPublic(nested.getModifiers()) || nested.isSynthetic()) continue;
+            if (!ctx.declaredTypeMap.containsKey(nested.getName())) continue;
+
+            final String simple = nested.getSimpleName();
+            final String flattened = TSType.of(nested).getSimpleTypeName(); // Outer$Inner
+            final java.lang.reflect.TypeVariable<?>[] tps = nested.getTypeParameters();
+            final String tp = (tps.length == 0) ? "" : Stream.of(tps)
+                    .map(java.lang.reflect.TypeVariable::getName)
+                    .collect(Collectors.joining(",", "<", ">"));
+
+            body.append('\t').append("export type ").append(simple).append(tp)
+                    .append(" = ").append(flattened).append(tp).append(ENDL);
+            // A nested interface has no runtime value; classes and enums do (constructor / enum
+            // object), so only they get a value alias for `Outer.Inner` value access.
+            if (!nested.isInterface()) {
+                body.append('\t').append("export const ").append(simple)
+                        .append(": typeof ").append(flattened).append(ENDL);
+            }
+        }
+        if (body.length() > 0) {
+            ctx.append("namespace ").append(tstype.getSimpleTypeName()).append(" {\n")
+                    .append(body.toString())
+                    .append("} // end nested aliases of ").append(tstype.getSimpleTypeName()).append('\n');
+        }
     }
 
     /**
