@@ -257,9 +257,6 @@ public class TSConverterContext extends TSConverterStatic implements Cloneable, 
         final int mod = f.getModifiers();
 
         if (Modifier.isStatic(mod)) {
-            // 'static' is illegal on a TS interface member; comment it out as getMethodDecl does.
-            if (type.getValue().isInterface())
-                sb.append("// ");
             sb.append("static ");
         }
 
@@ -317,10 +314,6 @@ public class TSConverterContext extends TSConverterStatic implements Cloneable, 
         final StringBuilder sb = new StringBuilder();
 
         if (Modifier.isStatic(m.getModifiers())) {
-
-            if (type.getValue().isInterface()) {
-                sb.append("// ");
-            }
 
             sb.append("static ").append(m.getName());
         } else {

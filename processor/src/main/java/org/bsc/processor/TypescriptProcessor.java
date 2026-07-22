@@ -217,16 +217,13 @@ public class TypescriptProcessor extends AbstractProcessorEx {
           .forEach(wT_append);
 
       // Type registry: maps each Java.type(...) string key to the concrete class value so that a
-      // call with a known key is strongly typed. Only classes/enums are eligible: a TypeScript
-      // interface has no value form and cannot be referenced with `typeof`, so Java interfaces are
-      // excluded and fall through to the generic `type(k:string):T` overload.
+      // call with a known key is strongly typed.
       wR_append.accept(String.format("/// <reference path=\"%s\"/>\n\n", definitionsFile));
       wR_append.accept(String.format("interface %s {\n", registryName));
 
       types.stream()
           .filter(tt -> !PREDEFINED_TYPES.contains(tt))
           .filter(TSType::supportNamespace)                 // skip aliased types (no namespace path)
-          .filter(tt -> !tt.getValue().isInterface())       // `typeof` needs a value
           .filter(tt -> tt.getValue().getPackage() != null) // skip the default (unnamed) package
           .map(tt -> String.format("  \"%s\": typeof %s;\n", tt.getValue().getName(), tt.getTypeName()))
           .distinct()
