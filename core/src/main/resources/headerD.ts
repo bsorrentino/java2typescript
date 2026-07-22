@@ -57,6 +57,12 @@ declare namespace Java {
 
   export function from<T>( list:java.util.List<T> ):Array<T> ;
 
+  // Java.extend( SuperType, ...moreTypes ) returns a subclass "adapter" constructor. `new`-ing it
+  // takes the supertype constructor arguments followed by an object literal that
+  // overrides/implements the supertype's methods; the resulting instance is an InstanceType<T>.
+  // Typed loosely (args:any[]) since the forwarded ctor args and the override object vary per type.
+  export function extend<T extends new ( ...args:any[] ) => any>( type:T, ...moreTypes:any[] ):new ( ...args:any[] ) => InstanceType<T>;
+
 }
 
 //
