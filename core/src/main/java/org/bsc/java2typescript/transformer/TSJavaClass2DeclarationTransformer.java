@@ -134,6 +134,14 @@ public class TSJavaClass2DeclarationTransformer extends TSConverterStatic implem
 
             ctx.processEnumDecl();
 
+            // Every Java class value exposes `.class` (its java.lang.Class object). Emit it as a
+            // static member so `SomeClass.class` type-checks. Interfaces reach this branch too but
+            // have no runtime value / static side (and `static` is illegal on a TS interface), so
+            // skip them.
+            if (!tstype.getValue().isInterface()) {
+                ctx.append('\t').append("static class:java.lang.Class<any>;").append(ENDL);
+            }
+
             // Public fields (class values). Enum constants are emitted by processEnumDecl / the
             // static definition, so exclude them here to avoid duplicate declarations.
             tstype.getFields().stream()

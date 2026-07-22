@@ -18,8 +18,9 @@ type chararray = [byte];
 type bytearray = [char];
 
 declare namespace java.lang {
-
-	interface Class<T> {}
+  	interface Class<T> {
+		getResource(res : string) : any /*java.net.URL*/
+	}
 	interface AutoCloseable {}
 	interface Cloneable {}
 
