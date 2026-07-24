@@ -5,6 +5,7 @@ import org.bsc.java2typescript.TSConverterStatic;
 import org.bsc.java2typescript.TSTransformer;
 import org.bsc.java2typescript.TSType;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Set;
@@ -23,6 +24,13 @@ public class TSJavaClass2DeclarationTransformer extends TSConverterStatic implem
      * @param md
      * @return
      */
+    /** Erased name+parameter-types signature, used to match a method against an inherited one. */
+    private static String methodSig(Method m) {
+        return m.getName() + Stream.of(m.getParameterTypes())
+                .map(Class::getName)
+                .collect(Collectors.joining(",", "(", ")"));
+    }
+
     protected boolean testMethodNotAllowed(Method md ) {
         final String name = md.getName();
         return !(name.contains("$")     || // remove unnamed
@@ -102,7 +110,26 @@ public class TSJavaClass2DeclarationTransformer extends TSConverterStatic implem
         if (tstype.getValue().isEnum())
             return applyEnum(ctx, tstype);
 
-        final Set<Method> methods = getMethodsAsStream(ctx).collect(Collectors.toSet());;
+        // When the class really `extends` an emitted parent (see getClassDecl), the parent's
+        // members are inherited in TS and must not be re-listed. Drop every method whose name is
+        // fully covered by the parent; keep ALL overloads of any name the class also declares a new
+        // overload of (a subclass method declaration shadows the parent's overloads of that name in
+        // TS, so a partial list would lose the inherited ones).
+        final Class<?> emittedSuper = emittedNonGenericSuperclass(tstype.getValue(), ctx.declaredTypeMap);
+
+        Set<Method> methods = getMethodsAsStream(ctx).collect(Collectors.toSet());
+        if (emittedSuper != null) {
+            final Set<String> parentSigs = Stream.of(emittedSuper.getMethods())
+                    .map(TSJavaClass2DeclarationTransformer::methodSig)
+                    .collect(Collectors.toSet());
+            final Set<String> newNames = methods.stream()
+                    .filter(m -> !parentSigs.contains(methodSig(m)))
+                    .map(Method::getName)
+                    .collect(Collectors.toSet());
+            methods = methods.stream()
+                    .filter(m -> newNames.contains(m.getName()))
+                    .collect(Collectors.toSet());
+        }
 
         if (tstype.supportNamespace())
             ctx.append("declare namespace ")
@@ -139,13 +166,18 @@ public class TSJavaClass2DeclarationTransformer extends TSConverterStatic implem
             // have no runtime value / static side (and `static` is illegal on a TS interface), so
             // skip them.
             if (!tstype.getValue().isInterface()) {
-                ctx.append('\t').append("static class:java.lang.Class<any>;").append(ENDL);
+                ctx.append('\t').append("static class:java.lang.Class<any>").append(ENDL);
             }
 
             // Public fields (class values). Enum constants are emitted by processEnumDecl / the
-            // static definition, so exclude them here to avoid duplicate declarations.
+            // static definition, so exclude them here to avoid duplicate declarations. When
+            // extending an emitted parent, drop fields inherited from it (they come via `extends`).
+            final Set<String> parentFieldNames = (emittedSuper == null)
+                    ? java.util.Collections.emptySet()
+                    : Stream.of(emittedSuper.getFields()).map(Field::getName).collect(Collectors.toSet());
             tstype.getFields().stream()
                 .filter( f -> !f.isEnumConstant() )
+                .filter( f -> !parentFieldNames.contains(f.getName()) )
                 .map( ctx::getFieldDecl )
                 .sorted()
                 .forEach( decl -> ctx.append('\t').append(decl).append(ENDL));

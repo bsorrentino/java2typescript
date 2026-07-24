@@ -73,6 +73,7 @@ public class TSConverterContext extends TSConverterStatic implements Cloneable, 
     public TSConverterContext getClassDecl() {
 
         final StringBuilder inherited = new StringBuilder();
+        final StringBuilder realExtends = new StringBuilder();
 
         if (type.getValue().isInterface()) {
             sb.append("interface ");
@@ -86,11 +87,20 @@ public class TSConverterContext extends TSConverterStatic implements Cloneable, 
 
             sb.append("class ");
 
-            final TSType superclass = TSType.of(type.getValue().getSuperclass());
+            final Class<?> emittedSuper = emittedNonGenericSuperclass(type.getValue(), declaredTypeMap);
 
-            if (superclass != null) {
-                inherited.append(" extends ")
-                        .append(getTypeName(superclass, type, true));
+            if (emittedSuper != null) {
+                // Real inheritance: extend the emitted parent so its members are not re-listed
+                // (see the member filtering in TSJavaClass2DeclarationTransformer).
+                realExtends.append(" extends ")
+                        .append(getTypeName(TSType.of(emittedSuper), type, true));
+            } else {
+                final TSType superclass = TSType.of(type.getValue().getSuperclass());
+
+                if (superclass != null) {
+                    inherited.append(" extends ")
+                            .append(getTypeName(superclass, type, true));
+                }
             }
         }
 
@@ -108,6 +118,7 @@ public class TSConverterContext extends TSConverterStatic implements Cloneable, 
         }
 
         sb.append(getTypeName(type, type, true));
+        sb.append(realExtends);
 
         if (inherited.length() > 0 || type.hasAlias()) {
 
