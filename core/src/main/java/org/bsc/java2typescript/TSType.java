@@ -23,6 +23,7 @@ public class TSType extends HashMap<String, Object> {
     private static final String EXPORT = "export";
     private static final String NAMESPACE = "namespace";
     private static final String FUNCTIONAL = "functional";
+    private static final String DECLARE = "declare";
 
     protected TSType() {
         super(3);
@@ -58,6 +59,20 @@ public class TSType extends HashMap<String, Object> {
      */
     public boolean isExport() {
         return (boolean) super.getOrDefault(EXPORT, false);
+    }
+
+    /**
+     * Whether this type is emitted as a declaration (and added to the type registry). A type with
+     * {@code declare == false} is kept only for name resolution / as an {@code extends} target,
+     * because it is declared in another generated file. Defaults to true.
+     */
+    public boolean isDeclare() {
+        return (boolean) super.getOrDefault(DECLARE, true);
+    }
+
+    public TSType setDeclare(boolean value) {
+        super.put(DECLARE, value);
+        return this;
     }
 
     /**

@@ -202,8 +202,11 @@ public class TypescriptProcessor extends AbstractProcessorEx {
           types.stream()
               .collect(Collectors.toMap(tt -> tt.getValue().getName(), tt -> tt));
 
+      // declaredTypes keeps reference-only types (declare == false) for name resolution and as
+      // `extends` targets, but they are declared in another generated file, so do not emit them.
       types.stream()
           .filter(tt -> !PREDEFINED_TYPES.contains(tt))
+          .filter(TSType::isDeclare)
           .map(tt -> converter.javaClass2DeclarationTransformer(0, tt, declaredTypes))
           .sorted()
           .forEach(wD_append);
@@ -212,6 +215,7 @@ public class TypescriptProcessor extends AbstractProcessorEx {
 
       types.stream()
           .filter(TSType::isExport)
+          .filter(TSType::isDeclare)
           .map(t -> converter.javaClass2StaticDefinitionTransformer(t, declaredTypes))
           .sorted()
           .forEach(wT_append);
@@ -223,6 +227,7 @@ public class TypescriptProcessor extends AbstractProcessorEx {
 
       types.stream()
           .filter(tt -> !PREDEFINED_TYPES.contains(tt))
+          .filter(TSType::isDeclare)                         // reference-only types belong to another file's registry
           .filter(TSType::supportNamespace)                 // skip aliased types (no namespace path)
           .filter(tt -> tt.getValue().getPackage() != null) // skip the default (unnamed) package
           .map(tt -> String.format("  \"%s\": typeof %s;\n", tt.getValue().getName(), tt.getTypeName()))

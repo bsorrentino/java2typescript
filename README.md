@@ -102,6 +102,7 @@ Name | Mandatory | Type | Description
 **alias** | No | String | Assign a new name to exported class in typescript
 **export** | No | boolean | If **true**, other than typescript declaration adds definition in file *`-types.ts`. **It is need for instantiable classes, in order  to use `new` operator or factory method(s)**
 **functional** | No | boolean | If **true** other than typescript declaration adds a **particular** definition. Valid only for interfaces that have one abstract method and haven't `@FunctionalInterface` annotation
+**declare** | No | boolean | If **false**, does not export the class to the typescript file, but use it for inheritance "extends" optimization. (ex: not declaring library types already exported in another TS file)
 
 **Example**
 ```Java
