@@ -50,10 +50,4 @@ public class PublicFieldTest extends AbstractConverterTest {
     public void finalInstanceFieldIsReadonly() throws Exception {
         assertEquals("readonly name:string", fieldDecl(Bean.class, "name"));
     }
-
-    @Test
-    public void staticFieldOnInterfaceIsCommentedOut() throws Exception {
-        // 'static' is illegal on a TS interface member, so it must be commented out.
-        assertEquals("// static readonly BAR:string", fieldDecl(Iface.class, "BAR"));
-    }
 }

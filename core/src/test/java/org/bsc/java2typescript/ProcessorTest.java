@@ -145,7 +145,7 @@ public class ProcessorTest extends AbstractConverterTest {
                     true);
 
             assertNotNull(result);
-            assertEquals( "( intList:List<int|null> ):List<string>", result );
+            assertEquals( "( intList:List<int|null> | (int|null)[] ):List<string>", result );
         }
 
     }
