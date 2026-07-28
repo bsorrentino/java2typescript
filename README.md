@@ -127,9 +127,25 @@ Name | Mandatory | Type | Description
 
   @Type(java.lang.Runnable.class, functional=true)
 
+  @Type(other.lib.someClass.class, declare=false)
+
 })
 package org.mypackage;
 ```
+
+### plugin options 
+
+to set at Gradle/maven configuration
+
+Name | default | Description
+--- | --- | --- | ---
+**ts.outfile** | "out" | out TS filename 
+**ts.registry** | "JavaTypeRegistry" | name of type registry interface (choose unique name per project) 
+**compatibility** | "NASHORN" | JS engine : "NASHORN" (deprecated), "RHINO" or "GRAALJS"
+**ts.scan** | _(none)_ | directories and/or jars to scan public types to declare, separated by the path separator.
+**ts.scan.include** | _(none)_ | comma separated binary name prefixes; only matching classes are scanned
+**ts.scan.exclude** | _(none)_ | comma separated binary name prefixes to skip, applied after `ts.scan.include`
+
 
 ### Add the dependency containing the Java2TS Processor
 
@@ -193,6 +209,92 @@ package org.mypackage;
     </execution>
   </executions>
 </plugin>
+```
+
+### gradle 
+
+example of gradle build generating types for all public classes of the project.
+
+put this file at `src/apiTypes/java/package-info.java`
+
+```java
+@Java2TS(
+        declare = {
+            @Type(value = java.nio.file.Files.class, export = true),
+            @Type(value = java.nio.file.Path.class),
+            @Type(value = java.nio.file.Paths.class, export = true),
+            @Type(value = java.util.Arrays.class, export = true),
+            @Type(value = java.net.URI.class, export = true)
+        })
+package org.zaproxy.zap.api;
+
+import org.bsc.processor.annotation.Java2TS;
+import org.bsc.processor.annotation.Type;
+```
+
+then in your gradle.kts:
+
+```kotlin
+// local install only
+//val java2tsHome = rootDir.parentFile.resolve("java2typescript")
+//val java2tsJars =
+//    files(
+//        java2tsHome.resolve("core/target/java2ts-processor-core-2.0-20241009.jar"),
+//        java2tsHome.resolve("processor/target/java2ts-processor-2.0-20241009.jar"),
+//    )
+
+val typesProcessor: Configuration by configurations.creating {
+    isCanBeConsumed = false
+    isCanBeResolved = true
+}
+
+// in your dependecies block
+dependencies {
+  ...
+  typesProcessor("org.bsc.processor:java2ts-processor:2.0")
+  // local install
+  // typesProcessor(java2tsJars)
+}
+
+// GraalJS API TypeScript declaration generation
+val apiTypesOutputDir = layout.buildDirectory.dir("generated/api-types")
+
+tasks.register<JavaCompile>("generateApiTypes") {
+    group = "build"
+    description = "Generates TypeScript declarations for the GraalJS API."
+
+    val main = sourceSets["main"]
+    dependsOn(tasks.named("classes"))
+    source = fileTree("src/apiTypes/java")
+
+    val resolveClasspath = files(main.output, main.runtimeClasspath, typesProcessor)
+    classpath = resolveClasspath
+    options.annotationProcessorPath = resolveClasspath
+
+    val scanRoots = main.output.classesDirs
+    inputs.files(scanRoots).withPropertyName("YOURPROJECTNAMEClasses")
+
+    options.generatedSourceOutputDirectory.set(apiTypesOutputDir)
+    // Nothing is actually compiled to .class with -proc:only, but JavaCompile still needs a target.
+    destinationDirectory.set(layout.buildDirectory.dir("classes/api-types"))
+
+    doFirst {
+        options.compilerArgs =
+            listOf(
+                "-proc:only",
+                "-processor",
+                "org.bsc.processor.TypescriptProcessor",
+                "-Ats.outfile=YOURPROJECT-api",
+                "-Ats.registry=YOURPROJECTApi",
+                "-Ats.scan=" + scanRoots.joinToString(File.pathSeparator),
+                // Suppress all lint (deprecation/removal/processing/...) and do not fail on it.
+                "-Xlint:none",
+                "-nowarn",
+            )
+    }
+}
+
+
 ```
 
 
