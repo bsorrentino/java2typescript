@@ -1,5 +1,6 @@
 package org.bsc.processor;
 
+import org.bsc.java2typescript.ClasspathScanner;
 import org.bsc.java2typescript.TSNamespace;
 import org.bsc.java2typescript.TSType;
 import org.bsc.java2typescript.Java2TSConverter;
@@ -35,12 +36,18 @@ import static org.bsc.java2typescript.Java2TSConverter.PREDEFINED_TYPES;
  *     <li>{@code ts.outfile}: target file for typescript declarations</li>
  *     <li>{@code compatibility}: specify compatibility with a given script engine
  *     (NASHORN, RHINO, V8)</li>
+ *     <li>{@code ts.registry}: name of the generated type-registry interface</li>
+ *     <li>{@code ts.scan}: directories and/or jars to enumerate types from, in addition to the
+ *     ones listed in {@link Java2TS#declare()}. See {@link ClasspathScanner}</li>
+ *     <li>{@code ts.scan.include}, {@code ts.scan.exclude}: binary-name prefixes narrowing
+ *     {@code ts.scan}</li>
  * </ul>
  */
 //@SupportedSourceVersion(SourceVersion.RELEASE_8)
 @SupportedSourceVersion(SourceVersion.RELEASE_17)
 @SupportedAnnotationTypes("org.bsc.processor.annotation.*")
-@SupportedOptions({"ts.outfile", "compatibility", "ts.registry"})
+@SupportedOptions({"ts.outfile", "compatibility", "ts.registry",
+    ClasspathScanner.OPTION_SCAN, ClasspathScanner.OPTION_INCLUDE, ClasspathScanner.OPTION_EXCLUDE})
 @org.kohsuke.MetaInfServices(javax.annotation.processing.Processor.class)
 public class TypescriptProcessor extends AbstractProcessorEx {
 
@@ -198,6 +205,10 @@ public class TypescriptProcessor extends AbstractProcessorEx {
 
       namespaces.forEach(ns -> types.addAll(ns.types()));
 
+      // Added last: TSType equality is by class, so a type already declared through an annotation
+      // keeps its explicit flags (export, alias, ...) instead of being replaced by a scanned plain one.
+      types.addAll(scanClasspath(processingContext));
+
       final java.util.Map<String, TSType> declaredTypes =
           types.stream()
               .collect(Collectors.toMap(tt -> tt.getValue().getName(), tt -> tt));
@@ -240,6 +251,33 @@ public class TypescriptProcessor extends AbstractProcessorEx {
     } // end try-with-resources
 
     return true;
+  }
+
+  /**
+   * Enumerate the types to declare from the compiled class files given by {@code ts.scan}, if set.
+   * <p>
+   * The resolved list is also written next to the declarations as {@code <outfile>-scan.txt}: what
+   * a scan included is otherwise invisible, and "why is this type missing?" is the first question
+   * asked of it.
+   *
+   * @param processingContext the current processing context
+   * @return                  the scanned types, empty when {@code ts.scan} is not set
+   */
+  private Set<TSType> scanClasspath(final Context processingContext) throws IOException {
+
+    final Optional<ClasspathScanner> scanner =
+        ClasspathScanner.from(processingContext.getOptionMap());
+
+    if (!scanner.isPresent()) {
+      return Collections.emptySet();
+    }
+
+    final ClasspathScanner.Result result = scanner.get().scan();
+
+    info("SCAN: %d type(s) included, %d skipped (not loadable)",
+        result.types().size(), result.skipped().size());
+
+    return result.types();
   }
 
   /**

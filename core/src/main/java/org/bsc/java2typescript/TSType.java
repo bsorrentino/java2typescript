@@ -266,7 +266,7 @@ public class TSType extends HashMap<String, Object> {
      * @return the (uninitialized) loaded class
      * @throws ClassNotFoundException if the class cannot be found
      */
-    private static Class<?> loadClass(String fqn) throws ClassNotFoundException {
+    static Class<?> loadClass(String fqn) throws ClassNotFoundException {
         return Class.forName(fqn, false, TSType.class.getClassLoader());
     }
 
