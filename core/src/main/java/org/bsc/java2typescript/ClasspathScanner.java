@@ -53,8 +53,8 @@ public final class ClasspathScanner {
 
     /**
      * Outcome of a scan: the types to declare, plus the names that were rejected because they could
-     * not be loaded. The skipped names are reported rather than swallowed — a class missing from the
-     * processor classpath is usually a build misconfiguration worth seeing.
+     * not be loaded or introspected. The skipped names are kept rather than swallowed — a class
+     * missing from the processor classpath is usually a build misconfiguration worth seeing.
      */
     public static final class Result {
 
@@ -145,12 +145,15 @@ public final class ClasspathScanner {
                 try {
                     final Class<?> type = TSType.loadClass(binaryName);
                     if (isPublicApiType(type) && type.getPackage() != null) {
+                        // Loading succeeds lazily: a class whose method signatures reference absent
+                        // types only fails when its members are read, which would otherwise happen
+                        // deep inside a transformer and abort the whole run.
+                        checkIntrospectable(type);
                         found.put(binaryName, TSType.of(type));
                     }
                 } catch (Throwable t) {
-                    // A class whose supertype or a referenced type is absent cannot be introspected
-                    // by the transformers either, so skipping it here is the same outcome, reported
-                    // earlier and with a name attached.
+                    // Not declarable: reported with a name attached rather than swallowed, since a
+                    // root missing from the processor classpath shows up here first.
                     skipped.add(String.format("%s (%s)", binaryName, t));
                 }
             }
@@ -218,6 +221,26 @@ public final class ClasspathScanner {
             return false;
         }
         return excludes.stream().noneMatch(binaryName::startsWith);
+    }
+
+    /**
+     * Force resolution of everything a declaration needs to read, so that a type referencing an
+     * absent class is rejected up front instead of throwing from inside a transformer.
+     * <p>
+     * Class loading resolves references lazily: {@link Class#forName(String, boolean, ClassLoader)}
+     * happily returns a class whose method signatures name types that are nowhere on the classpath,
+     * and only reading those members raises {@link NoClassDefFoundError}. Optional dependencies make
+     * this routine — a UI class referencing JavaFX, a driver referencing a browser library.
+     *
+     * @param type the class to probe
+     */
+    public static void checkIntrospectable(Class<?> type) {
+        type.getMethods();
+        type.getDeclaredMethods();
+        type.getFields();
+        type.getConstructors();
+        type.getInterfaces();
+        type.getSuperclass();
     }
 
     /**

@@ -209,6 +209,8 @@ public class TypescriptProcessor extends AbstractProcessorEx {
       // keeps its explicit flags (export, alias, ...) instead of being replaced by a scanned plain one.
       types.addAll(scanClasspath(processingContext));
 
+      types.removeIf(tt -> !isDeclarable(tt));
+
       final java.util.Map<String, TSType> declaredTypes =
           types.stream()
               .collect(Collectors.toMap(tt -> tt.getValue().getName(), tt -> tt));
@@ -254,11 +256,33 @@ public class TypescriptProcessor extends AbstractProcessorEx {
   }
 
   /**
-   * Enumerate the types to declare from the compiled class files given by {@code ts.scan}, if set.
+   * Whether a type can be introspected well enough to be declared.
    * <p>
-   * The resolved list is also written next to the declarations as {@code <outfile>-scan.txt}: what
-   * a scan included is otherwise invisible, and "why is this type missing?" is the first question
-   * asked of it.
+   * Types reaching here from {@code ts.scan} were already probed, but the ones named by
+   * {@link org.bsc.processor.annotation.Type} were not, and a single unresolvable reference in a
+   * method signature would otherwise abort generation for every type at once. Predefined types are
+   * exempt: they are built in and never rendered from reflection.
+   *
+   * @param type the candidate type
+   * @return     true when it can be declared
+   */
+  private boolean isDeclarable(TSType type) {
+
+    if (PREDEFINED_TYPES.contains(type)) {
+      return true;
+    }
+
+    try {
+      org.bsc.java2typescript.ClasspathScanner.checkIntrospectable(type.getValue());
+      return true;
+    } catch (Throwable t) {
+      warn("skipping [%s]: not introspectable (%s)", type.getValue().getName(), t);
+      return false;
+    }
+  }
+
+  /**
+   * Enumerate the types to declare from the compiled class files given by {@code ts.scan}, if set.
    *
    * @param processingContext the current processing context
    * @return                  the scanned types, empty when {@code ts.scan} is not set
