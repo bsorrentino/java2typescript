@@ -8,6 +8,8 @@ import org.bsc.java2typescript.TSType;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.Collections;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -29,6 +31,34 @@ public class TSJavaClass2DeclarationTransformer extends TSConverterStatic implem
         return m.getName() + Stream.of(m.getParameterTypes())
                 .map(Class::getName)
                 .collect(Collectors.joining(",", "(", ")"));
+    }
+
+    /**
+     * The return types the parent chain declares for each signature.
+     * <p>
+     * A signature can map to several: a parent that itself narrows a grandparent's return type
+     * leaves both declarations visible through {@link Class#getMethods()}. Bridges are excluded so
+     * only real declarations are compared.
+     */
+    private static Map<String, Set<Class<?>>> returnTypesBySig(Class<?> type) {
+        return Stream.of(type.getMethods())
+                .filter(m -> !m.isBridge() && !m.isSynthetic())
+                .collect(Collectors.groupingBy(
+                        TSJavaClass2DeclarationTransformer::methodSig,
+                        Collectors.mapping(Method::getReturnType, Collectors.toSet())));
+    }
+
+    /**
+     * Whether a method is inherited from the parent unchanged, and so needs no declaration of its
+     * own — {@code extends} already provides it.
+     * <p>
+     * The signature alone is not enough: a covariant override has the same name and parameters as
+     * the method it overrides and differs only in its return type, so matching on signature would
+     * discard exactly the narrowing the override exists to express.
+     */
+    private static boolean isInheritedUnchanged(Method m, Map<String, Set<Class<?>>> parentReturnTypes) {
+        return parentReturnTypes.getOrDefault(methodSig(m), Collections.emptySet())
+                .contains(m.getReturnType());
     }
 
     protected boolean testMethodNotAllowed(Method md ) {
@@ -119,11 +149,9 @@ public class TSJavaClass2DeclarationTransformer extends TSConverterStatic implem
 
         Set<Method> methods = getMethodsAsStream(ctx).collect(Collectors.toSet());
         if (emittedSuper != null) {
-            final Set<String> parentSigs = Stream.of(emittedSuper.getMethods())
-                    .map(TSJavaClass2DeclarationTransformer::methodSig)
-                    .collect(Collectors.toSet());
+            final Map<String, Set<Class<?>>> parentReturnTypes = returnTypesBySig(emittedSuper);
             final Set<String> newNames = methods.stream()
-                    .filter(m -> !parentSigs.contains(methodSig(m)))
+                    .filter(m -> !isInheritedUnchanged(m, parentReturnTypes))
                     .map(Method::getName)
                     .collect(Collectors.toSet());
             methods = methods.stream()
