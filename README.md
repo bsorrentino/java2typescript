@@ -142,6 +142,7 @@ Name | default | Description
 **ts.outfile** | "out" | out TS filename 
 **ts.registry** | "JavaTypeRegistry" | name of type registry interface (choose unique name per project) 
 **compatibility** | "NASHORN" | JS engine : "NASHORN" (deprecated), "RHINO" or "GRAALJS"
+**ignoreDeprecated** | "false" | do not declare `@Deprecated` elements.
 **ts.scan** | _(none)_ | directories and/or jars to scan public types to declare, separated by the path separator.
 **ts.scan.include** | _(none)_ | comma separated binary name prefixes; only matching classes are scanned
 **ts.scan.exclude** | _(none)_ | comma separated binary name prefixes to skip, applied after `ts.scan.include`

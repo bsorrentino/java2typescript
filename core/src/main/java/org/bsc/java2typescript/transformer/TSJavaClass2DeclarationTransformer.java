@@ -137,6 +137,9 @@ public class TSJavaClass2DeclarationTransformer extends TSConverterStatic implem
 
         final TSType tstype = ctx.type;
 
+        
+        if (ctx.options.ignoreDeprecated && tstype.getValue().getAnnotation(Deprecated.class) != null)
+            return ctx;
         if (tstype.getValue().isEnum())
             return applyEnum(ctx, tstype);
 
@@ -147,7 +150,9 @@ public class TSJavaClass2DeclarationTransformer extends TSConverterStatic implem
         // TS, so a partial list would lose the inherited ones).
         final Class<?> emittedSuper = emittedNonGenericSuperclass(tstype.getValue(), ctx.declaredTypeMap);
 
-        Set<Method> methods = getMethodsAsStream(ctx).collect(Collectors.toSet());
+        Set<Method> methods = getMethodsAsStream(ctx)
+                                .filter( md -> !ctx.options.ignoreDeprecated || md.getAnnotation(Deprecated.class) == null)
+                                .collect(Collectors.toSet());
         if (emittedSuper != null) {
             final Map<String, Set<Class<?>>> parentReturnTypes = returnTypesBySig(emittedSuper);
             final Set<String> newNames = methods.stream()
@@ -206,6 +211,7 @@ public class TSJavaClass2DeclarationTransformer extends TSConverterStatic implem
             tstype.getFields().stream()
                 .filter( f -> !f.isEnumConstant() )
                 .filter( f -> !parentFieldNames.contains(f.getName()) )
+                .filter( f -> !ctx.options.ignoreDeprecated || f.getAnnotation(Deprecated.class) == null)
                 .map( ctx::getFieldDecl )
                 .sorted()
                 .forEach( decl -> ctx.append('\t').append(decl).append(ENDL));
@@ -214,6 +220,7 @@ public class TSJavaClass2DeclarationTransformer extends TSConverterStatic implem
             // 'constructor' is emitted into a TS interface.
             Stream.of(tstype.getValue().getConstructors())
                 .filter( c -> Modifier.isPublic(c.getModifiers()) )
+                .filter( c -> !ctx.options.ignoreDeprecated || c.getAnnotation(Deprecated.class) == null)
                 .map( ctx::getConstructorDecl )
                 .sorted()
                 .forEach( decl -> ctx.append('\t').append(decl).append(ENDL));
@@ -303,6 +310,7 @@ public class TSJavaClass2DeclarationTransformer extends TSConverterStatic implem
 
         final String members = tstype.getFields().stream()
             .filter(java.lang.reflect.Field::isEnumConstant)
+            .filter(f -> !ctx.options.ignoreDeprecated || f.getAnnotation(Deprecated.class) == null)
             .map(java.lang.reflect.Field::getName)
             .sorted()
             .map(name -> String.format("\t%s = \"%s\"", name, name))

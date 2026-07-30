@@ -46,7 +46,7 @@ import static org.bsc.java2typescript.Java2TSConverter.PREDEFINED_TYPES;
 //@SupportedSourceVersion(SourceVersion.RELEASE_8)
 @SupportedSourceVersion(SourceVersion.RELEASE_17)
 @SupportedAnnotationTypes("org.bsc.processor.annotation.*")
-@SupportedOptions({"ts.outfile", "compatibility", "ts.registry",
+@SupportedOptions({"ts.outfile", "compatibility", "ignoreDeprecated", "ts.registry",
     ClasspathScanner.OPTION_SCAN, ClasspathScanner.OPTION_INCLUDE, ClasspathScanner.OPTION_EXCLUDE})
 @org.kohsuke.MetaInfServices(javax.annotation.processing.Processor.class)
 public class TypescriptProcessor extends AbstractProcessorEx {
@@ -161,9 +161,13 @@ public class TypescriptProcessor extends AbstractProcessorEx {
             .getOrDefault("compatibility", "NASHORN") ;
     info("COMPATIBILITY WITH [%s]", compatibilityOption);
 
+    final boolean ignoreDeprecatedOption = !processingContext.getOptionMap()
+            .getOrDefault("ignoreDeprecated", "false").equals("false");
+
     final Java2TSConverter converter = Java2TSConverter.builder()
                                                     .compatibility( compatibilityOption  )
                                                     .foreignObjectPrototype( foreignObjectPrototype )
+                                                    .ignoreDeprecated(ignoreDeprecatedOption)
                                                     .build();
 
     try (
@@ -210,6 +214,15 @@ public class TypescriptProcessor extends AbstractProcessorEx {
       types.addAll(scanClasspath(processingContext));
 
       types.removeIf(tt -> !isDeclarable(tt));
+
+      // Removed from the type set, not merely left unrendered: everything downstream decides what
+      // to emit by looking types up here. A type dropped only at render time still gets an
+      // `extends` clause, a nested-type alias, a `-types.ts` binding and a registry entry, each
+      // pointing at a declaration that was never written.
+      if (ignoreDeprecatedOption) {
+        types.removeIf(tt -> !PREDEFINED_TYPES.contains(tt)
+            && tt.getValue().getAnnotation(Deprecated.class) != null);
+      }
 
       final java.util.Map<String, TSType> declaredTypes =
           types.stream()
