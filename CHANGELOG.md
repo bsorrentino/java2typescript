@@ -2,8 +2,327 @@
 
 <!-- Changelog for bsorrentino java2typescript. -->
 
-## v2.0-20241009
-### Generic changes
+## v2.0.0
+### No issue
+
+**Merge branch 'release/2.0.0'**
+
+
+[b17592741224d38](https://github.com/bsorrentino/java2typescript/commit/b17592741224d38) bsorrentino *2026-08-02 14:17:04*
+
+**build: bump to next version 2.0.0**
+
+
+[f70e479f5602a0f](https://github.com/bsorrentino/java2typescript/commit/f70e479f5602a0f) bsorrentino *2026-08-02 14:16:16*
+
+**build: update Maven plugin versions and remove unused distribution management**
+
+
+[845a39aebd6acb6](https://github.com/bsorrentino/java2typescript/commit/845a39aebd6acb6) bsorrentino *2026-08-02 14:10:47*
+
+**build(samples/graaljs): update GraalVM dependencies to remove '-community' suffix**
+
+
+[114fd9a3debb35d](https://github.com/bsorrentino/java2typescript/commit/114fd9a3debb35d) bsorrentino *2026-08-02 14:10:32*
+
+**Merge branch 'feature/LucasParsy-master' into develop**
+
+
+[e359868c839f708](https://github.com/bsorrentino/java2typescript/commit/e359868c839f708) bsorrentino *2026-08-02 13:03:46*
+
+**test: generate sample output**
+
+
+[665c7bcb95bbf3d](https://github.com/bsorrentino/java2typescript/commit/665c7bcb95bbf3d) bsorrentino *2026-08-02 13:03:13*
+
+**build: update graalvm version to 25.1.3**
+
+
+[9bc327969690471](https://github.com/bsorrentino/java2typescript/commit/9bc327969690471) bsorrentino *2026-08-02 13:02:23*
+
+**build: update rhino dependency version to 1.9.1**
+
+
+[5998c730f1eddd0](https://github.com/bsorrentino/java2typescript/commit/5998c730f1eddd0) bsorrentino *2026-08-02 13:02:17*
+
+**build: update Maven version requirement to [3.9.0,)**
+
+
+[80d81ccf53430bf](https://github.com/bsorrentino/java2typescript/commit/80d81ccf53430bf) bsorrentino *2026-08-02 13:02:09*
+
+**build: bump to SNAPSHOT**
+
+
+[cbc32cee1969ad8](https://github.com/bsorrentino/java2typescript/commit/cbc32cee1969ad8) bsorrentino *2026-08-02 12:44:49*
+
+**added "ignoreDeprecated" option**
+
+ * optional feature to ignore &#x60;@Deprecated&#x60; classes/methods/fields.
+ * They are not declared, nor extended
+ * Co-Authored-By: Claude Opus 5 &lt;noreply@anthropic.com&gt;
+
+[a14f0753cdc5845](https://github.com/bsorrentino/java2typescript/commit/a14f0753cdc5845) Lucas Parsy *2026-07-30 21:51:46*
+
+**fix(core): re-declare methods that narrow an inherited return type**
+
+ * Return type was not checked previously on methods prototype,
+ * so overriden methods with different return were not re-declared.
+ * example:
+ * &#x60;&#x60;&#x60;java
+ * ParentClass {
+ * public ParentClass m();
+ * }
+ * ChildClass extends ParentClass {
+ * @Override public ChildClass m();
+ * }
+ * &#x60;&#x60;&#x60;
+ * Will now correctly re-declare in TS the &#x60;m&#x60; method with return value of type ChildClass.
+ * Co-Authored-By: Claude Opus 5 &lt;noreply@anthropic.com&gt;
+
+[6cf5b4d6093b92d](https://github.com/bsorrentino/java2typescript/commit/6cf5b4d6093b92d) Lucas Parsy *2026-07-30 17:07:41*
+
+**fix(processor): skip types that cannot be introspected**
+
+ * Class loading resolves references lazily, so a class whose method
+ * signatures name absent types loads fine and only fails when its members
+ * are read. That happened deep inside a transformer and aborted generation
+ * for every type at once, which optional dependencies make routine: a UI
+ * class referencing JavaFX, a driver referencing a browser library.
+ * Probe the members while scanning, so such a type is rejected up front and
+ * reported by name, and guard the annotation declared types the same way.
+ * Co-Authored-By: Claude Opus 5 &lt;noreply@anthropic.com&gt;
+
+[a906691609b6a59](https://github.com/bsorrentino/java2typescript/commit/a906691609b6a59) Lucas Parsy *2026-07-29 20:44:49*
+
+**docs: update readme with new features**
+
+ * list plugin options
+ * give example gradle config to generate types for a full project
+
+[f8067b6368dcbf1](https://github.com/bsorrentino/java2typescript/commit/f8067b6368dcbf1) Lucas Parsy *2026-07-28 18:55:46*
+
+**test(core): fix tests made invalid by changes**
+
+ * removed &quot;no static in interface&quot; claude error
+ * fixed test with args of type &quot;java.util.list&lt;Type&gt;&quot; where declaration now also allows &quot;(Type)[]&quot; as  GraalJs converts Lists to native JS arrays.
+
+[7ac510791b053d2](https://github.com/bsorrentino/java2typescript/commit/7ac510791b053d2) Lucas Parsy *2026-07-28 18:08:27*
+
+**feat(processor): declare types discovered by scanning the classpath**
+
+ * ts.scan option to enumerate public types from compiled class files
+ * Scanned types are added after the annotated ones, so a type named by both keeps its explicit attributes.
+ * Co-Authored-By: Claude Opus 5 &lt;noreply@anthropic.com&gt;
+
+[ae6c950d446ba5e](https://github.com/bsorrentino/java2typescript/commit/ae6c950d446ba5e) Lucas Parsy *2026-07-28 18:01:50*
+
+**feat(processor): add "declare" type attribute**
+
+ * defaults to true (no change), when false does not export class to typescript.
+ * Useful when needing to parse types for the new inheritance optimization without re-export them.
+ * (practical use case : zapAddons build depending on zaproxy classes, already exported in another file)
+ * Co-Authored-By: Claude Opus 4.8 &lt;noreply@anthropic.com&gt;
+
+[f49380f1928ead7](https://github.com/bsorrentino/java2typescript/commit/f49380f1928ead7) Lucas Parsy *2026-07-24 16:04:58*
+
+**feat(core): implement inheritance and extend classes**
+
+ * extends available classes and don&#x27;t  redefine inherited methods/fields.
+ * Greatly reduces generated typescript file size (~x3 or x5)
+ * Co-Authored-By: Claude Opus 4.8 &lt;noreply@anthropic.com&gt;
+
+[6c8d8863810c1c7](https://github.com/bsorrentino/java2typescript/commit/6c8d8863810c1c7) Lucas Parsy *2026-07-24 15:26:21*
+
+**feat(core): alias nested types so Outer.Inner resolves**
+
+ * Nested types are emitted flattened as Outer$Inner siblings, but a host
+ * runtime accesses them as Outer.Inner. Emit a &#x60;namespace Outer&#x60; that
+ * merges with &#x60;class Outer&#x60; and re-exposes each emitted nested type under
+ * its simple name (type alias, plus a value alias for classes/enums), so
+ * both Outer.Inner and the flattened Outer$Inner resolve. Generic nested
+ * types carry their type parameters through the alias.
+ * Co-Authored-By: Claude Opus 4.8 &lt;noreply@anthropic.com&gt;
+
+[c006399d32f1f3c](https://github.com/bsorrentino/java2typescript/commit/c006399d32f1f3c) Lucas Parsy *2026-07-22 14:44:35*
+
+**feat(core): emit a static `class` member on class declarations**
+
+ * Every Java class value exposes &#x60;.class&#x60; (its java.lang.Class object), so
+ * emit &#x60;static class:java.lang.Class&lt;any&gt;&#x60; on each class declaration to let
+ * &#x60;SomeClass.class&#x60; type-check. Interfaces are skipped (no runtime value,
+ * and &#x60;static&#x60; is illegal on a TS interface). Also give java.lang.Class a
+ * minimal shape (getResource) instead of an empty interface.
+ * Co-Authored-By: Claude Opus 4.8 &lt;noreply@anthropic.com&gt;
+
+[101dade36829cba](https://github.com/bsorrentino/java2typescript/commit/101dade36829cba) Lucas Parsy *2026-07-22 14:27:23*
+
+**feat(core): accept a TS array for Collection/Iterable parameters**
+
+ * Widen a Collection/Iterable parameter type to &#x60;T | (E)[]&#x60; so a plain
+ * array is assignable where a host runtime auto-converts arrays to a Java
+ * collection. Applied to method and constructor parameters only; return
+ * types are unchanged, so a returned collection keeps its full interface.
+ * Co-Authored-By: Claude Opus 4.8 &lt;noreply@anthropic.com&gt;
+
+[eb2253e96915e6c](https://github.com/bsorrentino/java2typescript/commit/eb2253e96915e6c) Lucas Parsy *2026-07-22 13:57:06*
+
+**add graalJs Java.extend to default types**
+
+ * Co-Authored-By: Claude Opus 4.8 &lt;noreply@anthropic.com&gt;
+
+[73559a3b3925c74](https://github.com/bsorrentino/java2typescript/commit/73559a3b3925c74) Lucas Parsy *2026-07-22 11:04:48*
+
+**feat(core): emit protected abstract methods in class declarations**
+
+ * testIncludeMethod dropped all non-public methods, omitting protected
+ * abstract methods that are part of the callable contract every concrete
+ * subclass must implement. Include them; public members are unchanged and
+ * ordinary protected/private concrete methods stay excluded.
+ * Co-Authored-By: Claude Opus 4.8 &lt;noreply@anthropic.com&gt;
+
+[5fac0bc1cec1f06](https://github.com/bsorrentino/java2typescript/commit/5fac0bc1cec1f06) Lucas Parsy *2026-07-22 10:04:08*
+
+**allow static members on interfaces + map interfaces to type registry**
+
+ * rare Claude L
+
+[cce795a1d8b5e5e](https://github.com/bsorrentino/java2typescript/commit/cce795a1d8b5e5e) Lucas Parsy *2026-07-22 10:01:56*
+
+**feat(processor): generate a typed Java.type() registry**
+
+ * Generate a &lt;out&gt;-registry.d.ts mapping each class/enum&#x27;s fully-qualified
+ * name to &#x27;typeof &lt;ns&gt;.X&#x27;, and re-enable the typed Java.type overload in
+ * headerD.ts so Java.type(&quot;known.Class&quot;) returns the concrete class instead
+ * of any. The registry interface name is configurable via the &#x27;ts.registry&#x27;
+ * processor option (default JavaTypeRegistry), so distinct projects can each
+ * emit their own (e.g. ZapApiTypeRegistry). Interfaces have no typeof value
+ * form and are excluded, falling through to the generic type(k:string):T
+ * overload. The header template carries a {{REGISTRY_TYPE}} placeholder
+ * substituted at generation time.
+ * Co-Authored-By: Claude Opus 4.8 &lt;noreply@anthropic.com&gt;
+
+[d0b7943e7babe3e](https://github.com/bsorrentino/java2typescript/commit/d0b7943e7babe3e) Lucas Parsy *2026-07-20 09:12:31*
+
+**feat(core): bind Java.type() values via typeof in -types.ts**
+
+ * Classes and enums now expose their full static side in the .d.ts, so the
+ * runtime binding collapses to a single line -- export const X: typeof &lt;ns&gt;.X
+ * &#x3D; Java.type(&quot;...&quot;) -- instead of a duplicated XStatic interface listing
+ * every constructor and static method. Interfaces have no typeof value form,
+ * so they keep their explicit ...Static type (functional SAM construct
+ * signature + static methods).
+ * Co-Authored-By: Claude Opus 4.8 &lt;noreply@anthropic.com&gt;
+
+[a13010118da951f](https://github.com/bsorrentino/java2typescript/commit/a13010118da951f) Lucas Parsy *2026-07-20 09:11:11*
+
+**feat(core): emit static members in class declarations (.d.ts)**
+
+ * Stop stripping static methods from the .d.ts class for exported types.
+ * Static methods already carry the &#x27;static&#x27; keyword, so the class now
+ * exposes its full static side and &#x27;typeof &lt;class&gt;&#x27; is the complete
+ * class-object type. This lets the &lt;out&gt;-types.ts runtime binding collapse
+ * to &#x27;typeof &lt;class&gt;&#x27; (next commit) instead of duplicating every signature
+ * in a separate XStatic interface.
+ * Co-Authored-By: Claude Opus 4.8 &lt;noreply@anthropic.com&gt;
+
+[0e40a071be07445](https://github.com/bsorrentino/java2typescript/commit/0e40a071be07445) Lucas Parsy *2026-07-20 08:59:25*
+
+**feat(core): emit Java enums as native string-valued TS enums**
+
+ * Emit an enum as a native TypeScript &#x60;enum X { A &#x3D; &quot;A&quot;, ... }&#x60; inside its
+ * namespace instead of a class with commented-out constants. Each constant
+ * maps to its own name as a string, so GraalJS&#x27; read-as-string coercion
+ * (&#x60;plugin.getMode() &#x3D;&#x3D; &quot;SAFE&quot;&#x60;) type-checks, while the nominal enum type
+ * still rejects passing a bare string where a Java enum is required - which
+ * GraalJS also rejects at runtime. The Java Enum machinery (values/valueOf/
+ * ordinal) is intentionally dropped in favour of the TS-native model.
+ * Co-Authored-By: Claude Opus 4.8 &lt;noreply@anthropic.com&gt;
+
+[6f2aa5ecf03ebd2](https://github.com/bsorrentino/java2typescript/commit/6f2aa5ecf03ebd2) Lucas Parsy *2026-07-18 18:42:00*
+
+**feat(core): emit public constructors in class declarations**
+
+ * Add TSConverterContext.getConstructorDecl and emit public constructors
+ * from the declaration transformer. Handles varargs (rendered as a rest
+ * parameter) and parameters named after TS reserved keywords (renamed via
+ * getParameterName). No type parameters are emitted since a TS constructor
+ * cannot declare its own; interfaces have no constructors so none leak into
+ * a TS interface.
+ * Co-Authored-By: Claude Opus 4.8 &lt;noreply@anthropic.com&gt;
+
+[6632b5ecb730b2a](https://github.com/bsorrentino/java2typescript/commit/6632b5ecb730b2a) Lucas Parsy *2026-07-17 18:32:21*
+
+**feat(core): emit public fields in class/interface declarations**
+
+ * Add TSConverterContext.getFieldDecl and emit public fields from the
+ * declaration transformer. Static fields become &#x27;static readonly&#x27; (commented
+ * out on interfaces, where &#x27;static&#x27; is illegal), final fields become
+ * &#x27;readonly&#x27;. Enum constants are filtered out to avoid duplicating the
+ * declarations produced by processEnumDecl.
+ * Co-Authored-By: Claude Opus 4.8 &lt;noreply@anthropic.com&gt;
+
+[dd071206e32db75](https://github.com/bsorrentino/java2typescript/commit/dd071206e32db75) Lucas Parsy *2026-07-17 18:28:32*
+
+**feat(core): suffix parameters named after TS reserved keywords**
+
+ * Java parameter names such as &#x27;type&#x27;, &#x27;string&#x27; or &#x27;number&#x27; are valid Java
+ * identifiers but reserved words in TypeScript, producing invalid
+ * declarations. Rename any such parameter by appending &#x27;_p&#x27;, replacing the
+ * previous one-off &#x27;function&#x27; -&gt; &#x27;func&#x27; special case with a full keyword
+ * set. Backed by a Set for O(1) lookup.
+ * Co-Authored-By: Claude Opus 4.8 &lt;noreply@anthropic.com&gt;
+
+[8e7ec6fcf88ef64](https://github.com/bsorrentino/java2typescript/commit/8e7ec6fcf88ef64) Lucas Parsy *2026-07-17 18:25:32*
+
+**feat(core): resolve arbitrarily nested member types**
+
+ * The source name of a nested type uses &#x27;.&#x27; for both package and nesting
+ * separators (a.b.Outer.Inner), but the class loader expects &#x27;$&#x27; for
+ * nesting (a.b.Outer$Inner). Since the package boundary is unknown, convert
+ * trailing dots to &#x27;$&#x27; one at a time, right to left, and return the first
+ * name that loads. This handles arbitrarily deep nesting
+ * (a.b.Outer$Middle$Inner), not just a single level.
+ * Co-Authored-By: Claude Opus 4.8 &lt;noreply@anthropic.com&gt;
+
+[5634c8d7f35610e](https://github.com/bsorrentino/java2typescript/commit/5634c8d7f35610e) Lucas Parsy *2026-07-17 18:22:17*
+
+**feat(core): load @Type classes without running static initializers**
+
+ * Resolve annotated classes with Class.forName(name, false, loader) instead
+ * of the 1-arg form, so generation reads class metadata (methods, fields,
+ * modifiers) without triggering static initializers. Initializing an
+ * application&#x27;s classes outside their own runtime can throw
+ * ExceptionInInitializerError when a static block relies on framework state
+ * that has not been bootstrapped.
+ * Co-Authored-By: Claude Opus 4.8 &lt;noreply@anthropic.com&gt;
+
+[4ad1c2c92e9e824](https://github.com/bsorrentino/java2typescript/commit/4ad1c2c92e9e824) Lucas Parsy *2026-07-17 18:17:52*
+
+**build: bump to SNAPSHOT**
+
+
+[4c7961694fa07e6](https://github.com/bsorrentino/java2typescript/commit/4c7961694fa07e6) bsorrentino *2024-10-09 19:36:15*
+
+**Merge branch 'master' into develop**
+
+
+[29c3077117fdb74](https://github.com/bsorrentino/java2typescript/commit/29c3077117fdb74) bsorrentino *2024-10-09 19:34:35*
+
+**Merge branch 'hotfix/changelog'**
+
+
+[84241ea7ff07097](https://github.com/bsorrentino/java2typescript/commit/84241ea7ff07097) bsorrentino *2024-10-09 19:34:33*
+
+**docs: update changelog**
+
+
+[717e2a31f4067f0](https://github.com/bsorrentino/java2typescript/commit/717e2a31f4067f0) bsorrentino *2024-10-09 19:34:21*
+
+**Merge tag 'v2.0-20241009' into develop**
+
+ * new intermediate release
+
+[fd40d8274e33a9b](https://github.com/bsorrentino/java2typescript/commit/fd40d8274e33a9b) bsorrentino *2024-10-09 16:07:39*
 
 **Merge branch 'release/2.0-20241009'**
 
@@ -101,7 +420,7 @@
 
 
 ## v1.4.0
-### Generic changes
+### No issue
 
 **Merge branch 'release/1.4.0'**
 
@@ -208,7 +527,7 @@
 
 
 ## v1.3.1
-### Generic changes
+### No issue
 
 **Merge branch 'release/1.3.1'**
 
@@ -323,7 +642,7 @@
 
 
 ## v1.3.0
-### Generic changes
+### No issue
 
 **Merge branch 'release/1.3.0'**
 
@@ -906,7 +1225,7 @@
 
 
 ## v1.2.0
-### Generic changes
+### No issue
 
 **Merge branch 'release/1.2.0'**
 
@@ -1145,7 +1464,7 @@
 
 
 ## v1.1.0
-### Generic changes
+### No issue
 
 **Merge branch 'release/1.1.0'**
 
@@ -1225,7 +1544,7 @@
 
 
 ## v1.0.0
-### Generic changes
+### No issue
 
 **Merge branch 'release/1.0.0'**
 
@@ -1309,7 +1628,7 @@
 
 
 ## v1.0-rc1
-### Generic changes
+### No issue
 
 **Merge branch 'release/1.0-rc1'**
 
@@ -1423,7 +1742,7 @@
 
 
 ## v1.0-beta2
-### Generic changes
+### No issue
 
 **Merge branch 'release/1.0-beta2'**
 
@@ -1477,7 +1796,7 @@
 
 
 ## v1.0-beta1
-### Generic changes
+### No issue
 
 **Merge branch 'release/1.0-beta1'**
 
@@ -1536,7 +1855,7 @@
 
 
 ## v0.2.0
-### Generic changes
+### No issue
 
 **Merge branch 'release/0.2.0'**
 
@@ -1590,7 +1909,7 @@
 
 
 ## v0.1.0
-### Generic changes
+### No issue
 
 **Merge branch 'release/0.1.0'**
 
