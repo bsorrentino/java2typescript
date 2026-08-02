@@ -32,21 +32,21 @@
         <!-- runtime -->
         <dependency>
             <groupId>org.graalvm.polyglot</groupId>
-            <artifactId>js-community</artifactId>
+            <artifactId>js</artifactId>
             <version>${graalvm.version}</version>
             <type>pom</type>
             <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>org.graalvm.polyglot</groupId>
-            <artifactId>profiler-community</artifactId>
+            <artifactId>profiler</artifactId>
             <version>${graalvm.version}</version>
             <type>pom</type>
             <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>org.graalvm.polyglot</groupId>
-            <artifactId>inspect-community</artifactId>
+            <artifactId>inspect</artifactId>
             <version>${graalvm.version}</version>
             <type>pom</type>
             <scope>runtime</scope>
