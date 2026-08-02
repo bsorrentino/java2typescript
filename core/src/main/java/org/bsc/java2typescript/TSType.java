@@ -23,6 +23,7 @@ public class TSType extends HashMap<String, Object> {
     private static final String EXPORT = "export";
     private static final String NAMESPACE = "namespace";
     private static final String FUNCTIONAL = "functional";
+    private static final String DECLARE = "declare";
 
     protected TSType() {
         super(3);
@@ -58,6 +59,20 @@ public class TSType extends HashMap<String, Object> {
      */
     public boolean isExport() {
         return (boolean) super.getOrDefault(EXPORT, false);
+    }
+
+    /**
+     * Whether this type is emitted as a declaration (and added to the type registry). A type with
+     * {@code declare == false} is kept only for name resolution / as an {@code extends} target,
+     * because it is declared in another generated file. Defaults to true.
+     */
+    public boolean isDeclare() {
+        return (boolean) super.getOrDefault(DECLARE, true);
+    }
+
+    public TSType setDeclare(boolean value) {
+        super.put(DECLARE, value);
+        return this;
     }
 
     /**
@@ -183,7 +198,14 @@ public class TSType extends HashMap<String, Object> {
      * @return
      */
     protected boolean testIncludeMethod( Method m ) {
-        return !m.isBridge() && !m.isSynthetic() && Modifier.isPublic(m.getModifiers())
+        final int mod = m.getModifiers();
+        // Public members are API. A `protected abstract` method is also part of the callable
+        // contract: every concrete subclass must implement it, so instances handed to a script
+        // (via host interop) always expose it -- e.g. WebSocketAlertWrapper.WebSocketAlertBuilder.raise().
+        // Ordinary protected/private concrete methods stay excluded.
+        final boolean visible = Modifier.isPublic(mod)
+                || (Modifier.isProtected(mod) && Modifier.isAbstract(mod));
+        return !m.isBridge() && !m.isSynthetic() && visible
                 && Character.isJavaIdentifierStart(m.getName().charAt(0))
                 && m.getName().chars().skip(1).allMatch(Character::isJavaIdentifierPart);
     }
@@ -213,13 +235,41 @@ public class TSType extends HashMap<String, Object> {
      * @return
      */
     private Class<?> getMemberClassForName( String fqn ) throws ClassNotFoundException {
-        char[] ch = fqn.toCharArray();
-        int i = fqn.lastIndexOf('.');
-        ch[i] = '$';
+        // The source form of a nested type uses '.' for both the package separator and the nesting
+        // separator (e.g. a.b.Outer.Inner), but the binary name the class loader expects uses '$'
+        // for nesting (a.b.Outer$Inner). We don't know where the package ends, so convert trailing
+        // dots to '$' one at a time, right to left, and return the first name that resolves. This
+        // handles arbitrarily nested types (a.b.Outer$Middle$Inner), not just a single level.
+        final StringBuilder name = new StringBuilder(fqn);
+        int i;
+        while ((i = name.lastIndexOf(".")) >= 0) {
+            name.setCharAt(i, '$');
+            try {
+                return loadClass(name.toString());
+            } catch (ClassNotFoundException ignored) {
+                // Not this split; convert the next dot to the left and retry.
+            }
+        }
 
-        return Class.forName(String.valueOf(ch));   
+        throw new ClassNotFoundException(fqn);
     }
-    
+
+    /**
+     * Load a class WITHOUT running its static initializers.
+     * <p>
+     * Type generation only needs class metadata (methods, fields, modifiers). Initializing an
+     * application's classes outside their own runtime (as the 1-arg {@link Class#forName(String)}
+     * would) can trigger {@link ExceptionInInitializerError}: e.g. classes whose static
+     * initializers rely on framework state that has not been bootstrapped.
+     *
+     * @param fqn fully qualified class name
+     * @return the (uninitialized) loaded class
+     * @throws ClassNotFoundException if the class cannot be found
+     */
+    static Class<?> loadClass(String fqn) throws ClassNotFoundException {
+        return Class.forName(fqn, false, TSType.class.getClassLoader());
+    }
+
     /**
      *
      * @param dt
@@ -231,7 +281,7 @@ public class TSType extends HashMap<String, Object> {
 
         final String fqn = dt.toString();
         try {
-            return Class.forName(fqn);
+            return loadClass(fqn);
 
         } catch (ClassNotFoundException e1) {
 

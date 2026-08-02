@@ -73,6 +73,7 @@ public class TSConverterContext extends TSConverterStatic implements Cloneable, 
     public TSConverterContext getClassDecl() {
 
         final StringBuilder inherited = new StringBuilder();
+        final StringBuilder realExtends = new StringBuilder();
 
         if (type.getValue().isInterface()) {
             sb.append("interface ");
@@ -86,11 +87,20 @@ public class TSConverterContext extends TSConverterStatic implements Cloneable, 
 
             sb.append("class ");
 
-            final TSType superclass = TSType.of(type.getValue().getSuperclass());
+            final Class<?> emittedSuper = emittedNonGenericSuperclass(type.getValue(), declaredTypeMap);
 
-            if (superclass != null) {
-                inherited.append(" extends ")
-                        .append(getTypeName(superclass, type, true));
+            if (emittedSuper != null) {
+                // Real inheritance: extend the emitted parent so its members are not re-listed
+                // (see the member filtering in TSJavaClass2DeclarationTransformer).
+                realExtends.append(" extends ")
+                        .append(getTypeName(TSType.of(emittedSuper), type, true));
+            } else {
+                final TSType superclass = TSType.of(type.getValue().getSuperclass());
+
+                if (superclass != null) {
+                    inherited.append(" extends ")
+                            .append(getTypeName(superclass, type, true));
+                }
             }
         }
 
@@ -108,6 +118,7 @@ public class TSConverterContext extends TSConverterStatic implements Cloneable, 
         }
 
         sb.append(getTypeName(type, type, true));
+        sb.append(realExtends);
 
         if (inherited.length() > 0 || type.hasAlias()) {
 
@@ -224,9 +235,12 @@ public class TSConverterContext extends TSConverterStatic implements Cloneable, 
 
             }
 
-            final String typeName = convertJavaToTS(tp.getParameterizedType(), m, type, declaredTypeMap,
+            final Type parameterizedType = tp.getParameterizedType();
+            final String typeName = convertJavaToTS(parameterizedType, m, type, declaredTypeMap,
                     packageResolution, Optional.of(addTypeVar));
-            return String.format("%s:%s", name, typeName);
+            return String.format("%s:%s", name,
+                    arrayWidenedCollectionParam(m, parameterizedType, typeName, packageResolution,
+                            Optional.of(addTypeVar)));
         }).collect(Collectors.joining(", "));
 
         final Type returnType = (m instanceof Method) ? ((Method) m).getGenericReturnType() : type.getValue();
@@ -242,15 +256,109 @@ public class TSConverterContext extends TSConverterStatic implements Cloneable, 
         return result.append("( ").append(params_string).append(" ):").append(tsReturnType).toString();
     }
 
+    /**
+     * Render a public field as a TypeScript property declaration, e.g.
+     * {@code static readonly FOO:string} or {@code name:int}. Enum constants are handled
+     * separately (see {@link #processEnumDecl()}) and should be filtered out before calling this.
+     *
+     * @param f the field
+     * @return the TypeScript property declaration (without the trailing separator)
+     */
+    public String getFieldDecl(final Field f) {
+
+        final StringBuilder sb = new StringBuilder();
+
+        final int mod = f.getModifiers();
+
+        if (Modifier.isStatic(mod)) {
+            sb.append("static ");
+        }
+
+        if (Modifier.isFinal(mod))
+            sb.append("readonly ");
+
+        sb.append(f.getName())
+                .append(':')
+                .append(convertJavaToTS(f.getGenericType(), f, type, declaredTypeMap, true, Optional.empty()));
+
+        return sb.toString();
+    }
+
+    /**
+     * Render a public constructor as a TypeScript {@code constructor( ... )} declaration for use
+     * inside a {@code declare class}. Unlike a construct signature ({@code new(...)}), a TS
+     * constructor cannot carry its own type parameters, so none are emitted here; type variables
+     * that belong to the declaring class stay in scope, any others degrade to {@code any}.
+     *
+     * @param c the constructor
+     * @return the TypeScript constructor declaration (without the trailing separator)
+     */
+    public String getConstructorDecl(final Constructor<?> c) {
+
+        final StringBuilder params = new StringBuilder("( ");
+
+        final Parameter[] ps = c.getParameters();
+        for (int i = 0; i < ps.length; i++) {
+            if (i > 0)
+                params.append(", ");
+
+            final Parameter p = ps[i];
+            final String name = getParameterName(p);
+
+            if (p.isVarArgs()) {
+                final Type component = (p.getParameterizedType() instanceof GenericArrayType)
+                        ? ((GenericArrayType) p.getParameterizedType()).getGenericComponentType()
+                        : p.getType().getComponentType();
+                final String typeName = convertJavaToTS(component, c, type, declaredTypeMap, true, Optional.empty());
+                params.append(String.format("...%s:%s[]", name, typeName));
+            } else {
+                final String typeName =
+                        convertJavaToTS(p.getParameterizedType(), c, type, declaredTypeMap, true, Optional.empty());
+                params.append(String.format("%s:%s", name,
+                        arrayWidenedCollectionParam(c, p.getParameterizedType(), typeName, true, Optional.empty())));
+            }
+        }
+
+        params.append(" )");
+
+        return "constructor".concat(params.toString());
+    }
+
+    /**
+     * Widen a Collection/Iterable PARAMETER type so it also accepts a plain TS array: GraalJS
+     * auto-converts a JS array to a java.util.List/Collection when it is passed to a Java
+     * method/constructor. Only parameters are widened (return types are rendered elsewhere), so a
+     * returned List keeps its full interface (add/get/size/...) for use from the script. Non
+     * Collection/Iterable types and raw (non-parameterized) usages are returned unchanged.
+     */
+    private <E extends Executable & Member> String arrayWidenedCollectionParam(E m, Type parameterizedType,
+            String typeName, boolean packageResolution, Optional<Consumer<TypeVariable<?>>> onTypeMismatch) {
+        if (!(parameterizedType instanceof ParameterizedType)) {
+            return typeName;
+        }
+        final ParameterizedType pt = (ParameterizedType) parameterizedType;
+        if (!(pt.getRawType() instanceof Class)) {
+            return typeName;
+        }
+        final Class<?> raw = (Class<?>) pt.getRawType();
+        final Type[] args = pt.getActualTypeArguments();
+        if (args.length != 1
+                || !(java.util.Collection.class.isAssignableFrom(raw) || Iterable.class.isAssignableFrom(raw))) {
+            return typeName;
+        }
+        // A bare WildcardType element (e.g. List<? extends Foo>) is not convertible on its own;
+        // `any` is fine for an input array (GraalJS coerces the elements).
+        final String elem = (args[0] instanceof WildcardType)
+                ? "any"
+                : convertJavaToTS(args[0], m, type, declaredTypeMap, packageResolution, onTypeMismatch);
+        return String.format("%s | (%s)[]", typeName, elem);
+    }
+
     public String getMethodDecl(final Method m, boolean optional) {
 
         final StringBuilder sb = new StringBuilder();
 
         if (Modifier.isStatic(m.getModifiers())) {
-
-            if (type.getValue().isInterface()) {
-                sb.append("// ");
-            }
 
             sb.append("static ").append(m.getName());
         } else {

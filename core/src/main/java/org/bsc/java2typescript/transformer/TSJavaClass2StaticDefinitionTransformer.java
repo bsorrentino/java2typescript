@@ -20,11 +20,36 @@ public class TSJavaClass2StaticDefinitionTransformer extends TSConverterStatic i
     @Override
     public TSConverterContext apply(TSConverterContext ctx) {
 
-        ctx.append("interface ").append(ctx.type.getSimpleTypeName()).append("Static {\n\n");
+        // Classes and enums expose their full static side in the .d.ts declaration, so the runtime
+        // binding is simply `typeof <the declared type>` — no duplicated signatures. Interfaces have
+        // no value form (`typeof <interface>` is illegal), so they keep an explicit "…Static" type
+        // carrying the construct signature (functional SAM) and any static methods.
+        if (!ctx.type.getValue().isInterface()) {
 
-        if (ctx.type.getValue().isEnum()) {
-            ctx.processEnumType();
+            return ctx.append("export const ")
+                    .append(ctx.type.getSimpleTypeName())
+                    .append(": typeof ")
+                    .append(ctx.type.getTypeName())
+                    .append(" = ")
+                    .append(ctx.getOptions().compatibility.javaType(ctx.type.getValue().getName()))
+                    .append(ENDL)
+                    .append("\n");
         }
+
+        return applyInterfaceStatic(ctx);
+    }
+
+    /**
+     * Emit the {@code …Static} construct/static type for an interface, plus its {@code Java.type()}
+     * binding. Interfaces (notably functional ones) have no {@code typeof} value form, so their
+     * static side cannot be derived from the {@code .d.ts} declaration.
+     *
+     * @param ctx the conversion context
+     * @return the context
+     */
+    private TSConverterContext applyInterfaceStatic(TSConverterContext ctx) {
+
+        ctx.append("interface ").append(ctx.type.getSimpleTypeName()).append("Static {\n\n");
 
         // Append class property
         ctx.append("\treadonly class:any;\n");

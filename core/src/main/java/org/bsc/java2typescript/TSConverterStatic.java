@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.RandomAccess;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiPredicate;
 import java.util.function.Consumer;
@@ -35,8 +36,25 @@ import java.util.stream.Stream;
  *
  */
 public abstract class TSConverterStatic {
-    
+
     public static final String ENDL = ";\n";
+
+    /**
+     * The superclass to actually {@code extends} in the emitted declaration, or {@code null} to
+     * keep the flat (all-members-inlined) form. Real inheritance is used only when the superclass
+     * is itself emitted (present in {@code declaredTypeMap}), is not {@link Object} (which maps to
+     * {@code any}, so {@code extends} would be illegal), and is non-generic (a generic supertype
+     * would need its type arguments rendered — deferred). Enums/interfaces never extend a class.
+     */
+    protected static Class<?> emittedNonGenericSuperclass(Class<?> c,
+            java.util.Map<String, TSType> declaredTypeMap) {
+        if (c == null || c.isInterface() || c.isEnum()) return null;
+        final Class<?> s = c.getSuperclass();
+        if (s == null || s == Object.class) return null;
+        if (!declaredTypeMap.containsKey(s.getName())) return null;
+        if (s.getTypeParameters().length > 0) return null;
+        return s;
+    }
 
     public static final List<TSType> PREDEFINED_TYPES = Arrays.asList(
             TSType.of(Class.class),
@@ -46,6 +64,69 @@ public abstract class TSConverterStatic {
             TSType.of(Cloneable.class),
             TSType.of(RandomAccess.class)
          );
+
+    public static final Set<String> RESERVED_TS_KEYWORDS = Set.of(
+        "break",
+        "case",
+        "catch",
+        "class",
+        "const",
+        "continue",
+        "debugger",
+        "default",
+        "delete",
+        "do",
+        "else",
+        "enum",
+        "export",
+        "extends",
+        "false",
+        "finally",
+        "for",
+        "function",
+        "if",
+        "import",
+        "in",
+        "instanceof",
+        "new",
+        "null",
+        "return",
+        "super",
+        "switch",
+        "this",
+        "throw",
+        "true",
+        "try",
+        "typeof",
+        "var",
+        "void",
+        "while",
+        "with",
+        "as",
+        "implements",
+        "interface",
+        "let",
+        "package",
+        "private",
+        "protected",
+        "public",
+        "static",
+        "yield",
+        "any",
+        "boolean",
+        "constructor",
+        "declare",
+        "get",
+        "module",
+        "require",
+        "number",
+        "set",
+        "string",
+        "symbol",
+        "type",
+        "from",
+        "of"
+    );
 
 
     /**
@@ -78,13 +159,7 @@ public abstract class TSConverterStatic {
     */
    public static final String getParameterName( Parameter p ) {
        final String name = p.getName();
-
-       switch( name ) {
-       case "function":
-           return "func";
-       default:
-           return name;
-       }
+        return RESERVED_TS_KEYWORDS.contains(name) ?  name + "_p" : name;
    }
 
    /**

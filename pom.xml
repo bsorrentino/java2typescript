@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.bsc.processor</groupId>
     <artifactId>java2ts-processor-parent</artifactId>
-    <version>2.0-20241009</version>
+    <version>2.0.0</version>
     <packaging>pom</packaging>
 
     <name>java2ts-processor::parent</name>
@@ -13,19 +13,6 @@
         javascript engine (ie Rhino, Graaljs) using Typescript
     </description>
     <url>https://github.com/bsorrentino/java2typescript</url>
-    <distributionManagement>
-        <repository>
-            <name>central</name>
-            <id>${release.repo.id}</id>
-            <url>${release.repo.url}</url>
-        </repository>
-        <snapshotRepository>
-            <name>snapshot</name>
-            <id>${snapshot.repo.id}</id>
-            <url>${snapshot.repo.url}</url>
-            <!--uniqueVersion>false</uniqueVersion-->
-        </snapshotRepository>
-    </distributionManagement>
     <scm>
         <connection>scm:git:https://github.com/bsorrentino/java2typescript.git</connection>
         <developerConnection>scm:git:https://github.com/bsorrentino/java2typescript.git</developerConnection>
@@ -62,6 +49,7 @@
         <module>processor</module>
         <module>samples/graaljs</module>
         <module>samples/rhino</module>
+
         <module>archetype</module>
     </modules>
     <dependencyManagement>
@@ -158,9 +146,11 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-javadoc-plugin</artifactId>
-                    <version>3.10.1</version>
+                    <version>3.11.2</version>
                     <configuration>
                         <outputDirectory>${project.build.directory}/apidocs</outputDirectory>
+                        <legacyMode>true</legacyMode>
+                        <failOnError>false</failOnError>
                     </configuration>
                 </plugin>
 
@@ -204,7 +194,7 @@
                         <configuration>
                             <rules>
                                 <requireMavenVersion>
-                                    <version>[4.0.0-beta-3,)</version>
+                                    <version>[3.9.0,)</version>
                                 </requireMavenVersion>
                             </rules>
                         </configuration>
@@ -224,6 +214,18 @@
                 <configuration>
                     <settingsFile>changelog.json</settingsFile>
                     <file>CHANGELOG.md</file>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.sonatype.central</groupId>
+                <artifactId>central-publishing-maven-plugin</artifactId>
+                <version>0.11.0</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <publishingServerId>sonatype-central</publishingServerId>
+                    <autoPublish>true</autoPublish>
+                    <waitUntil>published</waitUntil>
                 </configuration>
             </plugin>
 
@@ -256,15 +258,14 @@
                         </executions>
                     </plugin>
                     <!--
-                    ====================================================================================
-                    # https://github.com/keybase/keybase-issues/issues/2798
-                    export GPG_TTY=$(tty)
-                    mvn -Prelease source:jar javadoc:jar deploy -Dgpg.passphrase=thephrase
-                    ====================================================================================
+                    =====================================================================================================
+                    mvn -Prelease source:jar javadoc:jar install central-publishing:publish -Dgpg.passphrase=thephrase
+                    =====================================================================================================
                     -->
                     <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-gpg-plugin</artifactId>
-                        <version>3.2.7</version>
+                        <version>3.2.8</version>
                         <executions>
                             <execution>
                                 <id>sign-artifacts</id>
@@ -282,18 +283,7 @@
                             </gpgArguments>
                         </configuration>
                     </plugin>
-                    <plugin>
-                        <groupId>org.sonatype.plugins</groupId>
-                        <artifactId>nexus-staging-maven-plugin</artifactId>
-                        <version>1.7.0</version>
-                        <extensions>true</extensions>
-                        <configuration>
-                            <serverId>sonatype-server</serverId>
-                            <nexusUrl>https://oss.sonatype.org/</nexusUrl>
-                            <stagingProfileId/>
-                        </configuration>
-                    </plugin>
-                </plugins>
+              </plugins>
             </build>
         </profile>
     </profiles>
