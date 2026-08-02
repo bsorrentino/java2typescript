@@ -14,7 +14,7 @@
     <description>graaljs sample</description>
 
     <properties>
-        <graalvm.version>24.1.0</graalvm.version>
+        <graalvm.version>25.1.3</graalvm.version>
         <compiler.dir>${project.build.directory}/compiler</compiler.dir>
     </properties>
 

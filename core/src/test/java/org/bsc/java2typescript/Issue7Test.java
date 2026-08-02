@@ -77,7 +77,7 @@ public class Issue7Test extends AbstractConverterTest {
 									true) ;
 			
 			assertNotNull( result );
-			assertEquals( "<E>( reducer:java.util.List<java.util.Map$Entry<E, V>> ):void", result );
+			assertEquals( "<E>( reducer:java.util.List<java.util.Map$Entry<E, V>> | (java.util.Map$Entry<E, V>)[] ):void", result );
 		}
 
 		

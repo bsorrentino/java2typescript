@@ -1,5 +1,6 @@
 package org.bsc.processor;
 
+import org.bsc.java2typescript.ClasspathScanner;
 import org.bsc.java2typescript.TSNamespace;
 import org.bsc.java2typescript.TSType;
 import org.bsc.java2typescript.Java2TSConverter;
@@ -35,12 +36,18 @@ import static org.bsc.java2typescript.Java2TSConverter.PREDEFINED_TYPES;
  *     <li>{@code ts.outfile}: target file for typescript declarations</li>
  *     <li>{@code compatibility}: specify compatibility with a given script engine
  *     (NASHORN, RHINO, V8)</li>
+ *     <li>{@code ts.registry}: name of the generated type-registry interface</li>
+ *     <li>{@code ts.scan}: directories and/or jars to enumerate types from, in addition to the
+ *     ones listed in {@link Java2TS#declare()}. See {@link ClasspathScanner}</li>
+ *     <li>{@code ts.scan.include}, {@code ts.scan.exclude}: binary-name prefixes narrowing
+ *     {@code ts.scan}</li>
  * </ul>
  */
 //@SupportedSourceVersion(SourceVersion.RELEASE_8)
 @SupportedSourceVersion(SourceVersion.RELEASE_17)
 @SupportedAnnotationTypes("org.bsc.processor.annotation.*")
-@SupportedOptions({"ts.outfile", "compatibility"})
+@SupportedOptions({"ts.outfile", "compatibility", "ignoreDeprecated", "ts.registry",
+    ClasspathScanner.OPTION_SCAN, ClasspathScanner.OPTION_INCLUDE, ClasspathScanner.OPTION_EXCLUDE})
 @org.kohsuke.MetaInfServices(javax.annotation.processing.Processor.class)
 public class TypescriptProcessor extends AbstractProcessorEx {
 
@@ -78,25 +85,52 @@ public class TypescriptProcessor extends AbstractProcessorEx {
   );
 
   /**
-   * Open a file for output.
+   * Create a writer for an output file under the {@code j2ts} source-output folder.
    *
-   * @param file     target file
-   * @param header   header file to prepend to the output
-   * @return         a writer for the output file
+   * @param file target file
+   * @return     a writer for the output file
    * @throws IOException if an I/O error occurs
    */
-  private java.io.Writer openFile(Path file, String header) throws IOException {
+  private java.io.Writer createWriter(Path file) throws IOException {
 
     final FileObject out = super.getSourceOutputFile(Paths.get("j2ts"), file);
 
     info("output file [%s]", out.getName());
 
-    final java.io.Writer w = out.openWriter();
+    return out.openWriter();
+  }
 
+  /**
+   * Read a classpath resource (a header template) as a UTF-8 string.
+   *
+   * @param header header resource name
+   * @return       the resource content
+   * @throws IOException if an I/O error occurs
+   */
+  private String readResource(String header) throws IOException {
     try (final java.io.InputStream is = getClass().getClassLoader().getResourceAsStream(header)) {
-      int c;
-      while ((c = is.read()) != -1) w.write(c);
+      return new String(is.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8);
     }
+  }
+
+  /**
+   * Open a file for output, prepending a header template whose placeholders have been substituted.
+   *
+   * @param file          target file
+   * @param header        header template resource to prepend to the output
+   * @param substitutions placeholder -&gt; replacement map applied to the header
+   * @return              a writer for the output file, positioned after the header
+   * @throws IOException if an I/O error occurs
+   */
+  private java.io.Writer openFile(Path file, String header, java.util.Map<String, String> substitutions) throws IOException {
+
+    final java.io.Writer w = createWriter(file);
+
+    String content = readResource(header);
+    for (final java.util.Map.Entry<String, String> e : substitutions.entrySet()) {
+      content = content.replace(e.getKey(), e.getValue());
+    }
+    w.write(content);
 
     return w;
   }
@@ -107,6 +141,16 @@ public class TypescriptProcessor extends AbstractProcessorEx {
 
     final String definitionsFile = targetDefinitionFile.concat(".d.ts");
     final String typesFile = targetDefinitionFile.concat("-types.ts");
+    final String registryFile = targetDefinitionFile.concat("-registry.d.ts");
+
+    // Name of the generated type-registry interface. Configurable so distinct projects can each
+    // produce their own registry (e.g. ZapApiTypeRegistry, ZapAddonApiTypeRegistry).
+    final String registryName =
+        processingContext.getOptionMap().getOrDefault("ts.registry", "JavaTypeRegistry");
+
+    // Substituted into the header templates (re-enables the typed Java.type overload).
+    final java.util.Map<String, String> headerSubstitutions =
+        Collections.singletonMap("{{REGISTRY_TYPE}}", registryName);
 
     final String foreignObjectPrototype =
             processingContext.getOptionMap()
@@ -117,14 +161,19 @@ public class TypescriptProcessor extends AbstractProcessorEx {
             .getOrDefault("compatibility", "NASHORN") ;
     info("COMPATIBILITY WITH [%s]", compatibilityOption);
 
+    final boolean ignoreDeprecatedOption = !processingContext.getOptionMap()
+            .getOrDefault("ignoreDeprecated", "false").equals("false");
+
     final Java2TSConverter converter = Java2TSConverter.builder()
                                                     .compatibility( compatibilityOption  )
                                                     .foreignObjectPrototype( foreignObjectPrototype )
+                                                    .ignoreDeprecated(ignoreDeprecatedOption)
                                                     .build();
 
     try (
-        final java.io.Writer wD = openFile(Paths.get(definitionsFile), converter.isRhino() ? "headerD-rhino.ts" : "headerD.ts");
-        final java.io.Writer wT = openFile(Paths.get(typesFile), "headerT.ts");
+        final java.io.Writer wD = openFile(Paths.get(definitionsFile), converter.isRhino() ? "headerD-rhino.ts" : "headerD.ts", headerSubstitutions);
+        final java.io.Writer wT = openFile(Paths.get(typesFile), "headerT.ts", headerSubstitutions);
+        final java.io.Writer wR = createWriter(Paths.get(registryFile));
     ) {
 
       final Consumer<String> wD_append = s -> {
@@ -141,6 +190,13 @@ public class TypescriptProcessor extends AbstractProcessorEx {
           error("error adding [%s]", s);
         }
       };
+      final Consumer<String> wR_append = s -> {
+        try {
+          wR.append(s);
+        } catch (IOException e) {
+          error("error adding [%s]", s);
+        }
+      };
 
       final List<TSNamespace> namespaces = enumerateDeclaredPackageAndClass(processingContext);
 			info( "==> detected namespaces");
@@ -153,12 +209,30 @@ public class TypescriptProcessor extends AbstractProcessorEx {
 
       namespaces.forEach(ns -> types.addAll(ns.types()));
 
+      // Added last: TSType equality is by class, so a type already declared through an annotation
+      // keeps its explicit flags (export, alias, ...) instead of being replaced by a scanned plain one.
+      types.addAll(scanClasspath(processingContext));
+
+      types.removeIf(tt -> !isDeclarable(tt));
+
+      // Removed from the type set, not merely left unrendered: everything downstream decides what
+      // to emit by looking types up here. A type dropped only at render time still gets an
+      // `extends` clause, a nested-type alias, a `-types.ts` binding and a registry entry, each
+      // pointing at a declaration that was never written.
+      if (ignoreDeprecatedOption) {
+        types.removeIf(tt -> !PREDEFINED_TYPES.contains(tt)
+            && tt.getValue().getAnnotation(Deprecated.class) != null);
+      }
+
       final java.util.Map<String, TSType> declaredTypes =
           types.stream()
               .collect(Collectors.toMap(tt -> tt.getValue().getName(), tt -> tt));
 
+      // declaredTypes keeps reference-only types (declare == false) for name resolution and as
+      // `extends` targets, but they are declared in another generated file, so do not emit them.
       types.stream()
           .filter(tt -> !PREDEFINED_TYPES.contains(tt))
+          .filter(TSType::isDeclare)
           .map(tt -> converter.javaClass2DeclarationTransformer(0, tt, declaredTypes))
           .sorted()
           .forEach(wD_append);
@@ -167,13 +241,80 @@ public class TypescriptProcessor extends AbstractProcessorEx {
 
       types.stream()
           .filter(TSType::isExport)
+          .filter(TSType::isDeclare)
           .map(t -> converter.javaClass2StaticDefinitionTransformer(t, declaredTypes))
           .sorted()
           .forEach(wT_append);
 
+      // Type registry: maps each Java.type(...) string key to the concrete class value so that a
+      // call with a known key is strongly typed.
+      wR_append.accept(String.format("/// <reference path=\"%s\"/>\n\n", definitionsFile));
+      wR_append.accept(String.format("interface %s {\n", registryName));
+
+      types.stream()
+          .filter(tt -> !PREDEFINED_TYPES.contains(tt))
+          .filter(TSType::isDeclare)                         // reference-only types belong to another file's registry
+          .filter(TSType::supportNamespace)                 // skip aliased types (no namespace path)
+          .filter(tt -> tt.getValue().getPackage() != null) // skip the default (unnamed) package
+          .map(tt -> String.format("  \"%s\": typeof %s;\n", tt.getValue().getName(), tt.getTypeName()))
+          .distinct()
+          .sorted()
+          .forEach(wR_append);
+
+      wR_append.accept("}\n");
+
     } // end try-with-resources
 
     return true;
+  }
+
+  /**
+   * Whether a type can be introspected well enough to be declared.
+   * <p>
+   * Types reaching here from {@code ts.scan} were already probed, but the ones named by
+   * {@link org.bsc.processor.annotation.Type} were not, and a single unresolvable reference in a
+   * method signature would otherwise abort generation for every type at once. Predefined types are
+   * exempt: they are built in and never rendered from reflection.
+   *
+   * @param type the candidate type
+   * @return     true when it can be declared
+   */
+  private boolean isDeclarable(TSType type) {
+
+    if (PREDEFINED_TYPES.contains(type)) {
+      return true;
+    }
+
+    try {
+      org.bsc.java2typescript.ClasspathScanner.checkIntrospectable(type.getValue());
+      return true;
+    } catch (Throwable t) {
+      warn("skipping [%s]: not introspectable (%s)", type.getValue().getName(), t);
+      return false;
+    }
+  }
+
+  /**
+   * Enumerate the types to declare from the compiled class files given by {@code ts.scan}, if set.
+   *
+   * @param processingContext the current processing context
+   * @return                  the scanned types, empty when {@code ts.scan} is not set
+   */
+  private Set<TSType> scanClasspath(final Context processingContext) throws IOException {
+
+    final Optional<ClasspathScanner> scanner =
+        ClasspathScanner.from(processingContext.getOptionMap());
+
+    if (!scanner.isPresent()) {
+      return Collections.emptySet();
+    }
+
+    final ClasspathScanner.Result result = scanner.get().scan();
+
+    info("SCAN: %d type(s) included, %d skipped (not loadable)",
+        result.types().size(), result.skipped().size());
+
+    return result.types();
   }
 
   /**

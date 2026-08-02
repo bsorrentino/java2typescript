@@ -17,6 +17,7 @@ public class Java2TSConverter extends TSConverterStatic {
 
         private Compatibility compatibility = Compatibility.NASHORN;
         private boolean foreignObjectPrototype = false;
+        private boolean ignoreDeprecated = false;
 
         private Builder() {}
 
@@ -45,6 +46,12 @@ public class Java2TSConverter extends TSConverterStatic {
             return this;
         }
 
+        public Builder ignoreDeprecated(boolean ignoreDeprecated) {
+            this.ignoreDeprecated = ignoreDeprecated;
+            return this;
+        }
+
+
         public Builder foreignObjectPrototype(String foreignObjectPrototype) {
             this.foreignObjectPrototype =
                     Optional.ofNullable(foreignObjectPrototype)
@@ -62,7 +69,7 @@ public class Java2TSConverter extends TSConverterStatic {
 
         public Java2TSConverter build() {
             return new Java2TSConverter(
-                    new Options( compatibility, foreignObjectPrototype) );
+                    new Options( compatibility, foreignObjectPrototype, ignoreDeprecated) );
         }
     }
 
@@ -87,22 +94,24 @@ public class Java2TSConverter extends TSConverterStatic {
     public static class Options {
         public final Compatibility compatibility;
         public final boolean foreignObjectPrototype;
+        public final boolean ignoreDeprecated;
 
-        private Options(Compatibility compatibility, boolean foreignObjectPrototype) {
+        private Options(Compatibility compatibility, boolean foreignObjectPrototype, boolean ignoreDeprecated) {
             this.compatibility = compatibility;
             this.foreignObjectPrototype = foreignObjectPrototype;
+            this.ignoreDeprecated = ignoreDeprecated;
         }
 
-        public static Options of(Compatibility compatibility, boolean foreignObjectPrototype) {
-            return new Options(compatibility, foreignObjectPrototype);
+        public static Options of(Compatibility compatibility, boolean foreignObjectPrototype, boolean ignoreDeprecated) {
+            return new Options(compatibility, foreignObjectPrototype, ignoreDeprecated);
         }
 
         public static Options of(Compatibility compatibility) {
-            return new Options(compatibility, false);
+            return new Options(compatibility, false, false);
         }
 
         public static Options ofDefault() {
-            return new Options(Compatibility.NASHORN, false);
+            return new Options(Compatibility.NASHORN, false, false);
         }
     }
 

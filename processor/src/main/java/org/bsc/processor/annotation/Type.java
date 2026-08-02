@@ -17,4 +17,8 @@ public @interface Type {
 	boolean export()		default false ;
 	String alias()			default "";
 	boolean functional()	default false;
+	// When false, the type is registered for name resolution / as an `extends` target only, and is
+	// NOT emitted as a declaration (nor added to the type registry). Use it to reference a type
+	// declared in another generated file (e.g. a base class emitted by a separate build).
+	boolean declare()		default true;
 }
