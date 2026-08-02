@@ -10,6 +10,7 @@
         <groupId>org.bsc.processor</groupId>
         <artifactId>java2ts-processor-parent</artifactId>
         <version>2.0.0</version>
+        <relativePath>../../pom.xml</relativePath>
     </parent>
 
     <build>

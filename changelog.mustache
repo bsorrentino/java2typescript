@@ -1,32 +1,107 @@
-# Maven Confluence Plugin - Changelog
-
-<!-- Changelog for {{ownerName}} {{repoName}}. -->
+# Changelog
 
 {{#tags}}
-## {{name}}
- {{#issues}}
-  {{#hasIssue}}
-   {{#hasLink}}
-### {{!name}} [{{issue}}]({{link}}) {{title}} {{#hasIssueType}} *{{issueType}}* {{/hasIssueType}} {{#hasLabels}} {{#labels}} *{{.}}* {{/labels}} {{/hasLabels}}
-   {{/hasLink}}
-   {{^hasLink}}
-### {{name}} {{issue}} {{title}} {{#hasIssueType}} *{{issueType}}* {{/hasIssueType}} {{#hasLabels}} {{#labels}} *{{.}}* {{/labels}} {{/hasLabels}}
-   {{/hasLink}}
-  {{/hasIssue}}
-  {{^hasIssue}}
-### {{name}}
-  {{/hasIssue}}
 
-  {{#commits}}
-**{{{messageTitle}}}**
 
-{{#messageBodyItems}}
- * {{.}}
-{{/messageBodyItems}}
+{{!#ifReleaseTag .}}
+<!-- "{{.}}" is a release tag -->
+{{!/ifReleaseTag}}
 
-[{{hash}}](https://github.com/{{ownerName}}/{{repoName}}/commit/{{hash}}) {{authorName}} *{{commitTime}}*
+## [{{name}}](https://github.com/bsorrentino/langgraph4j/releases/tag/{{name}}) ({{tagDate .}})
 
-  {{/commits}}
+{{#ifContainsType commits type='feat'}}
+### Features
 
- {{/issues}}
+    {{#commits}}
+      {{#ifCommitType . type='feat'}}
+ * {{#eachCommitScope .}} **{{.}}** {{/eachCommitScope}} {{{commitDescription .}}} ([{{hash}}](https://github.com/bsorrentino/langgraph4j/commit/{{hashFull}}))
+   {{#messageBodyItems}} 
+     > {{.}}
+   {{/messageBodyItems}}
+   
+      {{/ifCommitType}}
+    {{/commits}}
+{{/ifContainsType}}
+
+{{#ifContainsType commits type='fix'}}
+### Bug Fixes
+
+    {{#commits}}
+      {{#ifCommitType . type='fix'}}
+ - {{#eachCommitScope .}} **{{.}}** {{/eachCommitScope}} {{{commitDescription .}}} ([{{hash}}](https://github.com/bsorrentino/langgraph4j/commit/{{hashFull}}))
+   {{#messageBodyItems}}
+     > {{.}}
+   {{/messageBodyItems}}
+
+      {{/ifCommitType}}
+    {{/commits}}
+{{/ifContainsType}}
+
+{{#ifContainsType commits type='refactor'}}
+### Refactor
+
+    {{#commits}}
+      {{#ifCommitType . type='refactor'}}
+ - {{#eachCommitScope .}} **{{.}}** {{/eachCommitScope}} {{{commitDescription .}}} ([{{hash}}](https://github.com/bsorrentino/langgraph4j/commit/{{hashFull}}))
+   {{#messageBodyItems}} > {{.}}
+   {{/messageBodyItems}}
+
+      {{/ifCommitType}}
+    {{/commits}}
+{{/ifContainsType}}
+
+{{#ifContainsType commits type='test'}}
+### Test 
+
+    {{#commits}}
+      {{#ifCommitType . type='test'}}
+ - {{#eachCommitScope .}} **{{.}}** {{/eachCommitScope}} {{{commitDescription .}}} ([{{hash}}](https://github.com/bsorrentino/langgraph4j/commit/{{hashFull}}))
+   {{#messageBodyItems}} > {{.}}
+   {{/messageBodyItems}}
+
+      {{/ifCommitType}}
+    {{/commits}}
+{{/ifContainsType}}
+
+{{#ifContainsType commits type='docs'}}
+### Documentation
+
+    {{#commits}}
+      {{#ifCommitType . type='docs'}}
+ - {{#eachCommitScope .}} **{{.}}** {{/eachCommitScope}} {{{commitDescription .}}} ([{{hash}}](https://github.com/bsorrentino/langgraph4j/commit/{{hashFull}}))
+   {{#messageBodyItems}}
+     > {{.}}
+   {{/messageBodyItems}}
+
+      {{/ifCommitType}}
+    {{/commits}}
+{{/ifContainsType}}
+
+{{#ifContainsType commits type='build'}}
+### ALM 
+
+    {{#commits}}
+      {{#ifCommitType . type='build'}}
+ - {{#eachCommitScope .}} **{{.}}** {{/eachCommitScope}} {{{commitDescription .}}} ([{{hash}}](https://github.com/bsorrentino/langgraph4j/commit/{{hashFull}}))
+   {{#messageBodyItems}} > {{.}}
+   {{/messageBodyItems}}
+
+      {{/ifCommitType}}
+    {{/commits}}
+{{/ifContainsType}}
+
+{{#ifContainsType commits type='ci'}}
+### Continuous Integration
+
+    {{#commits}}
+      {{#ifCommitType . type='ci'}}
+ - {{#eachCommitScope .}} **{{.}}** {{/eachCommitScope}} {{{commitDescription .}}} ([{{hash}}](https://github.com/bsorrentino/langgraph4j/commit/{{hashFull}}))
+   {{#messageBodyItems}} > {{.}}
+   {{/messageBodyItems}}
+
+      {{/ifCommitType}}
+    {{/commits}}
+{{/ifContainsType}}
+
+
 {{/tags}}
